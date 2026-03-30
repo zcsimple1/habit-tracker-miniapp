@@ -1,0 +1,9 @@
+{
+  "name": "sync",
+  "version": "1.0.0",
+  "description": "pull/push habits + checkins",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

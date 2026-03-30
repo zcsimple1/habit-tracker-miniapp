@@ -1,0 +1,23 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/habit-form/habit-form",
+    "pages/stats/stats"
+  ],
+  "cloud": true,
+  "window": {
+    "navigationBarTitleText": "习惯打卡"
+  },
+  "tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "打卡"
+      },
+      {
+        "pagePath": "pages/stats/stats",
+        "text": "统计"
+      }
+    ]
+  }
+}

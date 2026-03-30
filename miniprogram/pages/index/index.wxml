@@ -1,0 +1,30 @@
+<view class="card">
+  <view class="row">
+    <view class="title">今日打卡</view>
+    <button size="mini" bindtap="onAdd">+ 新建习惯</button>
+  </view>
+  <view class="muted" style="margin-top: 12rpx;">点击习惯右侧按钮完成/取消今日打卡</view>
+</view>
+
+<block wx:if="{{habits.length === 0}}">
+  <view class="card">
+    <view class="muted">还没有习惯，先建一个吧。</view>
+  </view>
+</block>
+
+<block wx:for="{{habits}}" wx:key="id">
+  <view class="card">
+    <view class="row">
+      <view>
+        <view style="font-size: 32rpx; font-weight: 600;">{{item.name}}</view>
+        <view class="muted">连续：{{item.streak}} 天 · 近7天：{{item.last7.rate}}% · 本月：{{item.monthCount}} 天</view>
+      </view>
+      <view style="display:flex; gap: 12rpx; align-items:center;">
+        <button size="mini" bindtap="onEdit" data-id="{{item.id}}">编辑</button>
+        <button size="mini" type="{{item.checked ? 'primary' : 'default'}}" bindtap="onToggle" data-id="{{item.id}}">
+          {{item.checked ? '已打卡' : '打卡'}}
+        </button>
+      </view>
+    </view>
+  </view>
+</block>
