@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>统计中心</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .stats-header {
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .stats-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    
+    .date-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .date-tab {
+      padding: 6px 16px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .date-tab.active {
+      background: white;
+      color: #667eea;
+      font-weight: 600;
+    }
+    
+    .date-tab:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .section {
+      padding: 16px;
+    }
+    
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .overview-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      margin-bottom: 16px;
+    }
+    
+    .overview-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .overview-row:last-child {
+      border-bottom: none;
+    }
+    
+    .overview-label {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .overview-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #667eea;
+    }
+    
+    .ranking-item {
+      background: white;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .rank-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    
+    .rank-1 { background: linear-gradient(135deg, #ffd700, #ffb347); color: white; }
+    .rank-2 { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); color: white; }
+    .rank-3 { background: linear-gradient(135deg, #cd7f32, #daa520); color: white; }
+    .rank-other { background: #f0f0f0; color: #999; }
+    
+    .rank-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .rank-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 2px;
+    }
+    
+    .rank-category {
+      font-size: 12px;
+      color: #999;
+    }
+    
+    .rank-rate {
+      font-size: 16px;
+      font-weight: 600;
+      color: #10b981;
+      flex-shrink: 0;
+    }
+    
+    .category-stat {
+      background: white;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .category-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    
+    .category-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .category-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 2px;
+    }
+    
+    .category-detail {
+      font-size: 12px;
+      color: #999;
+    }
+    
+    .category-rate {
+      font-size: 18px;
+      font-weight: 600;
+      color: #667eea;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="stats-header">
+      <div class="stats-title">📊 统计中心</div>
+      <div class="date-tabs">
+        <div class="date-tab">本周</div>
+        <div class="date-tab active">本月</div>
+        <div class="date-tab">本年</div>
+        <div class="date-tab">自定义</div>
+      </div>
+    </div>
+    
+    <div class="content">
+      <div class="section">
+        <div class="section-title">📊 总体概况</div>
+        <div class="overview-card">
+          <div class="overview-row">
+            <span class="overview-label">本月完成率</span>
+            <span class="overview-value">85%</span>
+          </div>
+          <div class="overview-row">
+            <span class="overview-label">总打卡次数</span>
+            <span class="overview-value">127 次</span>
+          </div>
+          <div class="overview-row">
+            <span class="overview-label">活跃天数</span>
+            <span class="overview-value">28 天</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">🏆 完成率排行</div>
+        <div class="ranking-item">
+          <div class="rank-badge rank-1">1</div>
+          <div class="rank-info">
+            <div class="rank-name">晨跑</div>
+            <div class="rank-category">健康</div>
+          </div>
+          <div class="rank-rate">100%</div>
+        </div>
+        <div class="ranking-item">
+          <div class="rank-badge rank-2">2</div>
+          <div class="rank-info">
+            <div class="rank-name">写日报</div>
+            <div class="rank-category">工作</div>
+          </div>
+          <div class="rank-rate">95%</div>
+        </div>
+        <div class="ranking-item">
+          <div class="rank-badge rank-3">3</div>
+          <div class="rank-info">
+            <div class="rank-name">接孩子</div>
+            <div class="rank-category">孩子</div>
+          </div>
+          <div class="rank-rate">92%</div>
+        </div>
+        <div class="ranking-item">
+          <div class="rank-badge rank-other">4</div>
+          <div class="rank-info">
+            <div class="rank-name">健身</div>
+            <div class="rank-category">健康</div>
+          </div>
+          <div class="rank-rate">80%</div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">📈 趋势图</div>
+        <div class="overview-card" style="text-align: center; padding: 24px;">
+          <div style="font-size: 14px; color: #999; margin-bottom: 16px;">
+            [本周完成趋势图表]
+          </div>
+          <div style="height: 120px; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #667eea; font-size: 13px;">
+            图表区域
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">📂 按分类查看</div>
+        <div class="category-stat">
+          <div class="category-icon" style="background: #eff6ff;">🏢</div>
+          <div class="category-info">
+            <div class="category-name">工作</div>
+            <div class="category-detail">27/30 项</div>
+          </div>
+          <div class="category-rate">89%</div>
+        </div>
+        <div class="category-stat">
+          <div class="category-icon" style="background: #fef2f2;">❤️</div>
+          <div class="category-info">
+            <div class="category-name">健康</div>
+            <div class="category-detail">24/30 项</div>
+          </div>
+          <div class="category-rate">82%</div>
+        </div>
+        <div class="category-stat">
+          <div class="category-icon" style="background: #f0fdf4;">👶</div>
+          <div class="category-info">
+            <div class="category-name">孩子</div>
+            <div class="category-detail">28/30 项</div>
+          </div>
+          <div class="category-rate">95%</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tabbar">
+      <div class="tab-item">
+        <div class="tab-icon">📝</div>
+        <div>待办</div>
+      </div>
+      <div class="tab-item">
+        <div class="tab-icon">🏠</div>
+        <div>首页</div>
+      </div>
+      <div class="tab-item active">
+        <div class="tab-icon">📊</div>
+        <div>统计</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

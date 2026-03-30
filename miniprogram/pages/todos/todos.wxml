@@ -1,0 +1,38 @@
+<view class="container">
+  <view class="header">
+    <text class="title">待办事项</text>
+  </view>
+
+  <!-- 添加待办表单 -->
+  <view class="add-box">
+    <input 
+      class="input" 
+      placeholder="输入待办事项" 
+      value="{{inputValue}}"
+      bindinput="onInput"
+      confirm-type="done"
+      bindconfirm="onAdd"
+    />
+    <button class="add-btn" bindtap="onAdd" disabled="{{!inputValue}}">添加</button>
+  </view>
+
+  <!-- 待办列表 -->
+  <view class="list">
+    <block wx:for="{{todos}}" wx:key="id">
+      <view class="item {{item.completed ? 'completed' : ''}}">
+        <checkbox 
+          class="checkbox" 
+          checked="{{item.completed}}" 
+          bindtap="onToggle"
+          data-id="{{item._id}}"
+        />
+        <text class="text">{{item.title}}</text>
+        <button class="delete-btn" bindtap="onDelete" data-id="{{item._id}}">删除</button>
+      </view>
+    </block>
+  </view>
+
+  <view class="empty" wx:if="{{todos.length === 0}}">
+    <text>暂无待办事项</text>
+  </view>
+</view>

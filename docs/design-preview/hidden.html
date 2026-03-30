@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>已完成的打卡</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .back-btn {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 20px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .back-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    
+    .habit-item {
+      background: #f0fdf4;
+    }
+    
+    .habit-checkin-time {
+      font-size: 11px;
+      color: #10b981;
+    }
+    
+    .cancel-btn {
+      padding: 5px 12px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+    
+    .cancel-btn:hover {
+      background: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="header">
+      <div class="header-title">已完成的打卡</div>
+      <div class="header-date">2026年3月30日 周一</div>
+      <button class="back-btn" onclick="history.back()">返回</button>
+    </div>
+    
+    <div class="content">
+      <div class="category-card">
+        <div class="category-header">
+          <span class="category-icon">❤️</span>
+          <span class="category-name">健康</span>
+          <span class="category-count">2项</span>
+          <span class="category-arrow" onclick="toggleCategoryCollapse(this.parentElement)">▼</span>
+        </div>
+        <div class="category-items">
+          <div class="habit-item" data-id="4">
+            <div class="habit-checkbox checked">✓</div>
+            <span class="habit-name">晨跑</span>
+            <span class="habit-checkin-time">07:05</span>
+            <button class="cancel-btn">取消</button>
+          </div>
+          <div class="habit-item" data-id="10">
+            <div class="habit-checkbox checked">✓</div>
+            <span class="habit-name">喝水 8 杯</span>
+            <span class="habit-checkin-time">15:30</span>
+            <button class="cancel-btn">取消</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="category-card">
+        <div class="category-header">
+          <span class="category-icon">🏢</span>
+          <span class="category-name">工作</span>
+          <span class="category-count">1项</span>
+          <span class="category-arrow" onclick="toggleCategoryCollapse(this.parentElement)">▼</span>
+        </div>
+        <div class="category-items">
+          <div class="habit-item" data-id="1">
+            <div class="habit-checkbox checked">✓</div>
+            <span class="habit-name">早会</span>
+            <span class="habit-checkin-time">08:02</span>
+            <button class="cancel-btn">取消</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="category-card">
+        <div class="category-header">
+          <span class="category-icon">👶</span>
+          <span class="category-name">孩子</span>
+          <span class="category-count">2项</span>
+          <span class="category-arrow" onclick="toggleCategoryCollapse(this.parentElement)">▼</span>
+        </div>
+        <div class="category-items">
+          <div class="habit-item" data-id="6">
+            <div class="habit-checkbox checked">✓</div>
+            <span class="habit-name">送儿子上学</span>
+            <span class="habit-checkin-time">07:28</span>
+            <button class="cancel-btn">取消</button>
+          </div>
+          <div class="habit-item" data-id="7">
+            <div class="habit-checkbox checked">✓</div>
+            <span class="habit-name">接女儿放学</span>
+            <span class="habit-checkin-time">16:35</span>
+            <button class="cancel-btn">取消</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function toggleCategoryCollapse(header) {
+      header.closest('.category-card').classList.toggle('collapsed');
+    }
+    
+    document.querySelectorAll('.cancel-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (confirm('确定要取消这条打卡记录吗？')) {
+          const item = this.closest('.habit-item');
+          item.style.opacity = '0';
+          setTimeout(() => item.remove(), 300);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

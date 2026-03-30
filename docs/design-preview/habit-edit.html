@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>编辑打卡项目</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .header {
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .header-btn {
+      padding: 6px 16px;
+      background: white;
+      color: #667eea;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .content {
+      padding: 16px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 8px;
+      display: block;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      background: white;
+      box-sizing: border-box;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      background: white;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+    }
+    
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .radio-item:hover {
+      border-color: #667eea;
+    }
+    
+    .radio-item.selected {
+      border-color: #667eea;
+      background: #f0f9ff;
+    }
+    
+    .radio-dot {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #ccc;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    
+    .radio-item.selected .radio-dot {
+      border-color: #667eea;
+      background: #667eea;
+    }
+    
+    .radio-item.selected .radio-dot::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+    }
+    
+    .weekdays {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    
+    .weekday {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .weekday.selected {
+      border-color: #667eea;
+      background: #667eea;
+      color: white;
+    }
+    
+    .switch-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .switch {
+      width: 48px;
+      height: 28px;
+      background: #e0e0e0;
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .switch.on {
+      background: #10b981;
+    }
+    
+    .switch::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .switch.on::after {
+      transform: translateX(20px);
+    }
+    
+    .switch-label {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .save-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 24px;
+      transition: transform 0.2s;
+    }
+    
+    .save-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .save-btn:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="header">
+      <div class="header-title">编辑打卡项目</div>
+      <button class="header-btn">完成</button>
+    </div>
+    
+    <div class="content">
+      <div class="form-group">
+        <label class="form-label">项目名称</label>
+        <input type="text" class="form-input" value="写日报" placeholder="请输入项目名称">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">所属分类</label>
+        <select class="form-select">
+          <option>🏢 工作</option>
+          <option>❤️ 健康</option>
+          <option>👶 孩子</option>
+          <option>📚 学习</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">循环规则</label>
+        <div class="radio-group">
+          <div class="radio-item" onclick="selectRadio(this)">
+            <div class="radio-dot"></div>
+            <span>每日</span>
+          </div>
+          <div class="radio-item selected" onclick="selectRadio(this)">
+            <div class="radio-dot"></div>
+            <span>仅工作日（周一至周五）</span>
+          </div>
+          <div class="radio-item" onclick="selectRadio(this)">
+            <div class="radio-dot"></div>
+            <span>仅周末（周六周日）</span>
+          </div>
+          <div class="radio-item" onclick="selectRadio(this)">
+            <div class="radio-dot"></div>
+            <div style="flex: 1;">
+              <div>每周指定日期</div>
+              <div class="weekdays">
+                <div class="weekday" onclick="toggleWeekday(this, event)">一</div>
+                <div class="weekday" onclick="toggleWeekday(this, event)">二</div>
+                <div class="weekday" onclick="toggleWeekday(this, event)">三</div>
+                <div class="weekday" onclick="toggleWeekday(this, event)">四</div>
+                <div class="weekday" onclick="toggleWeekday(this, event)">五</div>
+                <div class="weekday" onclick="toggleWeekday(this, event)">六</div>
+                <div class="weekday" onclick="toggleWeekday(this, event)">日</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">固定打卡时间（可选）</label>
+        <input type="time" class="form-input" value="17:00">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">标记为重要</label>
+        <div class="switch-container">
+          <div class="switch on" onclick="toggleSwitch(this)"></div>
+          <span class="switch-label">重要项目将显示小红旗 🚩</span>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">有效期（可选）</label>
+        <div class="switch-container">
+          <div class="switch" onclick="toggleSwitch(this)"></div>
+          <span class="switch-label">设置有效期</span>
+        </div>
+      </div>
+      
+      <button class="save-btn">保存项目</button>
+    </div>
+  </div>
+  
+  <script>
+    function selectRadio(item) {
+      const group = item.closest('.radio-group');
+      group.querySelectorAll('.radio-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+    }
+    
+    function toggleWeekday(item, event) {
+      event.stopPropagation();
+      item.classList.toggle('selected');
+    }
+    
+    function toggleSwitch(item) {
+      item.classList.toggle('on');
+    }
+  </script>
+</body>
+</html>

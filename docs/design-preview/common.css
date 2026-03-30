@@ -1,0 +1,318 @@
+/* 公共样式 */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  background: #f5f5f5;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+.phone-frame {
+  width: 375px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  overflow: hidden;
+  min-height: 812px;
+}
+
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  position: relative;
+}
+
+.header-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-date {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 15px;
+}
+
+/* 眼睛图标 - 放在标题行右侧 */
+.header-eye {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: opacity 0.2s;
+  opacity: 0.7;
+}
+
+.header-eye:hover {
+  opacity: 1;
+}
+
+.header-eye svg {
+  width: 20px;
+  height: 20px;
+  fill: white;
+}
+
+.header-eye.open svg.eye-closed {
+  display: none;
+}
+
+.header-eye.closed svg.eye-open {
+  display: none;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 10px;
+  background: rgba(255,255,255,0.2);
+  padding: 5px;
+  border-radius: 8px;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.3s;
+}
+
+.toggle-btn.active {
+  background: white;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.content {
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 600px;
+}
+
+/* 眼睛图标 - 简洁风格 */
+.eye-toggle {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  border-radius: 4px;
+  position: relative;
+}
+
+.eye-toggle:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.eye-toggle svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.eye-toggle.open svg {
+  fill: white;
+}
+
+.eye-toggle.closed svg {
+  opacity: 0.6;
+}
+
+/* 复选框样式 */
+.habit-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ddd;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-size: 12px;
+  color: white;
+}
+
+.habit-checkbox:hover {
+  border-color: #667eea;
+}
+
+.habit-checkbox.checked {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+}
+
+/* 列表项样式 */
+.habit-item {
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #f8f9fa;
+  transition: all 0.2s;
+}
+
+.habit-item:hover {
+  background: #f8f9fa;
+}
+
+.habit-item:last-child {
+  border-bottom: none;
+}
+
+.habit-item.hidden-item {
+  display: none;
+}
+
+.habit-item.show-hidden {
+  display: flex;
+  background: #f0fdf4;
+}
+
+/* 时间显示 */
+.habit-time {
+  font-size: 12px;
+  color: #667eea;
+  font-weight: 600;
+  min-width: 42px;
+  flex-shrink: 0;
+}
+
+/* 习惯名称 */
+.habit-name {
+  flex: 1;
+  font-size: 13px;
+  color: #333;
+  min-width: 0;
+}
+
+/* 重要标记红旗 */
+.important-flag {
+  font-size: 14px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* Tabbar */
+.tabbar {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  padding: 10px 0;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  color: #999;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.tab-item.active {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.tab-icon {
+  font-size: 20px;
+  margin-bottom: 2px;
+}
+
+/* 分类卡片 */
+.category-card {
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+.category-header {
+  padding: 10px 15px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.category-header:hover {
+  background: #f8f9fa;
+}
+
+.category-icon {
+  font-size: 18px;
+}
+
+.category-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.category-count {
+  font-size: 12px;
+  color: #666;
+}
+
+.category-count .done {
+  color: #10b981;
+}
+
+.category-eye {
+  margin-left: auto;
+  cursor: pointer;
+  padding: 4px;
+  transition: opacity 0.2s;
+}
+
+.category-eye:hover {
+  opacity: 0.8;
+}
+
+.category-arrow {
+  font-size: 12px;
+  color: #999;
+  transition: transform 0.3s;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.category-card.collapsed .category-arrow {
+  transform: rotate(-90deg);
+}
+
+.category-items {
+  overflow: hidden;
+}
+
+.category-card.collapsed .category-items {
+  max-height: 0 !important;
+}

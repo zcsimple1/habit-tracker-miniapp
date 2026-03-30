@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>选择预设分类</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    
+    .phone-frame {
+      width: 375px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+      min-height: 812px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .header-btn {
+      padding: 6px 16px;
+      background: white;
+      color: #667eea;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .header-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .content {
+      padding: 20px;
+      background: #f8f9fa;
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 12px;
+      padding-left: 8px;
+    }
+    
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .category-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    .category-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-card.selected {
+      border-color: #667eea;
+      background: #f0f9ff;
+    }
+    
+    .category-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    
+    .category-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .category-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 2px;
+    }
+    
+    .category-desc {
+      font-size: 12px;
+      color: #999;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .bottom-bar {
+      padding: 16px 20px;
+      background: white;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .select-count {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .select-count span {
+      font-weight: 600;
+      color: #667eea;
+    }
+    
+    .action-btns {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    
+    .btn-cancel {
+      background: #f0f0f0;
+      color: #666;
+    }
+    
+    .btn-cancel:hover {
+      background: #e0e0e0;
+    }
+    
+    .btn-confirm {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+    
+    .btn-confirm:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-confirm:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="header">
+      <div class="header-title">选择预设分类</div>
+      <button class="header-btn" id="confirmBtn" disabled>完成</button>
+    </div>
+    
+    <div class="content">
+      <div class="section-title">推荐分类</div>
+      <div class="category-grid" id="recommendedGrid">
+        <div class="category-card" onclick="toggleCategory(this, 'work')">
+          <div class="category-icon-box" style="background: #eff6ff;">🏢</div>
+          <div class="category-info">
+            <div class="category-name">工作</div>
+            <div class="category-desc">工作任务、会议、日报等</div>
+          </div>
+        </div>
+        <div class="category-card" onclick="toggleCategory(this, 'health')">
+          <div class="category-icon-box" style="background: #fef2f2;">❤️</div>
+          <div class="category-info">
+            <div class="category-name">健康</div>
+            <div class="category-desc">运动、健身、饮食等</div>
+          </div>
+        </div>
+        <div class="category-card" onclick="toggleCategory(this, 'child')">
+          <div class="category-icon-box" style="background: #f0fdf4;">👶</div>
+          <div class="category-info">
+            <div class="category-name">孩子</div>
+            <div class="category-desc">接送孩子、辅导作业等</div>
+          </div>
+        </div>
+        <div class="category-card" onclick="toggleCategory(this, 'study')">
+          <div class="category-icon-box" style="background: #f5f3ff;">📚</div>
+          <div class="category-info">
+            <div class="category-name">学习</div>
+            <div class="category-desc">阅读、课程、技能学习等</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section-title">其他分类</div>
+      <div class="category-grid">
+        <div class="category-card" onclick="toggleCategory(this, 'home')">
+          <div class="category-icon-box" style="background: #fef3c7;">🏠</div>
+          <div class="category-info">
+            <div class="category-name">家庭</div>
+            <div class="category-desc">家务、陪伴家人等</div>
+          </div>
+        </div>
+        <div class="category-card" onclick="toggleCategory(this, 'finance')">
+          <div class="category-icon-box" style="background: #ecfccb;">💰</div>
+          <div class="category-info">
+            <div class="category-name">财务</div>
+            <div class="category-desc">记账、理财、账单支付等</div>
+          </div>
+        </div>
+        <div class="category-card" onclick="toggleCategory(this, 'growth')">
+          <div class="category-icon-box" style="background: #fce7f3;">⭐</div>
+          <div class="category-info">
+            <div class="category-name">个人成长</div>
+            <div class="category-desc">冥想、反思、日记等</div>
+          </div>
+        </div>
+        <div class="category-card" onclick="toggleCategory(this, 'social')">
+          <div class="category-icon-box" style="background: #fed7aa;">💬</div>
+          <div class="category-info">
+            <div class="category-name">社交</div>
+            <div class="category-desc">联系朋友、社交活动等</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bottom-bar">
+      <div class="select-count">已选择 <span id="selectCount">0</span> 个分类</div>
+      <div class="action-btns">
+        <button class="btn btn-cancel" onclick="cancelSelection()">清空</button>
+        <button class="btn btn-confirm" id="confirmBtn" onclick="confirmSelection()" disabled>添加 (0)</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let selectedCategories = new Set();
+    
+    function toggleCategory(card, categoryId) {
+      if (selectedCategories.has(categoryId)) {
+        selectedCategories.delete(categoryId);
+        card.classList.remove('selected');
+      } else {
+        selectedCategories.add(categoryId);
+        card.classList.add('selected');
+      }
+      updateUI();
+    }
+    
+    function updateUI() {
+      const count = selectedCategories.size;
+      document.getElementById('selectCount').textContent = count;
+      document.getElementById('confirmBtn').textContent = `添加 (${count})`;
+      document.getElementById('confirmBtn').disabled = count === 0;
+      document.querySelector('.header .header-btn').disabled = count === 0;
+    }
+    
+    function cancelSelection() {
+      selectedCategories.clear();
+      document.querySelectorAll('.category-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      updateUI();
+    }
+    
+    function confirmSelection() {
+      if (selectedCategories.size > 0) {
+        alert(`已添加 ${selectedCategories.size} 个预设分类！\n分类: ${Array.from(selectedCategories).join(', ')}`);
+        cancelSelection();
+      }
+    }
+  </script>
+</body>
+</html>

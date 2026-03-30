@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>习惯打卡 V2 设计预览</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+    }
+    
+    .header h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .header p {
+      font-size: 18px;
+      opacity: 0.9;
+      margin-bottom: 8px;
+    }
+    
+    .header .subtitle {
+      font-size: 14px;
+      opacity: 0.75;
+    }
+    
+    .section {
+      margin-bottom: 40px;
+    }
+    
+    .section-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    }
+    
+    .card-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    .card-desc {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    
+    .card-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .tag {
+      padding: 4px 12px;
+      background: #f0f0f0;
+      border-radius: 20px;
+      font-size: 12px;
+      color: #666;
+      font-weight: 500;
+    }
+    
+    .tag.new {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+    
+    .tag.feature {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+    
+    .footer {
+      text-align: center;
+      color: white;
+      padding: 40px 0;
+      opacity: 0.8;
+      font-size: 14px;
+    }
+    
+    .footer a {
+      color: white;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎯 习惯打卡 V2</h1>
+      <p>UI/UX 设计预览</p>
+      <p class="subtitle">Version 2.0 - 2026年3月</p>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">📱 核心功能页面</div>
+      <div class="grid">
+        <a href="index-category.html" class="card">
+          <div class="card-icon">📋</div>
+          <div class="card-title">分类模式首页</div>
+          <div class="card-desc">按分类分组展示，支持折叠/展开，显示分类统计</div>
+          <div class="card-tags">
+            <span class="tag">分类分组</span>
+            <span class="tag">折叠功能</span>
+            <span class="tag">统计显示</span>
+          </div>
+        </a>
+        
+        <a href="index-time.html" class="card">
+          <div class="card-icon">📅</div>
+          <div class="card-title">时间模式首页</div>
+          <div class="card-desc">按时间排序展示，显示分类图标，总体统计</div>
+          <div class="card-tags">
+            <span class="tag">时间排序</span>
+            <span class="tag feature">分类图标</span>
+            <span class="tag new">总体统计</span>
+          </div>
+        </a>
+        
+        <a href="stats.html" class="card">
+          <div class="card-icon">📊</div>
+          <div class="card-title">统计中心</div>
+          <div class="card-desc">多维度统计数据，排行榜，趋势图表</div>
+          <div class="card-tags">
+            <span class="tag">总体概况</span>
+            <span class="tag">排行榜</span>
+            <span class="tag">趋势图</span>
+          </div>
+        </a>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">⚙️ 管理页面</div>
+      <div class="grid">
+        <a href="habit-edit.html" class="card">
+          <div class="card-icon">✏️</div>
+          <div class="card-title">项目编辑</div>
+          <div class="card-desc">编辑/新建打卡项目，设置时间规则，标记重要</div>
+          <div class="card-tags">
+            <span class="tag">时间规则</span>
+            <span class="tag feature">重要标记</span>
+            <span class="tag">循环规则</span>
+          </div>
+        </a>
+        
+        <a href="category-manage.html" class="card">
+          <div class="card-icon">🏷️</div>
+          <div class="card-title">分类管理</div>
+          <div class="card-desc">管理分类列表，添加预设分类，编辑/删除</div>
+          <div class="card-tags">
+            <span class="tag feature">预设分类</span>
+            <span class="tag">拖拽排序</span>
+            <span class="tag">自定义</span>
+          </div>
+        </a>
+        
+        <a href="hidden.html" class="card">
+          <div class="card-icon">👁️</div>
+          <div class="card-title">已完成记录</div>
+          <div class="card-desc">查看/取消已完成的打卡记录，支持折叠</div>
+          <div class="card-tags">
+            <span class="tag">取消打卡</span>
+            <span class="tag">折叠功能</span>
+            <span class="tag">按分类显示</span>
+          </div>
+        </a>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">🎉 分享卡片</div>
+      <div class="grid">
+        <a href="share-achievement.html" class="card">
+          <div class="card-icon">🏆</div>
+          <div class="card-title">连续打卡成就</div>
+          <div class="card-desc">分享连续打卡成就，激励自己和朋友</div>
+          <div class="card-tags">
+            <span class="tag feature">成就分享</span>
+            <span class="tag new">Canvas生成</span>
+            <span class="tag">小程序码</span>
+          </div>
+        </a>
+        
+        <a href="share-monthly.html" class="card">
+          <div class="card-icon">📈</div>
+          <div class="card-title">月度总结</div>
+          <div class="card-desc">分享月度打卡报告，展示完成率和排行榜</div>
+          <div class="card-tags">
+            <span class="tag">月度统计</span>
+            <span class="tag feature">排行榜</span>
+            <span class="tag new">趋势分析</span>
+          </div>
+        </a>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">🌟 核心特性</div>
+      <div class="grid">
+        <div class="card" style="cursor: default;">
+          <div class="card-icon">👁️</div>
+          <div class="card-title">智能隐藏</div>
+          <div class="card-desc">已打卡项目自动隐藏，点击眼睛图标可查看/取消</div>
+          <div class="card-tags">
+            <span class="tag feature">一键切换</span>
+            <span class="tag">简洁界面</span>
+          </div>
+        </div>
+        
+        <div class="card" style="cursor: default;">
+          <div class="card-icon">🚩</div>
+          <div class="card-title">重要标记</div>
+          <div class="card-desc">重要项目显示小红旗，视觉突出</div>
+          <div class="card-tags">
+            <span class="tag feature">优先显示</span>
+            <span class="tag">快速识别</span>
+          </div>
+        </div>
+        
+        <div class="card" style="cursor: default;">
+          <div class="card-icon">📅</div>
+          <div class="card-title">历史查看</div>
+          <div class="card-desc">左右箭头切换日期，查看历史打卡记录</div>
+          <div class="card-tags">
+            <span class="tag">日期切换</span>
+            <span class="tag">仅查看模式</span>
+          </div>
+        </div>
+        
+        <div class="card" style="cursor: default;">
+          <div class="card-icon">⏭️</div>
+          <div class="card-title">当日跳过</div>
+          <div class="card-desc">长按项目跳过当日打卡，不影响连续统计</div>
+          <div class="card-tags">
+            <span class="tag feature">跳过功能</span>
+            <span class="tag">灰色样式</span>
+          </div>
+        </div>
+        
+        <div class="card" style="cursor: default;">
+          <div class="card-icon">🔄</div>
+          <div class="card-title">模式切换</div>
+          <div class="card-desc">一键切换分类/时间模式，自动保存偏好</div>
+          <div class="card-tags">
+            <span class="tag feature">双视图</span>
+            <span class="tag">偏好保存</span>
+          </div>
+        </div>
+        
+        <div class="card" style="cursor: default;">
+          <div class="card-icon">📊</div>
+          <div class="card-title">实时统计</div>
+          <div class="card-desc">显示已完成/总数，打卡自动更新</div>
+          <div class="card-tags">
+            <span class="tag new">分类统计</span>
+            <span class="tag feature">总体统计</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>设计文档：<a href="../design-v2.md">design-v2.md</a></p>
+      <p>© 2026 习惯打卡 V2</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>习惯打卡 - 分类模式</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-controls .view-toggle {
+      flex: 1;
+    }
+    /* 晨跑的红旗 */
+    .habit-item.hidden-item .important-flag {
+      opacity: 0.5;
+    }
+    
+    /* 日期选择器样式 */
+    .date-picker-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 15px;
+    }
+    
+    .date-nav-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    
+    .date-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: scale(1.1);
+    }
+    
+    .date-nav-btn:active {
+      transform: scale(0.95);
+    }
+    
+    .date-display {
+      flex: 1;
+      max-width: 280px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 20px;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .date-display:hover {
+      background: rgba(255, 255, 255, 0.35);
+    }
+    
+    .date-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+    }
+    
+    .date-weekday {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    
+    .date-badge {
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    
+    .date-badge.today {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+    
+    .date-badge.history {
+      background: rgba(255, 193, 7, 0.5);
+      color: white;
+    }
+    
+    /* 日期选择弹窗 */
+    .calendar-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s;
+    }
+    
+    .calendar-modal.show {
+      display: flex;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .calendar-content {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      width: 320px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.3s;
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .calendar-month {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .calendar-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #999;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+    
+    .calendar-close:hover {
+      color: #333;
+    }
+    
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    
+    .calendar-weekday {
+      font-size: 12px;
+      color: #999;
+      font-weight: 500;
+      padding: 8px 0;
+    }
+    
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #333;
+    }
+    
+    .calendar-day:hover {
+      background: #f0f9ff;
+    }
+    
+    .calendar-day.other-month {
+      color: #ccc;
+    }
+    
+    .calendar-day.selected {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      font-weight: 600;
+    }
+    
+    .calendar-day.today {
+      border: 2px solid #667eea;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="header">
+      <div class="header-title">
+        今日打卡
+        <span class="header-eye closed" onclick="toggleAllHidden()" title="显示已打卡项">
+          <svg class="eye-open" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+          <svg class="eye-closed" viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2.27 2.27L1 3.54l2.76 2.76C2.25 7.56 1.02 9.63 1 12c1.73 4.39 6 7.5 11 7.5 1.4 0 2.74-.25 3.98-.7l2.16 2.16 1.27-1.27L2.27 2.27zM12 17c-2.76 0-5-2.24-5-5 0-.65.13-1.26.36-1.83l2.92 2.92c-.23.57-.36 1.18-.36 1.83 0 1.66 1.34 3 3 3 .65 0 1.26-.13 1.83-.36l2.92 2.92c-1.26.51-2.62.82-4.08.82-2.76 0-5-2.24-5-5 0-1.47.64-2.79 1.64-3.71l-2.92-2.92C6.25 9.56 5.52 10.71 5 12c.02 1.63.68 3.13 1.76 4.24l-2.05 2.05C3.01 16.39 2 14.28 2 12c0-2.37 1.03-4.49 2.68-6.01l-2.41-2.41z"/></svg>
+        </span>
+      </div>
+      
+      <!-- 日期选择器 -->
+      <div class="date-picker-container">
+        <button class="date-nav-btn" onclick="changeDate(-1)" title="前一天">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        </button>
+        <button class="date-display" onclick="openCalendar()" title="选择日期">
+          <span class="date-text">2026年3月30日</span>
+          <span class="date-weekday">周一</span>
+          <span class="date-badge today">今天</span>
+        </button>
+        <button class="date-nav-btn" onclick="changeDate(1)" title="后一天">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </button>
+      </div>
+      
+      <div class="header-controls">
+        <div class="view-toggle">
+          <button class="toggle-btn active">📋 分类模式</button>
+          <button class="toggle-btn" onclick="location.href='index-time.html'">📅 时间模式</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="content">
+      <!-- 工作：3项待完成，0项已完成 -->
+      <div class="category-card" data-category="work">
+        <div class="category-header">
+          <span class="category-icon">🏢</span>
+          <span class="category-name">工作</span>
+          <span class="category-count">3/3</span>
+          <span class="category-arrow" onclick="toggleCategoryCollapse(this.parentElement)">▼</span>
+        </div>
+        <div class="category-items">
+          <div class="habit-item" data-id="1">
+            <div class="habit-checkbox" onclick="toggleCheck(this)">✓</div>
+            <span class="habit-time">08:00</span>
+            <span class="habit-name">早会</span>
+            <span class="important-flag">🚩</span>
+          </div>
+          <div class="habit-item" data-id="2">
+            <div class="habit-checkbox" onclick="toggleCheck(this)"></div>
+            <span class="habit-time">09:30</span>
+            <span class="habit-name">提交周报</span>
+          </div>
+          <div class="habit-item" data-id="3">
+            <div class="habit-checkbox" onclick="toggleCheck(this)"></div>
+            <span class="habit-time">--:--</span>
+            <span class="habit-name">写日报</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 健康：1项待完成，1项已完成 -->
+      <div class="category-card" data-category="health">
+        <div class="category-header">
+          <span class="category-icon">❤️</span>
+          <span class="category-name">健康</span>
+          <span class="category-count">1/2</span>
+          <span class="category-arrow" onclick="toggleCategoryCollapse(this.parentElement)">▼</span>
+        </div>
+        <div class="category-items">
+          <div class="habit-item hidden-item" data-id="4">
+            <div class="habit-checkbox checked" onclick="toggleCheck(this)">✓</div>
+            <span class="habit-time">07:00</span>
+            <span class="habit-name">晨跑</span>
+            <span class="important-flag">🚩</span>
+          </div>
+          <div class="habit-item" data-id="5">
+            <div class="habit-checkbox" onclick="toggleCheck(this)"></div>
+            <span class="habit-time">--:--</span>
+            <span class="habit-name">健身</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 孩子：4项待完成，0项已完成 -->
+      <div class="category-card" data-category="child">
+        <div class="category-header">
+          <span class="category-icon">👶</span>
+          <span class="category-name">孩子</span>
+          <span class="category-count">4/4</span>
+          <span class="category-arrow" onclick="toggleCategoryCollapse(this.parentElement)">▼</span>
+        </div>
+        <div class="category-items">
+          <div class="habit-item" data-id="6">
+            <div class="habit-checkbox" onclick="toggleCheck(this)"></div>
+            <span class="habit-time">07:30</span>
+            <span class="habit-name">送儿子上学</span>
+            <span class="important-flag">🚩</span>
+          </div>
+          <div class="habit-item" data-id="7">
+            <div class="habit-checkbox" onclick="toggleCheck(this)"></div>
+            <span class="habit-time">16:30</span>
+            <span class="habit-name">接女儿放学</span>
+            <span class="important-flag">🚩</span>
+          </div>
+          <div class="habit-item" data-id="8">
+            <div class="habit-checkbox" onclick="toggleCheck(this)"></div>
+            <span class="habit-time">19:00</span>
+            <span class="habit-name">检查作业</span>
+          </div>
+          <div class="habit-item" data-id="9">
+            <div class="habit-checkbox" onclick="toggleCheck(this)"></div>
+            <span class="habit-time">--:--</span>
+            <span class="habit-name">讲睡前故事</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tabbar">
+      <div class="tab-item">
+        <div class="tab-icon">📝</div>
+        <div>待办</div>
+      </div>
+      <div class="tab-item active">
+        <div class="tab-icon">🏠</div>
+        <div>首页</div>
+      </div>
+      <div class="tab-item">
+        <div class="tab-icon">📊</div>
+        <div>统计</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 日期选择弹窗 -->
+  <div class="calendar-modal" id="calendarModal">
+    <div class="calendar-content">
+      <div class="calendar-header">
+        <span class="calendar-month" id="calendarMonth">2026年3月</span>
+        <button class="calendar-close" onclick="closeCalendar()">×</button>
+      </div>
+      <div class="calendar-weekdays">
+        <div class="calendar-weekday">日</div>
+        <div class="calendar-weekday">一</div>
+        <div class="calendar-weekday">二</div>
+        <div class="calendar-weekday">三</div>
+        <div class="calendar-weekday">四</div>
+        <div class="calendar-weekday">五</div>
+        <div class="calendar-weekday">六</div>
+      </div>
+      <div class="calendar-days" id="calendarDays">
+        <!-- 动态生成日期 -->
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function toggleCategoryCollapse(header) {
+      header.closest('.category-card').classList.toggle('collapsed');
+    }
+    
+    function toggleAllHidden() {
+      const eye = document.querySelector('.header-eye');
+      const isClosed = eye.classList.contains('closed');
+      const hiddenItems = document.querySelectorAll('.habit-item.hidden-item');
+      
+      if (isClosed) {
+        eye.classList.remove('closed');
+        eye.classList.add('open');
+        hiddenItems.forEach(item => item.classList.add('show-hidden'));
+      } else {
+        eye.classList.remove('open');
+        eye.classList.add('closed');
+        hiddenItems.forEach(item => item.classList.remove('show-hidden'));
+      }
+    }
+    
+    function toggleCheck(checkbox) {
+      const item = checkbox.closest('.habit-item');
+      const card = checkbox.closest('.category-card');
+      const eye = document.querySelector('.header-eye');
+      
+      if (checkbox.classList.contains('checked')) {
+        checkbox.classList.remove('checked');
+        checkbox.textContent = '';
+        item.classList.remove('hidden-item', 'show-hidden');
+        updateCategoryCount(card);
+      } else {
+        checkbox.classList.add('checked');
+        checkbox.textContent = '✓';
+        item.classList.add('hidden-item');
+        
+        if (eye.classList.contains('open')) {
+          item.classList.add('show-hidden');
+        }
+        
+        updateCategoryCount(card);
+      }
+    }
+    
+    // 更新分类计数：已完成/总数
+    function updateCategoryCount(card) {
+      const total = card.querySelectorAll('.habit-item').length;
+      const done = card.querySelectorAll('.habit-item.hidden-item').length;
+      const remaining = total - done;
+      card.querySelector('.category-count').textContent = remaining + '/' + total;
+    }
+    
+    // 日期切换功能
+    let currentDate = new Date();
+    let selectedDate = new Date();
+    let isToday = true;
+    
+    function changeDate(delta) {
+      currentDate.setDate(currentDate.getDate() + delta);
+      selectedDate = new Date(currentDate);
+      const today = new Date();
+      isToday = currentDate.toDateString() === today.toDateString();
+      updateDateDisplay();
+    }
+    
+    function updateDateDisplay() {
+      const dateText = document.querySelector('.date-text');
+      const weekdayText = document.querySelector('.date-weekday');
+      const badge = document.querySelector('.date-display .date-badge');
+      
+      const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+      dateText.textContent = currentDate.toLocaleDateString('zh-CN', dateOptions);
+      weekdayText.textContent = currentDate.toLocaleDateString('zh-CN', { weekday: 'long' });
+      
+      if (isToday) {
+        badge.textContent = '今天';
+        badge.className = 'date-badge today';
+      } else {
+        badge.textContent = '查看';
+        badge.className = 'date-badge history';
+      }
+    }
+    
+    function openCalendar() {
+      const modal = document.getElementById('calendarModal');
+      modal.classList.add('show');
+      renderCalendar();
+    }
+    
+    function closeCalendar() {
+      const modal = document.getElementById('calendarModal');
+      modal.classList.remove('show');
+    }
+    
+    function renderCalendar() {
+      const calendarDays = document.getElementById('calendarDays');
+      const calendarMonth = document.getElementById('calendarMonth');
+      
+      const year = selectedDate.getFullYear();
+      const month = selectedDate.getMonth();
+      
+      calendarMonth.textContent = `${year}年${month + 1}月`;
+      
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDay = firstDay.getDay();
+      const totalDays = lastDay.getDate();
+      
+      let html = '';
+      
+      // 上个月的日期
+      const prevLastDay = new Date(year, month, 0).getDate();
+      for (let i = startDay - 1; i >= 0; i--) {
+        html += `<div class="calendar-day other-month">${prevLastDay - i}</div>`;
+      }
+      
+      // 当前月的日期
+      const today = new Date();
+      for (let i = 1; i <= totalDays; i++) {
+        const isTodayDate = i === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+        const isSelected = i === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear();
+        const classes = ['calendar-day'];
+        if (isTodayDate) classes.push('today');
+        if (isSelected) classes.push('selected');
+        
+        html += `<div class="${classes.join(' ')}" onclick="selectDate(${i})">${i}</div>`;
+      }
+      
+      // 下个月的日期
+      const remainingDays = 42 - (startDay + totalDays);
+      for (let i = 1; i <= remainingDays; i++) {
+        html += `<div class="calendar-day other-month">${i}</div>`;
+      }
+      
+      calendarDays.innerHTML = html;
+    }
+    
+    function selectDate(day) {
+      selectedDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day);
+      currentDate = new Date(selectedDate);
+      const today = new Date();
+      isToday = currentDate.toDateString() === today.toDateString();
+      updateDateDisplay();
+      closeCalendar();
+    }
+    
+    // 点击弹窗外部关闭
+    document.getElementById('calendarModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeCalendar();
+      }
+    });
+    
+    // 初始化日期显示
+    updateDateDisplay();
+  </script>
+</body>
+</html>

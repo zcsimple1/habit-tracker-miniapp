@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分类管理</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .header {
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .header-btn {
+      padding: 6px 16px;
+      background: white;
+      color: #667eea;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .content {
+      padding: 16px;
+    }
+    
+    .category-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: transform 0.2s;
+    }
+    
+    .category-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    
+    .category-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .category-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+    
+    .category-desc {
+      font-size: 12px;
+      color: #999;
+    }
+    
+    .category-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    
+    .action-btn {
+      padding: 6px 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      background: white;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .action-btn:hover {
+      border-color: #667eea;
+      color: #667eea;
+    }
+    
+    .action-btn.delete {
+      color: #ef4444;
+      border-color: #fecaca;
+    }
+    
+    .action-btn.delete:hover {
+      background: #fef2f2;
+    }
+    
+    .add-preset-section {
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .add-preset-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 8px;
+    }
+    
+    .add-preset-desc {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 16px;
+    }
+    
+    .add-preset-btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .add-preset-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .add-category-btn {
+      width: 100%;
+      padding: 14px;
+      background: white;
+      border: 2px dashed #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #667eea;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .add-category-btn:hover {
+      border-color: #667eea;
+      background: #f0f9ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="header">
+      <div class="header-title">分类管理</div>
+      <button class="header-btn">完成</button>
+    </div>
+    
+    <div class="content">
+      <div class="add-preset-section">
+        <div class="add-preset-title">🎯 快速开始</div>
+        <div class="add-preset-desc">添加预设分类，快速构建您的习惯体系</div>
+        <button class="add-preset-btn">+ 添加预设分类</button>
+      </div>
+      
+      <div class="category-card">
+        <div class="category-icon-box" style="background: #eff6ff;">🏢</div>
+        <div class="category-info">
+          <div class="category-name">工作</div>
+          <div class="category-desc">3 个项目</div>
+        </div>
+        <div class="category-actions">
+          <button class="action-btn">编辑</button>
+          <button class="action-btn delete">删除</button>
+        </div>
+      </div>
+      
+      <div class="category-card">
+        <div class="category-icon-box" style="background: #fef2f2;">❤️</div>
+        <div class="category-info">
+          <div class="category-name">健康</div>
+          <div class="category-desc">2 个项目</div>
+        </div>
+        <div class="category-actions">
+          <button class="action-btn">编辑</button>
+          <button class="action-btn delete">删除</button>
+        </div>
+      </div>
+      
+      <div class="category-card">
+        <div class="category-icon-box" style="background: #f0fdf4;">👶</div>
+        <div class="category-info">
+          <div class="category-name">孩子</div>
+          <div class="category-desc">4 个项目</div>
+        </div>
+        <div class="category-actions">
+          <button class="action-btn">编辑</button>
+          <button class="action-btn delete">删除</button>
+        </div>
+      </div>
+      
+      <div class="category-card">
+        <div class="category-icon-box" style="background: #fef3c7;">💰</div>
+        <div class="category-info">
+          <div class="category-name">财务</div>
+          <div class="category-desc">0 个项目</div>
+        </div>
+        <div class="category-actions">
+          <button class="action-btn">编辑</button>
+          <button class="action-btn delete">删除</button>
+        </div>
+      </div>
+      
+      <button class="add-category-btn">
+        <span style="font-size: 20px;">+</span>
+        新建分类
+      </button>
+    </div>
+    
+    <div class="tabbar">
+      <div class="tab-item">
+        <div class="tab-icon">📝</div>
+        <div>待办</div>
+      </div>
+      <div class="tab-item">
+        <div class="tab-icon">🏠</div>
+        <div>首页</div>
+      </div>
+      <div class="tab-item">
+        <div class="tab-icon">📊</div>
+        <div>统计</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
