@@ -55,6 +55,7 @@ function calculateStreak(checkins) {
  * - getHistory: 获取历史记录
  * - getByDate: 获取某天的打卡记录
  * - getByHabit: 获取某习惯的打卡记录
+ * - getCheckinDates: 获取有打卡记录的日期列表
  */
 exports.main = async (event, context) => {
   const { action, data } = event
@@ -85,6 +86,9 @@ exports.main = async (event, context) => {
 
       case 'getByHabit':
         return await getCheckinsByHabit(openid, data)
+
+      case 'getCheckinDates':
+        return await getCheckinDates(openid, data)
 
       default:
         throw new Error('Unknown action: ' + action)
@@ -318,6 +322,40 @@ async function getCheckinsByHabit(openid, data) {
     .get()
 
   return { code: 0, data: result.data }
+}
+
+/**
+ * 获取有打卡记录的日期列表
+ */
+async function getCheckinDates(openid, data) {
+  const { days = 90 } = data || {} // 默认获取最近90天的日期
+
+  // 计算时间范围
+  const startDate = dayjs().subtract(days, 'day').format('YYYY-MM-DD')
+
+  const result = await db.collection('checkins')
+    .where({
+      openid,
+      ymd: db.command.gte(startDate),
+      skipped: false
+    })
+    .field({
+      ymd: true
+    })
+    .get()
+
+  // 去重并返回日期列表
+  const dateSet = new Set()
+  result.data.forEach(checkin => {
+    if (checkin.ymd) {
+      dateSet.add(checkin.ymd)
+    }
+  })
+
+  return {
+    code: 0,
+    data: Array.from(dateSet).sort()
+  }
 }
 
 /**

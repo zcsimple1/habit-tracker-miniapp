@@ -96,9 +96,9 @@
       <view class="total-stats">
         已完成 <text class="done-count">{{todayStats.completed}}</text>/<text class="total-count">{{todayStats.total}}</text> 项
       </view>
-      
+
       <!-- 习惯列表 -->
-      <view wx:for="{{timeHabits}}" wx:key="_id" 
+      <view wx:for="{{timeHabits}}" wx:key="_id"
             class="habit-item {{item.checked ? 'hidden-item' : ''}} {{!showCompleted && item.checked ? 'show-hidden' : ''}}"
             data-habit-id="{{item._id}}">
         <!-- 复选框 -->
@@ -107,21 +107,56 @@
               data-habit-id="{{item._id}}">
           {{item.checked ? '✓' : ''}}
         </view>
-        
+
         <!-- 分类徽章 -->
         <view class="category-badge cat-{{item.categoryId}}">{{item.categoryIcon}}</view>
-        
+
         <!-- 内容 -->
         <view class="habit-content">
           <text class="habit-name">{{item.name}}</text>
           <text class="habit-time" wx:if="{{item.timeRule.fixedTime}}">{{item.timeRule.fixedTime}}</text>
           <text class="habit-time no-time" wx:else>无固定时间</text>
         </view>
-        
+
         <!-- 重要标记 -->
         <text class="important-flag" wx:if="{{item.important}}">🚩</text>
       </view>
     </block>
+  </view>
+
+  <!-- 日历弹窗 -->
+  <view wx:if="{{showCalendar}}" class="calendar-modal" catchtap="onCloseCalendar">
+    <view class="calendar-content" catchtap="">
+      <view class="calendar-header">
+        <text class="calendar-month">{{calendarYear}}年{{calendarMonth + 1}}月</text>
+        <text class="calendar-close" bindtap="onCloseCalendar">×</text>
+      </view>
+      <view class="calendar-weekdays">
+        <text class="calendar-weekday">日</text>
+        <text class="calendar-weekday">一</text>
+        <text class="calendar-weekday">二</text>
+        <text class="calendar-weekday">三</text>
+        <text class="calendar-weekday">四</text>
+        <text class="calendar-weekday">五</text>
+        <text class="calendar-weekday">六</text>
+      </view>
+      <view class="calendar-days">
+        <view
+          wx:for="{{calendarDays}}"
+          wx:key="index"
+          class="calendar-day {{item.isOtherMonth ? 'other-month' : ''}} {{item.isToday ? 'today' : ''}} {{item.isSelected ? 'selected' : ''}}"
+          bindtap="onSelectDate"
+          data-index="{{index}}"
+        >
+          {{item.day}}
+          <view wx:if="{{item.hasCheckin && !item.isOtherMonth}}" class="calendar-dot"></view>
+        </view>
+      </view>
+      <view class="calendar-footer">
+        <button class="calendar-nav-btn" bindtap="onMonthChange" data-delta="-1">上个月</button>
+        <button class="calendar-nav-btn" bindtap="onMonthChange" data-delta="1">下个月</button>
+      </view>
+    </view>
   </view>
 
   <!-- 自定义底部导航 -->

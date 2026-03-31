@@ -5,6 +5,7 @@ Page({
   data: {
     // 日期选择
     currentDate: new Date(),
+    selectedDate: new Date(),
     displayDate: '',
     displayWeekday: '',
     isToday: true,
@@ -29,15 +30,29 @@ Page({
     },
 
     // 加载状态
-    loading: false
+    loading: false,
+
+    // 日历相关
+    showCalendar: false,
+    calendarYear: new Date().getFullYear(),
+    calendarMonth: new Date().getMonth(),
+    calendarDays: [],
+
+    // 有打卡记录的日期列表（YYYY-MM-DD格式）
+    checkinDates: []
   },
 
   onLoad() {
-    // 确保 currentDate 是 Date 对象
-    if (!(this.data.currentDate instanceof Date)) {
-      this.setData({ currentDate: new Date() })
-    }
+    // 强制使用当前时间
+    const now = new Date()
+    this.setData({
+      currentDate: now,
+      selectedDate: now,
+      calendarYear: now.getFullYear(),
+      calendarMonth: now.getMonth()
+    })
     this.loadUserPreferences()
+    this.loadCheckinDates()
     this.updateDateDisplay()
     this.loadData()
   },
@@ -109,41 +124,10 @@ Page({
   },
 
   // 选择日期
-  onChooseDate() {
-    const currentDate = this.data.currentDate
-    const today = new Date()
-
-    wx.showActionSheet({
-      itemList: ['今天', '昨天', '前天', '选择日期'],
-      success: (res) => {
-        let selectedDate
-
-        switch (res.tapIndex) {
-          case 0: // 今天
-            selectedDate = new Date()
-            break
-          case 1: // 昨天
-            selectedDate = new Date()
-            selectedDate.setDate(today.getDate() - 1)
-            break
-          case 2: // 前天
-            selectedDate = new Date()
-            selectedDate.setDate(today.getDate() - 2)
-            break
-          case 3: // 选择日期
-            wx.showModal({
-              title: '提示',
-              content: '日期选择功能开发中，请使用左右箭头切换日期',
-              showCancel: false
-            })
-            return
-        }
-
-        this.setData({ currentDate: selectedDate })
-        this.updateDateDisplay()
-        this.loadData()
-      }
-    })
+  async onChooseDate() {
+    this.setData({ showCalendar: true })
+    await this.loadCheckinDates()
+    this.renderCalendar()
   },
 
   // 切换视图模式
@@ -184,6 +168,122 @@ Page({
     } catch (err) {
       console.warn('保存用户偏好失败', err)
     }
+  },
+
+  // 加载有打卡记录的日期
+  async loadCheckinDates() {
+    try {
+      const { result } = await wx.cloud.callFunction({
+        name: 'checkin',
+        data: {
+          action: 'getCheckinDates'
+        }
+      })
+
+      const checkinDates = result.data || []
+      this.setData({ checkinDates })
+    } catch (err) {
+      console.error('加载打卡日期失败', err)
+    }
+  },
+
+  // 渲染日历
+  renderCalendar() {
+    const { calendarYear, calendarMonth } = this.data
+    const firstDay = new Date(calendarYear, calendarMonth, 1)
+    const lastDay = new Date(calendarYear, calendarMonth + 1, 0)
+    const startDay = firstDay.getDay()
+    const totalDays = lastDay.getDate()
+
+    const days = []
+
+    // 上个月的日期
+    const prevLastDay = new Date(calendarYear, calendarMonth, 0).getDate()
+    for (let i = startDay - 1; i >= 0; i--) {
+      days.push({
+        day: prevLastDay - i,
+        isOtherMonth: true,
+        isToday: false,
+        isSelected: false,
+        hasCheckin: false
+      })
+    }
+
+    // 当前月的日期
+    const today = new Date()
+    const { checkinDates } = this.data
+
+    for (let i = 1; i <= totalDays; i++) {
+      const isTodayDate = i === today.getDate() && calendarMonth === today.getMonth() && calendarYear === today.getFullYear()
+      const isSelected = i === this.data.selectedDate.getDate() && calendarMonth === this.data.selectedDate.getMonth() && calendarYear === this.data.selectedDate.getFullYear()
+
+      // 检查该日期是否有打卡记录
+      const currentDateStr = toYMD(new Date(calendarYear, calendarMonth, i))
+      const hasCheckin = checkinDates.includes(currentDateStr)
+
+      days.push({
+        day: i,
+        isOtherMonth: false,
+        isToday: isTodayDate,
+        isSelected,
+        hasCheckin
+      })
+    }
+
+    // 下个月的日期
+    const remainingDays = 42 - (startDay + totalDays)
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push({
+        day: i,
+        isOtherMonth: true,
+        isToday: false,
+        isSelected: false,
+        hasCheckin: false
+      })
+    }
+
+    this.setData({ calendarDays: days })
+  },
+
+  // 选择日期
+  onSelectDate(e) {
+    const { index } = e.currentTarget.dataset
+    const day = this.data.calendarDays[index]
+
+    if (day.isOtherMonth) return
+
+    const newDate = new Date(this.data.calendarYear, this.data.calendarMonth, day.day)
+    this.setData({
+      currentDate: newDate,
+      selectedDate: newDate,
+      showCalendar: false
+    })
+
+    this.updateDateDisplay()
+    this.loadData()
+  },
+
+  // 月份切换
+  onMonthChange(e) {
+    const { delta } = e.currentTarget.dataset
+    let { calendarYear, calendarMonth } = this.data
+    calendarMonth += parseInt(delta)
+
+    if (calendarMonth < 0) {
+      calendarMonth = 11
+      calendarYear--
+    } else if (calendarMonth > 11) {
+      calendarMonth = 0
+      calendarYear++
+    }
+
+    this.setData({ calendarYear, calendarMonth })
+    this.renderCalendar()
+  },
+
+  // 关闭日历
+  onCloseCalendar() {
+    this.setData({ showCalendar: false })
   },
 
   // 加载数据
