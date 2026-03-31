@@ -133,6 +133,7 @@
     <view wx:if="{{urgentTodos.length === 0 && todayTodos.length === 0 && completedTodos.length === 0}}" class="empty-state">
       <text class="emoji">📝</text>
       <text class="text">今天还没有待办事项</text>
+      <button bindtap="onAddTodo">添加待办</button>
     </view>
   </view>
 

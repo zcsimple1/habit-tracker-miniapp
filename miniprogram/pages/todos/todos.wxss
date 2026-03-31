@@ -6,8 +6,8 @@
 
 /* 头部 */
 .header {
-  padding: 16px;
-  padding-top: calc(16px + env(safe-area-inset-top));
+  padding: 30rpx 32rpx 40rpx;
+  padding-top: calc(60rpx + env(safe-area-inset-top));
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
@@ -15,18 +15,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 20rpx;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 36rpx;
+  font-weight: 700;
   color: white;
 }
 
 .add-btn {
-  width: 36px;
-  height: 36px;
+  width: 72rpx;
+  height: 72rpx;
   border-radius: 50%;
   background: rgba(255,255,255,0.25);
   border: none;
@@ -34,7 +34,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 36rpx;
   line-height: 1;
 }
 
@@ -47,12 +47,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 20rpx;
 }
 
 .date-nav-btn {
-  width: 40px;
-  height: 40px;
+  width: 50rpx;
+  height: 50rpx;
   border-radius: 50%;
   background: rgba(255,255,255,0.25);
   border: none;
@@ -60,7 +60,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 24rpx;
 }
 
 .date-nav-btn::after {
@@ -72,8 +72,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 16rpx 32rpx;
+  border-radius: 16rpx;
   background: rgba(255,255,255,0.25);
 }
 
@@ -82,22 +82,22 @@
 }
 
 .date-text {
-  font-size: 15px;
+  font-size: 28rpx;
   color: white;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .date-weekday {
-  font-size: 12px;
+  font-size: 24rpx;
   color: rgba(255,255,255,0.9);
-  margin-top: 2px;
+  margin-top: 4rpx;
 }
 
 .date-badge {
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  margin-top: 2px;
+  font-size: 20rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+  margin-top: 4rpx;
   font-weight: 500;
 }
 
@@ -142,19 +142,19 @@
 
 /* 内容区 */
 .content {
-  padding: 16px;
+  padding: 20rpx;
 }
 
 /* 分组标题 */
 .group-title {
-  font-size: 13px;
+  font-size: 26rpx;
   font-weight: 600;
   color: #666;
-  margin-bottom: 8px;
-  margin-top: 16px;
+  margin-bottom: 16rpx;
+  margin-top: 32rpx;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 12rpx;
 }
 
 .group-title:first-child {
@@ -163,45 +163,45 @@
 
 .count {
   background: #f0f0f0;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 11px;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
   font-weight: 500;
 }
 
 /* 待办卡片 */
 .todo-card {
   background: white;
-  border-radius: 10px;
-  padding: 12px 15px;
-  margin-bottom: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border-radius: 20rpx;
+  padding: 24rpx 30rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.05);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 20rpx;
   transition: all 0.2s;
 }
 
 .todo-card:active {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transform: translateY(-1px);
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.1);
+  transform: translateY(-2rpx);
 }
 
 /* 优先级左边框 */
 .todo-card.priority-urgent {
-  border-left: 3px solid #ef4444;
+  border-left: 6rpx solid #ef4444;
 }
 
 .todo-card.priority-high {
-  border-left: 3px solid #f97316;
+  border-left: 6rpx solid #f97316;
 }
 
 /* 复选框 */
 .todo-checkbox {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #ddd;
-  border-radius: 6px;
+  width: 40rpx;
+  height: 40rpx;
+  border: 4rpx solid #ddd;
+  border-radius: 12rpx;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -221,7 +221,7 @@
 .todo-checkbox.checked::after {
   content: '✓';
   color: white;
-  font-size: 12px;
+  font-size: 24rpx;
   font-weight: 600;
 }
 
@@ -232,21 +232,21 @@
 }
 
 .todo-title {
-  font-size: 14px;
+  font-size: 28rpx;
   font-weight: 500;
   color: #333;
-  margin-bottom: 4px;
+  margin-bottom: 8rpx;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8rpx;
 }
 
 /* 优先级徽章 */
 .priority-badge {
-  font-size: 11px;
+  font-size: 22rpx;
   font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
   background: #fef2f2;
   color: #ef4444;
 }
@@ -255,8 +255,8 @@
 .todo-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 11px;
+  gap: 16rpx;
+  font-size: 22rpx;
   color: #999;
   flex-wrap: wrap;
 }
@@ -264,13 +264,13 @@
 .todo-date {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 6rpx;
 }
 
 .todo-time {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 6rpx;
 }
 
 .todo-time.urgent {
@@ -281,14 +281,14 @@
 .todo-category {
   background: #f0f9ff;
   color: #667eea;
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
   font-weight: 500;
 }
 
 /* 重要标记 */
 .todo-important {
-  font-size: 14px;
+  font-size: 28rpx;
   line-height: 1;
   flex-shrink: 0;
 }
@@ -306,19 +306,33 @@
 /* 空状态 */
 .empty-state {
   text-align: center;
-  padding: 40px 20px;
+  padding: 80rpx 40rpx;
   color: #999;
 }
 
 .emoji {
-  font-size: 48px;
-  margin-bottom: 12px;
+  font-size: 96rpx;
+  margin-bottom: 24rpx;
   display: block;
 }
 
 .text {
-  font-size: 14px;
+  font-size: 28rpx;
+  margin-bottom: 40rpx;
   display: block;
+}
+
+.empty-state button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50rpx;
+  padding: 20rpx 60rpx;
+  border: none;
+  font-size: 28rpx;
+}
+
+.empty-state button::after {
+  border: none;
 }
 
 /* 日历弹窗 */
@@ -337,39 +351,39 @@
 .calendar-content {
   background: white;
   width: 100%;
-  border-radius: 20px 20px 0 0;
-  padding: 20px;
-  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  border-radius: 40rpx 40rpx 0 0;
+  padding: 40rpx;
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
 }
 
 .calendar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 32rpx;
 }
 
 .calendar-month {
-  font-size: 16px;
+  font-size: 32rpx;
   font-weight: 600;
   color: #333;
 }
 
 .calendar-close {
-  font-size: 28px;
+  font-size: 56rpx;
   color: #999;
   line-height: 1;
 }
 
 .calendar-weekdays {
   display: flex;
-  margin-bottom: 12px;
+  margin-bottom: 24rpx;
 }
 
 .calendar-weekday {
   flex: 1;
   text-align: center;
-  font-size: 12px;
+  font-size: 24rpx;
   color: #999;
   font-weight: 500;
 }
@@ -377,16 +391,16 @@
 .calendar-days {
   display: flex;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 32rpx;
 }
 
 .calendar-day {
   width: calc(100% / 7);
   text-align: center;
-  padding: 10px 0;
-  font-size: 14px;
+  padding: 20rpx 0;
+  font-size: 28rpx;
   color: #333;
-  border-radius: 8px;
+  border-radius: 16rpx;
 }
 
 .calendar-day.other-month {
@@ -406,16 +420,16 @@
 
 .calendar-footer {
   display: flex;
-  gap: 12px;
+  gap: 24rpx;
 }
 
 .calendar-nav-btn {
   flex: 1;
-  padding: 12px;
+  padding: 24rpx;
   background: #f5f5f5;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 16rpx;
+  font-size: 28rpx;
   color: #666;
 }
 
