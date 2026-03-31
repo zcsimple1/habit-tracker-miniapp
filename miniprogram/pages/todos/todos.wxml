@@ -154,13 +154,16 @@
         <text class="calendar-weekday">六</text>
       </view>
       <view class="calendar-days">
-        <view
-          wx:for="{{calendarDays}}"
-          wx:key="index"
-          class="calendar-day {{item.isOtherMonth ? 'other-month' : ''}} {{item.isToday ? 'today' : ''}} {{item.isSelected ? 'selected' : ''}}"
-          bindtap="onSelectDate"
-          data-index="{{index}}"
-        >{{item.day}}</view>
+      <view
+        wx:for="{{calendarDays}}"
+        wx:key="index"
+        class="calendar-day {{item.isOtherMonth ? 'other-month' : ''}} {{item.isToday ? 'today' : ''}} {{item.isSelected ? 'selected' : ''}}"
+        bindtap="onSelectDate"
+        data-index="{{index}}"
+      >
+        {{item.day}}
+        <view wx:if="{{item.hasTodo && !item.isOtherMonth}}" class="calendar-dot"></view>
+      </view>
       </view>
       <view class="calendar-footer">
         <button class="calendar-nav-btn" bindtap="onMonthChange" data-delta="-1">上个月</button>

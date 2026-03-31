@@ -22,7 +22,10 @@ Page({
     showCalendar: false,
     calendarYear: new Date().getFullYear(),
     calendarMonth: new Date().getMonth(),
-    calendarDays: []
+    calendarDays: [],
+
+    // 有待办记录的日期列表（YYYY-MM-DD格式）
+    todoDates: []
   },
 
   onLoad() {
@@ -30,6 +33,7 @@ Page({
     if (!(this.data.currentDate instanceof Date)) {
       this.setData({ currentDate: new Date() })
     }
+    this.loadTodoDates() // 加载有待办记录的日期
     this.updateDateDisplay()
     this.loadTodos()
   },
@@ -96,8 +100,9 @@ Page({
   },
 
   // 打开日历
-  onOpenCalendar() {
+  async onOpenCalendar() {
     this.setData({ showCalendar: true })
+    await this.loadTodoDates() // 重新加载有待办记录的日期
     this.renderCalendar()
   },
 
@@ -129,15 +134,22 @@ Page({
 
     // 当前月的日期
     const today = new Date()
+    const { todoDates } = this.data
+
     for (let i = 1; i <= totalDays; i++) {
       const isTodayDate = i === today.getDate() && calendarMonth === today.getMonth() && calendarYear === today.getFullYear()
       const isSelected = i === this.data.selectedDate.getDate() && calendarMonth === this.data.selectedDate.getMonth() && calendarYear === this.data.selectedDate.getFullYear()
+
+      // 检查该日期是否有待办记录
+      const currentDateStr = toYMD(new Date(calendarYear, calendarMonth, i))
+      const hasTodo = todoDates.includes(currentDateStr)
 
       days.push({
         day: i,
         isOtherMonth: false,
         isToday: isTodayDate,
-        isSelected
+        isSelected,
+        hasTodo
       })
     }
 
@@ -189,6 +201,23 @@ Page({
 
     this.setData({ calendarYear, calendarMonth })
     this.renderCalendar()
+  },
+
+  // 加载有待办记录的日期
+  async loadTodoDates() {
+    try {
+      const { result } = await wx.cloud.callFunction({
+        name: 'todos',
+        data: {
+          action: 'getTodoDates'
+        }
+      })
+
+      const todoDates = result.data || []
+      this.setData({ todoDates })
+    } catch (err) {
+      console.error('加载待办日期失败', err)
+    }
   },
 
   // 加载待办列表

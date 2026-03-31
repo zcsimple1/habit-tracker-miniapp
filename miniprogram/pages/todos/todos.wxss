@@ -401,6 +401,7 @@
   font-size: 28rpx;
   color: #333;
   border-radius: 16rpx;
+  position: relative;
 }
 
 .calendar-day.other-month {
@@ -416,6 +417,18 @@
 .calendar-day.selected {
   background: #667eea;
   color: white;
+}
+
+/* 红点标记 */
+.calendar-dot {
+  position: absolute;
+  bottom: 4rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8rpx;
+  height: 8rpx;
+  background: #ef4444;
+  border-radius: 50%;
 }
 
 .calendar-footer {

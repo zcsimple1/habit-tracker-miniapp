@@ -25,6 +25,7 @@ const PRIORITY_WEIGHT = {
  * - archive: 归档/取消归档
  * - getByDate: 获取某天的待办
  * - getByPriority: 按优先级获取待办
+ * - getTodoDates: 获取有待办记录的日期列表
  */
 exports.main = async (event, context) => {
   const { action, data } = event
@@ -58,6 +59,9 @@ exports.main = async (event, context) => {
 
       case 'getByPriority':
         return await getTodosByPriority(openid, data)
+
+      case 'getTodoDates':
+        return await getTodoDates(openid, data)
 
       default:
         throw new Error('Unknown action: ' + action)
@@ -279,4 +283,39 @@ async function getTodosByPriority(openid, data) {
     .get()
 
   return { code: 0, data: result.data }
+}
+
+/**
+ * 获取有待办记录的日期列表
+ */
+async function getTodoDates(openid, data) {
+  const { days = 90 } = data || {} // 默认获取最近90天的日期
+
+  // 计算时间范围
+  const startDate = dayjs().subtract(days, 'day').toDate()
+  const endDate = dayjs().add(days, 'day').toDate()
+
+  const result = await db.collection('todos')
+    .where({
+      openid,
+      archived: false,
+      dueDate: db.command.gte(dayjs(startDate).format('YYYY-MM-DD'))
+    })
+    .field({
+      dueDate: true
+    })
+    .get()
+
+  // 去重并返回日期列表
+  const dateSet = new Set()
+  result.data.forEach(todo => {
+    if (todo.dueDate) {
+      dateSet.add(todo.dueDate)
+    }
+  })
+
+  return {
+    code: 0,
+    data: Array.from(dateSet).sort()
+  }
 }
