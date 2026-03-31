@@ -215,34 +215,96 @@ body {
   line-height: 1;
 }
 
-/* Tabbar */
+/* Tabbar - 经典底部导航 */
 .tabbar {
   position: sticky;
   bottom: 0;
+  left: 0;
+  right: 0;
   background: white;
   border-top: 1px solid #f0f0f0;
+  padding: 8px 0;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   display: flex;
-  padding: 10px 0;
+  justify-content: space-around;
+  align-items: center;
 }
 
 .tab-item {
   flex: 1;
-  text-align: center;
-  padding: 8px;
-  color: #999;
-  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   cursor: pointer;
-  transition: color 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  padding: 8px 0;
 }
 
-.tab-item.active {
-  color: #667eea;
-  font-weight: 600;
+.tab-item:active {
+  transform: scale(0.95);
 }
 
 .tab-icon {
-  font-size: 20px;
-  margin-bottom: 2px;
+  font-size: 24px;
+  line-height: 1;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.tab-label {
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.tab-item .tab-icon,
+.tab-item .tab-label {
+  color: #999;
+}
+
+.tab-item.active .tab-icon,
+.tab-item.active .tab-label {
+  color: #667eea;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: #667eea;
+  border-radius: 2px;
+}
+
+/* 徽章显示 */
+.tab-badge {
+  position: absolute;
+  top: -2px;
+  right: 50%;
+  transform: translateX(50%);
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: translateX(50%) scale(1); }
+  50% { transform: translateX(50%) scale(1.1); }
 }
 
 /* 分类卡片 */
@@ -315,4 +377,207 @@ body {
 
 .category-card.collapsed .category-items {
   max-height: 0 !important;
+}
+
+/* 通用日期选择器样式 */
+.date-picker-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.date-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.date-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(1.1);
+}
+
+.date-nav-btn:active {
+  transform: scale(0.95);
+}
+
+.date-display {
+  flex: 1;
+  min-width: 0;
+  max-width: 240px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 16px;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.date-display:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.date-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  white-space: nowrap;
+}
+
+.date-weekday {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+}
+
+.date-badge {
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.date-badge.today {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.date-badge.history {
+  background: rgba(255, 193, 7, 0.5);
+  color: white;
+}
+
+/* 日期选择弹窗 */
+.calendar-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s;
+}
+
+.calendar-modal.show {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.calendar-content {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  width: 320px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.calendar-month {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.calendar-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.calendar-close:hover {
+  color: #333;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.calendar-weekday {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+  padding: 8px 0;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #333;
+}
+
+.calendar-day:hover {
+  background: #f0f9ff;
+}
+
+.calendar-day.other-month {
+  color: #ccc;
+}
+
+.calendar-day.selected {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-weight: 600;
+}
+
+.calendar-day.today {
+  border: 2px solid #667eea;
 }

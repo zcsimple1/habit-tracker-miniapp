@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>习惯打卡 - 添加习惯</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      padding-bottom: 10px;
+    }
+    
+    .header-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    
+    .header-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    
+    .header-btn.save {
+      background: rgba(255, 255, 255, 0.25);
+    }
+    
+    .header-btn.save:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    
+    .header-btn.cancel:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .content {
+      background: #f8f9fa;
+      padding: 0;
+    }
+    
+    .form-group {
+      background: white;
+      padding: 16px;
+      margin-bottom: 1px;
+    }
+    
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 10px;
+      display: block;
+    }
+    
+    .form-input {
+      width: 100%;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 15px;
+      transition: all 0.2s;
+      outline: none;
+    }
+    
+    .form-input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-textarea {
+      width: 100%;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 15px;
+      transition: all 0.2s;
+      outline: none;
+      min-height: 80px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    
+    .form-textarea:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .select-wrapper {
+      position: relative;
+    }
+    
+    .form-select {
+      width: 100%;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 15px;
+      background: white;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+    }
+    
+    .form-select:focus {
+      border-color: #667eea;
+    }
+    
+    .select-arrow {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      pointer-events: none;
+    }
+    
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .radio-option {
+      flex: 1;
+      min-width: calc(50% - 6px);
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .radio-option:hover {
+      border-color: #667eea;
+      background: #f0f9ff;
+    }
+    
+    .radio-option.active {
+      border-color: #667eea;
+      background: #667eea;
+      color: white;
+    }
+    
+    .weekday-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .weekday-option {
+      width: 44px;
+      height: 44px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    
+    .weekday-option:hover {
+      border-color: #667eea;
+      background: #f0f9ff;
+    }
+    
+    .weekday-option.active {
+      border-color: #667eea;
+      background: #667eea;
+      color: white;
+    }
+    
+    .time-input-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .time-input-row .form-input {
+      flex: 1;
+    }
+    
+    .time-separator {
+      font-size: 14px;
+      color: #999;
+      font-weight: 500;
+    }
+    
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .toggle-label {
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+    }
+    
+    .toggle-switch {
+      width: 48px;
+      height: 28px;
+      background: #e5e7eb;
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .toggle-switch.active {
+      background: #10b981;
+    }
+    
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: all 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .toggle-switch.active::after {
+      left: 22px;
+    }
+    
+    .important-flag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .weekdays-selected {
+      color: #667eea;
+      font-weight: 600;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="header">
+      <button class="header-btn cancel" onclick="history.back()">取消</button>
+      <div class="header-title">添加习惯</div>
+      <button class="header-btn save" onclick="alert('保存成功！')">保存</button>
+    </div>
+    
+    <div class="content">
+      <!-- 习惯名称 -->
+      <div class="form-group">
+        <label class="form-label">习惯名称 <span style="color: #ef4444;">*</span></label>
+        <input type="text" class="form-input" placeholder="输入习惯名称..." value="">
+      </div>
+      
+      <!-- 习惯描述 -->
+      <div class="form-group">
+        <label class="form-label">习惯描述</label>
+        <textarea class="form-textarea" placeholder="添加详细说明（可选）"></textarea>
+      </div>
+      
+      <!-- 所属分类 -->
+      <div class="form-group">
+        <label class="form-label">所属分类 <span style="color: #ef4444;">*</span></label>
+        <div class="select-wrapper">
+          <select class="form-select">
+            <option value="">请选择分类</option>
+            <option value="work">🏢 工作</option>
+            <option value="health">❤️ 健康</option>
+            <option value="child">👶 孩子</option>
+            <option value="study">📚 学习</option>
+            <option value="family">🏠 家庭</option>
+            <option value="other">📦 其它</option>
+          </select>
+          <span class="select-arrow">▼</span>
+        </div>
+      </div>
+      
+      <!-- 循环规则 -->
+      <div class="form-group">
+        <label class="form-label">循环规则 <span style="color: #ef4444;">*</span></label>
+        <div class="radio-group">
+          <div class="radio-option active" onclick="selectRule(this, 'daily')">📅 每日</div>
+          <div class="radio-option" onclick="selectRule(this, 'weekdays')">💼 工作日</div>
+          <div class="radio-option" onclick="selectRule(this, 'weekend')">🎪 周末</div>
+          <div class="radio-option" onclick="selectRule(this, 'weekly')">📆 每周</div>
+          <div class="radio-option" onclick="selectRule(this, 'custom')">✏️ 自定义</div>
+        </div>
+        
+        <!-- 每周选择（仅在 weekly 模式下显示） -->
+        <div id="weekdaySelector" style="display: none; margin-top: 12px;">
+          <label class="form-label">选择星期几</label>
+          <div style="font-size: 12px; color: #999; margin-bottom: 8px;">勾选需要在哪些星期几打卡</div>
+          <div class="weekday-options">
+            <div class="weekday-option" onclick="toggleWeekday(this)">一</div>
+            <div class="weekday-option active" onclick="toggleWeekday(this)">二</div>
+            <div class="weekday-option" onclick="toggleWeekday(this)">三</div>
+            <div class="weekday-option" onclick="toggleWeekday(this)">四</div>
+            <div class="weekday-option active" onclick="toggleWeekday(this)">五</div>
+            <div class="weekday-option" onclick="toggleWeekday(this)">六</div>
+            <div class="weekday-option" onclick="toggleWeekday(this)">日</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 固定打卡时间 -->
+      <div class="form-group">
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">固定打卡时间</div>
+            <div style="font-size: 11px; color: #999; margin-top: 4px;">设置后会在固定时间提醒</div>
+          </div>
+          <div class="toggle-switch" onclick="toggleTimeSwitch(this)"></div>
+        </div>
+
+        <div id="timeInputs" style="display: none; margin-top: 12px;">
+          <label class="form-label">打卡时间</label>
+          <input type="time" class="form-input" value="08:00" style="width: 100%;">
+        </div>
+      </div>
+      
+      <!-- 有效期 -->
+      <div class="form-group">
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">设置有效期</div>
+            <div style="font-size: 11px; color: #999; margin-top: 4px;">仅在有效期内显示此习惯</div>
+          </div>
+          <div class="toggle-switch" onclick="toggleDateSwitch(this)"></div>
+        </div>
+        
+        <div id="dateInputs" style="display: none; margin-top: 12px;">
+          <div class="time-input-row">
+            <input type="date" class="form-input" placeholder="开始日期" value="2026-03-30">
+            <span class="time-separator">-</span>
+            <input type="date" class="form-input" placeholder="结束日期" value="2026-12-31">
+          </div>
+        </div>
+      </div>
+      
+      <!-- 重要标记 -->
+      <div class="form-group">
+        <div class="toggle-row">
+          <span class="toggle-label">
+            <span class="important-flag">🚩</span>
+            标记为重要
+          </span>
+          <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      function selectRule(element, ruleType) {
+        const options = element.parentElement.querySelectorAll('.radio-option');
+        options.forEach(opt => opt.classList.remove('active'));
+        element.classList.add('active');
+        
+        const weekdaySelector = document.getElementById('weekdaySelector');
+        if (ruleType === 'weekly') {
+          weekdaySelector.style.display = 'block';
+        } else {
+          weekdaySelector.style.display = 'none';
+        }
+      }
+      
+      function toggleWeekday(element) {
+        element.classList.toggle('active');
+      }
+      
+      function toggleTimeSwitch(element) {
+        element.classList.toggle('active');
+        const timeInputs = document.getElementById('timeInputs');
+        timeInputs.style.display = element.classList.contains('active') ? 'block' : 'none';
+      }
+      
+      function toggleDateSwitch(element) {
+        element.classList.toggle('active');
+        const dateInputs = document.getElementById('dateInputs');
+        dateInputs.style.display = element.classList.contains('active') ? 'block' : 'none';
+      }
+    </script>
+  </div>
+</body>
+</html>

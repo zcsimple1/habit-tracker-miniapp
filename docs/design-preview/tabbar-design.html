@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>底部菜单设计</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      gap: 40px;
+    }
+    
+    .design-container {
+      width: 375px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+      min-height: 812px;
+      position: relative;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    
+    .content {
+      padding: 20px;
+      background: #f8f9fa;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .demo-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    
+    .demo-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    .demo-desc {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+    }
+    
+    /* ========== Tabbar 设计方案 1: 经典底部导航 ========== */
+    .tabbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #f0f0f0;
+      padding: 8px 0;
+      padding-bottom: env(safe-area-inset-bottom, 8px);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      padding: 8px 0;
+    }
+    
+    .tab-item:active {
+      transform: scale(0.95);
+    }
+    
+    .tab-icon {
+      font-size: 24px;
+      line-height: 1;
+      transition: all 0.3s;
+      position: relative;
+    }
+    
+    .tab-label {
+      font-size: 11px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    .tab-item .tab-icon,
+    .tab-item .tab-label {
+      color: #999;
+    }
+    
+    .tab-item.active .tab-icon,
+    .tab-item.active .tab-label {
+      color: #667eea;
+    }
+    
+    .tab-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      background: #667eea;
+      border-radius: 2px;
+    }
+    
+    /* 徽章显示 */
+    .tab-badge {
+      position: absolute;
+      top: -2px;
+      right: 50%;
+      transform: translateX(50%);
+      background: #ef4444;
+      color: white;
+      font-size: 10px;
+      font-weight: 600;
+      min-width: 16px;
+      height: 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      animation: badgePulse 2s infinite;
+    }
+    
+    @keyframes badgePulse {
+      0%, 100% { transform: translateX(50%) scale(1); }
+      50% { transform: translateX(50%) scale(1.1); }
+    }
+    
+    /* ========== Tabbar 设计方案 2: 现代浮动导航 ========== */
+    .tabbar.modern {
+      background: white;
+      border-top: none;
+      padding: 12px 20px;
+      padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+    }
+    
+    .tabbar.modern .tab-item {
+      gap: 6px;
+    }
+    
+    .tabbar.modern .tab-icon {
+      font-size: 22px;
+    }
+    
+    .tabbar.modern .tab-label {
+      font-size: 10px;
+    }
+    
+    /* ========== Tabbar 设计方案 3: 带添加按钮 ========== */
+    .tabbar.with-fab {
+      padding: 8px 80px;
+    }
+    
+    .fab-button {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: 4px solid white;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .fab-button:active {
+      transform: translateX(-50%) scale(0.95);
+    }
+    
+    .fab-button:hover {
+      transform: translateX(-50%) scale(1.05);
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+    }
+    
+    .tabbar.with-fab .tab-item {
+      flex: 1;
+    }
+    
+    /* 设计说明卡片 */
+    .design-info {
+      margin-top: 40px;
+      padding: 20px;
+    }
+    
+    .design-info h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 12px;
+    }
+    
+    .design-info ul {
+      list-style: none;
+      gap: 8px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .design-info li {
+      font-size: 13px;
+      color: #666;
+      padding-left: 20px;
+      position: relative;
+      line-height: 1.6;
+    }
+    
+    .design-info li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #10b981;
+      font-weight: 600;
+    }
+    
+    .design-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      margin-right: 8px;
+    }
+    
+    .tag-recommended {
+      background: #dcfce7;
+      color: #059669;
+    }
+    
+    .tag-modern {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .tag-alternative {
+      background: #fef3c7;
+      color: #d97706;
+    }
+  </style>
+</head>
+<body>
+  <!-- 设计方案 1: 经典底部导航 -->
+  <div>
+    <div class="design-container">
+      <div class="header">方案 1: 经典底部导航 <span class="design-tag tag-recommended">推荐</span></div>
+      <div class="content">
+        <div class="demo-card">
+          <div class="demo-title">经典三栏布局</div>
+          <div class="demo-desc">简洁直观，用户习惯的导航方式</div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab-item">
+          <div class="tab-icon">📝</div>
+          <div class="tab-label">待办</div>
+          <div class="tab-badge">3</div>
+        </div>
+        <div class="tab-item active">
+          <div class="tab-icon">🏠</div>
+          <div class="tab-label">首页</div>
+        </div>
+        <div class="tab-item">
+          <div class="tab-icon">📊</div>
+          <div class="tab-label">统计</div>
+        </div>
+        <div class="tab-item">
+          <div class="tab-icon">⚙️</div>
+          <div class="tab-label">设置</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 设计说明 -->
+    <div class="design-info">
+      <h2>✨ 方案 1 特点</h2>
+      <ul>
+        <li>经典的底部三/四栏导航，符合用户习惯</li>
+        <li>图标 + 文字，清晰易懂</li>
+        <li>支持徽章显示（如待办数量）</li>
+        <li>选中状态有底部指示器和颜色变化</li>
+        <li>适配安全区域，支持刘海屏</li>
+        <li>点击有缩放动画，反馈清晰</li>
+      </ul>
+    </div>
+  </div>
+  
+  <!-- 设计方案 2: 现代浮动导航 -->
+  <div>
+    <div class="design-container">
+      <div class="header">方案 2: 现代浮动导航 <span class="design-tag tag-modern">现代</span></div>
+      <div class="content">
+        <div class="demo-card">
+          <div class="demo-title">悬浮卡片风格</div>
+          <div class="demo-desc">更现代的视觉效果，轻微浮动</div>
+        </div>
+      </div>
+      <div class="tabbar modern">
+        <div class="tab-item">
+          <div class="tab-icon">📝</div>
+          <div class="tab-label">待办</div>
+          <div class="tab-badge">3</div>
+        </div>
+        <div class="tab-item active">
+          <div class="tab-icon">🏠</div>
+          <div class="tab-label">首页</div>
+        </div>
+        <div class="tab-item">
+          <div class="tab-icon">📊</div>
+          <div class="tab-label">统计</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 设计说明 -->
+    <div class="design-info">
+      <h2>✨ 方案 2 特点</h2>
+      <ul>
+        <li>上方浮动阴影，营造层次感</li>
+        <li>圆角设计，更柔和的视觉效果</li>
+        <li>仅三个主要入口，更简洁</li>
+        <li>设置可放在首页右上角</li>
+        <li>适合追求现代感的用户</li>
+      </ul>
+    </div>
+  </div>
+  
+  <!-- 设计方案 3: 带添加按钮 -->
+  <div>
+    <div class="design-container">
+      <div class="header">方案 3: 居中添加按钮 <span class="design-tag tag-alternative">可选</span></div>
+      <div class="content">
+        <div class="demo-card">
+          <div class="demo-title">FAB 添加按钮</div>
+          <div class="demo-desc">突出添加操作，快速新建习惯</div>
+        </div>
+      </div>
+      <div class="tabbar with-fab">
+        <div class="tab-item">
+          <div class="tab-icon">📝</div>
+          <div class="tab-label">待办</div>
+          <div class="tab-badge">3</div>
+        </div>
+        <div class="tab-item active">
+          <div class="tab-icon">🏠</div>
+          <div class="tab-label">首页</div>
+        </div>
+        <div class="tab-item">
+          <div class="tab-icon">📊</div>
+          <div class="tab-label">统计</div>
+        </div>
+        <div class="fab-button">+</div>
+      </div>
+    </div>
+    
+    <!-- 设计说明 -->
+    <div class="design-info">
+      <h2>✨ 方案 3 特点</h2>
+      <ul>
+        <li>居中悬浮添加按钮，突出主要操作</li>
+        <li>FAB 按钮带渐变色和阴影，视觉焦点</li>
+        <li>添加习惯更便捷，提升使用效率</li>
+        <li>适合添加操作频繁的场景</li>
+        <li>可扩展为长按弹出快捷菜单</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

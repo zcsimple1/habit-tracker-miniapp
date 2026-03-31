@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>习惯打卡 - 设置</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      color: white;
+    }
+    
+    .content {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: calc(812px - 80px);
+    }
+    
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 12px;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .section-title:first-child {
+      margin-top: 0;
+    }
+    
+    .setting-item {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 8px;
+    }
+    
+    .setting-item:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateX(4px);
+    }
+    
+    .setting-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    
+    .setting-content {
+      flex: 1;
+    }
+    
+    .setting-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 2px;
+    }
+    
+    .setting-desc {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .setting-arrow {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 18px;
+      transition: transform 0.2s;
+    }
+    
+    .setting-item:hover .setting-arrow {
+      transform: translateX(4px);
+    }
+    
+    .toggle-row {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    
+    .toggle-info {
+      flex: 1;
+    }
+    
+    .toggle-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 2px;
+    }
+    
+    .toggle-desc {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .toggle-switch {
+      width: 48px;
+      height: 28px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+    
+    .toggle-switch.active {
+      background: #10b981;
+    }
+    
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: all 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .toggle-switch.active::after {
+      left: 22px;
+    }
+    
+    .version-info {
+      text-align: center;
+      padding: 20px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+    }
+    
+    .version-info .version {
+      font-weight: 600;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="header">
+      <h1 style="font-size: 24px; margin: 0;">设置</h1>
+    </div>
+    
+    <div class="content">
+      <!-- 数据管理 -->
+      <div class="section-title">📦 数据管理</div>
+      
+      <div class="setting-item" onclick="alert('同步数据')">
+        <div class="setting-icon">☁️</div>
+        <div class="setting-content">
+          <div class="setting-title">数据同步</div>
+          <div class="setting-desc">与云端同步打卡数据</div>
+        </div>
+        <div class="setting-arrow">›</div>
+      </div>
+      
+      <div class="setting-item" onclick="alert('导出数据')">
+        <div class="setting-icon">📤</div>
+        <div class="setting-content">
+          <div class="setting-title">导出数据</div>
+          <div class="setting-desc">导出为Excel或CSV格式</div>
+        </div>
+        <div class="setting-arrow">›</div>
+      </div>
+      
+      <div class="setting-item" onclick="alert('数据备份')">
+        <div class="setting-icon">💾</div>
+        <div class="setting-content">
+          <div class="setting-title">数据备份</div>
+          <div class="setting-desc">备份到本地或云端</div>
+        </div>
+        <div class="setting-arrow">›</div>
+      </div>
+      
+      <!-- 提醒设置 -->
+      <div class="section-title">🔔 提醒设置</div>
+      
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">打卡提醒</div>
+          <div class="toggle-desc">开启后会在固定时间提醒</div>
+        </div>
+        <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+      </div>
+      
+      <div class="setting-item" onclick="alert('设置提醒时间')">
+        <div class="setting-icon">⏰</div>
+        <div class="setting-content">
+          <div class="setting-title">提醒时间</div>
+          <div class="setting-desc">设置每日打卡提醒时间</div>
+        </div>
+        <div class="setting-arrow">›</div>
+      </div>
+      
+      <!-- 界面设置 -->
+      <div class="section-title">🎨 界面设置</div>
+      
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">深色模式</div>
+          <div class="toggle-desc">护眼深色主题</div>
+        </div>
+        <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+      </div>
+      
+      <div class="setting-item" onclick="alert('更改主题色')">
+        <div class="setting-icon">🎨</div>
+        <div class="setting-content">
+          <div class="setting-title">主题颜色</div>
+          <div class="setting-desc">自定义应用主题色</div>
+        </div>
+        <div class="setting-arrow">›</div>
+      </div>
+      
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">自动隐藏已完成</div>
+          <div class="toggle-desc">打卡后自动隐藏项目</div>
+        </div>
+        <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+      </div>
+      
+      <!-- 习惯管理 -->
+      <div class="section-title">📋 习惯管理</div>
+      
+      <div class="setting-item" onclick="location.href='category-manage.html'">
+        <div class="setting-icon">🏷️</div>
+        <div class="setting-content">
+          <div class="setting-title">分类管理</div>
+          <div class="setting-desc">编辑、添加、删除分类</div>
+        </div>
+        <div class="setting-arrow">›</div>
+      </div>
+      
+      <div class="setting-item" onclick="alert('批量管理')">
+        <div class="setting-icon">📑</div>
+        <div class="setting-content">
+          <div class="setting-title">批量管理</div>
+          <div class="setting-desc">批量编辑或删除习惯</div>
+        </div>
+        <div class="setting-arrow">›</div>
+      </div>
+      
+      <!-- 其他 -->
+      <div class="section-title">⚙️ 其他</div>
+      
+      <div class="setting-item" onclick="alert('关于我们')">
+        <div class="setting-icon">ℹ️</div>
+        <div class="setting-content">
+          <div class="setting-title">关于我们</div>
+          <div class="setting-desc">版本信息和联系方式</div>
+        </div>
+        <div class="setting-arrow">›</div>
+      </div>
+      
+      <div class="setting-item" onclick="alert('使用帮助')">
+        <div class="setting-icon">❓</div>
+        <div class="setting-content">
+          <div class="setting-title">使用帮助</div>
+          <div class="setting-desc">常见问题和操作指南</div>
+        </div>
+        <div class="setting-arrow">›</div>
+      </div>
+      
+      <div class="setting-item" onclick="alert('意见反馈')">
+        <div class="setting-icon">📮</div>
+        <div class="setting-content">
+          <div class="setting-title">意见反馈</div>
+          <div class="setting-desc">提交问题和建议</div>
+        </div>
+        <div class="setting-arrow">›</div>
+      </div>
+      
+      <div class="version-info">
+        版本 <span class="version">2.0.0</span>
+      </div>
+    </div>
+    
+    <div class="tabbar">
+      <div class="tab-item" onclick="location.href='index-category.html'">
+        <div class="tab-icon">🏠</div>
+        <div class="tab-label">首页</div>
+      </div>
+      <div class="tab-item" onclick="location.href='todo.html'">
+        <div class="tab-icon">📝</div>
+        <div class="tab-label">待办</div>
+        <div class="tab-badge">3</div>
+      </div>
+      <div class="tab-item" onclick="location.href='stats.html'">
+        <div class="tab-icon">📊</div>
+        <div class="tab-label">统计</div>
+      </div>
+      <div class="tab-item active">
+        <div class="tab-icon">⚙️</div>
+        <div class="tab-label">设置</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

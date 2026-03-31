@@ -14,208 +14,33 @@
     .header-controls .view-toggle {
       flex: 1;
     }
+    .add-habit-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      border: none;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 20px;
+      line-height: 1;
+      flex-shrink: 0;
+      filter: brightness(0) invert(1);
+    }
+    .add-habit-btn:hover {
+      background: rgba(255, 255, 255, 0.4);
+      transform: scale(1.1);
+    }
     /* 晨跑的红旗 */
     .habit-item.hidden-item .important-flag {
       opacity: 0.5;
     }
     
-    /* 日期选择器样式 */
-    .date-picker-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      margin-bottom: 15px;
-    }
-    
-    .date-nav-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    
-    .date-nav-btn:hover {
-      background: rgba(255, 255, 255, 0.35);
-      transform: scale(1.1);
-    }
-    
-    .date-nav-btn:active {
-      transform: scale(0.95);
-    }
-    
-    .date-display {
-      flex: 1;
-      max-width: 280px;
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      border-radius: 20px;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .date-display:hover {
-      background: rgba(255, 255, 255, 0.35);
-    }
-    
-    .date-text {
-      font-size: 15px;
-      font-weight: 600;
-      color: white;
-    }
-    
-    .date-weekday {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.85);
-    }
-    
-    .date-badge {
-      padding: 2px 10px;
-      border-radius: 10px;
-      font-size: 11px;
-      font-weight: 500;
-    }
-    
-    .date-badge.today {
-      background: rgba(255, 255, 255, 0.3);
-      color: white;
-    }
-    
-    .date-badge.history {
-      background: rgba(255, 193, 7, 0.5);
-      color: white;
-    }
-    
-    /* 日期选择弹窗 */
-    .calendar-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      animation: fadeIn 0.2s;
-    }
-    
-    .calendar-modal.show {
-      display: flex;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    
-    .calendar-content {
-      background: white;
-      border-radius: 20px;
-      padding: 20px;
-      width: 320px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-      animation: slideUp 0.3s;
-    }
-    
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    
-    .calendar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .calendar-month {
-      font-size: 16px;
-      font-weight: 600;
-      color: #333;
-    }
-    
-    .calendar-close {
-      background: none;
-      border: none;
-      font-size: 24px;
-      color: #999;
-      cursor: pointer;
-      padding: 4px;
-      line-height: 1;
-    }
-    
-    .calendar-close:hover {
-      color: #333;
-    }
-    
-    .calendar-weekdays {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-      margin-bottom: 8px;
-      text-align: center;
-    }
-    
-    .calendar-weekday {
-      font-size: 12px;
-      color: #999;
-      font-weight: 500;
-      padding: 8px 0;
-    }
-    
-    .calendar-days {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-    }
-    
-    .calendar-day {
-      aspect-ratio: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: #333;
-    }
-    
-    .calendar-day:hover {
-      background: #f0f9ff;
-    }
-    
-    .calendar-day.other-month {
-      color: #ccc;
-    }
-    
-    .calendar-day.selected {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      font-weight: 600;
-    }
-    
-    .calendar-day.today {
-      border: 2px solid #667eea;
-    }
+
   </style>
 </head>
 <body>
@@ -232,15 +57,15 @@
       <!-- 日期选择器 -->
       <div class="date-picker-container">
         <button class="date-nav-btn" onclick="changeDate(-1)" title="前一天">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
         </button>
         <button class="date-display" onclick="openCalendar()" title="选择日期">
           <span class="date-text">2026年3月30日</span>
-          <span class="date-weekday">周一</span>
+          <span class="date-weekday">星期一</span>
           <span class="date-badge today">今天</span>
         </button>
         <button class="date-nav-btn" onclick="changeDate(1)" title="后一天">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
         </button>
       </div>
       
@@ -249,6 +74,7 @@
           <button class="toggle-btn active">📋 分类模式</button>
           <button class="toggle-btn" onclick="location.href='index-time.html'">📅 时间模式</button>
         </div>
+        <button class="add-habit-btn" onclick="location.href='habit-add.html'" title="添加习惯">➕</button>
       </div>
     </div>
     
@@ -340,17 +166,22 @@
     </div>
     
     <div class="tabbar">
-      <div class="tab-item">
-        <div class="tab-icon">📝</div>
-        <div>待办</div>
-      </div>
       <div class="tab-item active">
         <div class="tab-icon">🏠</div>
-        <div>首页</div>
+        <div class="tab-label">首页</div>
       </div>
-      <div class="tab-item">
+      <div class="tab-item" onclick="location.href='todo.html'">
+        <div class="tab-icon">📝</div>
+        <div class="tab-label">待办</div>
+        <div class="tab-badge">3</div>
+      </div>
+      <div class="tab-item" onclick="location.href='stats.html'">
         <div class="tab-icon">📊</div>
-        <div>统计</div>
+        <div class="tab-label">统计</div>
+      </div>
+      <div class="tab-item" onclick="location.href='settings.html'">
+        <div class="tab-icon">⚙️</div>
+        <div class="tab-label">设置</div>
       </div>
     </div>
   </div>
@@ -446,11 +277,12 @@
       const dateText = document.querySelector('.date-text');
       const weekdayText = document.querySelector('.date-weekday');
       const badge = document.querySelector('.date-display .date-badge');
-      
+
       const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
       dateText.textContent = currentDate.toLocaleDateString('zh-CN', dateOptions);
-      weekdayText.textContent = currentDate.toLocaleDateString('zh-CN', { weekday: 'long' });
-      
+      const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+      weekdayText.textContent = weekdays[currentDate.getDay()];
+
       if (isToday) {
         badge.textContent = '今天';
         badge.className = 'date-badge today';

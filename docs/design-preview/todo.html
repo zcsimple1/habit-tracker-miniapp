@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>习惯打卡 - 今日待办</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .header-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .header-title h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0;
+    }
+    
+    .add-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      border: none;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 20px;
+      line-height: 1;
+    }
+    
+    .add-btn:hover {
+      background: rgba(255,255,255,0.4);
+      transform: scale(1.1);
+    }
+    
+    .date-picker-container {
+      margin-bottom: 0;
+    }
+
+    /* 日历中的待办标记 */
+    .calendar-day.has-todo {
+      position: relative;
+    }
+
+    .calendar-day.has-todo::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 6px;
+      background: #ef4444;
+      border-radius: 50%;
+    }
+
+    .calendar-day.has-todo.completed-todo::after {
+      background: #10b981;
+    }
+    
+    
+    /* 分组标题 */
+    .group-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 8px;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .group-title:first-child {
+      margin-top: 0;
+    }
+    
+    .group-title .count {
+      background: #f0f0f0;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    
+    /* 待办卡片 */
+    .todo-card {
+      background: white;
+      border-radius: 10px;
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+    
+    .todo-card:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
+    }
+    
+    .todo-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    
+    .todo-checkbox:hover {
+      border-color: #667eea;
+    }
+    
+    .todo-checkbox.checked {
+      background: #10b981;
+      border-color: #10b981;
+    }
+    
+    .todo-checkbox.checked::after {
+      content: '✓';
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .todo-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .todo-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 4px;
+    }
+    
+    .todo-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #999;
+    }
+    
+    .todo-category {
+      background: #f0f9ff;
+      color: #667eea;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    
+    .todo-time {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    
+    .todo-time.urgent {
+      color: #ef4444;
+      font-weight: 500;
+    }
+    
+    .todo-important {
+      font-size: 14px;
+      line-height: 1;
+    }
+    
+    .todo-card.completed {
+      opacity: 0.6;
+    }
+    
+    .todo-card.completed .todo-title {
+      text-decoration: line-through;
+      color: #999;
+    }
+    
+    /* 高优先级 */
+    .todo-card.priority-urgent {
+      border-left: 3px solid #ef4444;
+    }
+    
+    .todo-card.priority-high {
+      border-left: 3px solid #f97316;
+    }
+    
+    /* 优先级徽章 */
+    .priority-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    
+    .priority-urgent .priority-badge {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+    
+    .priority-high .priority-badge {
+      background: #fff7ed;
+      color: #f97316;
+    }
+    
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+    
+    .empty-state .emoji {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    
+    .empty-state .text {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="header">
+      <div class="header-title">
+        <h1>今日待办</h1>
+        <button class="add-btn" onclick="location.href='todo-add.html'" title="添加待办">+</button>
+      </div>
+      <!-- 日期选择器 -->
+      <div class="date-picker-container">
+        <button class="date-nav-btn" onclick="changeDate(-1)" title="前一天">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        </button>
+        <button class="date-display" onclick="openCalendar()" title="选择日期">
+          <span class="date-text">2026年3月30日</span>
+          <span class="date-weekday">星期一</span>
+          <span class="date-badge today">今天</span>
+        </button>
+        <button class="date-nav-btn" onclick="changeDate(1)" title="后一天">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </button>
+      </div>
+    </div>
+    
+    <div class="content">
+      <!-- 高优先级 -->
+      <div class="urgent-section">
+        <div class="group-title">
+          <span>🔥 紧急</span>
+          <span class="count">1</span>
+        </div>
+        <div class="urgent-items">
+          <div class="todo-card priority-urgent" data-id="1" data-priority="urgent">
+            <div class="todo-checkbox" onclick="toggleTodo(this)"></div>
+            <div class="todo-content">
+              <div class="todo-title">交水电费 <span class="priority-badge">紧急</span></div>
+              <div class="todo-meta">
+                <span class="todo-time urgent">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                  18:00 截止
+                </span>
+              </div>
+            </div>
+            <span class="todo-important">🚩</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 今天 -->
+      <div class="today-section">
+        <div class="group-title">
+          <span>📋 今天</span>
+          <span class="count">2</span>
+        </div>
+        <div class="today-items">
+          <div class="todo-card priority-high" data-id="2" data-priority="high">
+            <div class="todo-checkbox" onclick="toggleTodo(this)"></div>
+            <div class="todo-content">
+              <div class="todo-title">买牛奶</div>
+              <div class="todo-meta">
+                <span class="todo-category">家庭</span>
+                <span class="todo-time">14:00</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="todo-card" data-id="3" data-priority="normal">
+            <div class="todo-checkbox" onclick="toggleTodo(this)"></div>
+            <div class="todo-content">
+              <div class="todo-title">预约体检</div>
+              <div class="todo-meta">
+                <span class="todo-category">健康</span>
+                <span class="todo-time">16:30</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 已完成 -->
+      <div class="completed-section">
+        <div class="group-title">
+          <span>✓ 已完成</span>
+          <span class="count">1</span>
+        </div>
+        <div class="completed-items">
+          <div class="todo-card completed" data-id="4" data-priority="normal">
+            <div class="todo-checkbox checked" onclick="toggleTodo(this)"></div>
+            <div class="todo-content">
+              <div class="todo-title">回复邮件</div>
+              <div class="todo-meta">
+                <span class="todo-category">工作</span>
+                <span class="todo-time">10:30</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tabbar">
+      <div class="tab-item" onclick="location.href='index-category.html'">
+        <div class="tab-icon">🏠</div>
+        <div class="tab-label">首页</div>
+      </div>
+      <div class="tab-item active">
+        <div class="tab-icon">📝</div>
+        <div class="tab-label">待办</div>
+        <div class="tab-badge">3</div>
+      </div>
+      <div class="tab-item" onclick="location.href='stats.html'">
+        <div class="tab-icon">📊</div>
+        <div class="tab-label">统计</div>
+      </div>
+      <div class="tab-item" onclick="location.href='settings.html'">
+        <div class="tab-icon">⚙️</div>
+        <div class="tab-label">设置</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 日期选择弹窗 -->
+  <div class="calendar-modal" id="calendarModal">
+    <div class="calendar-content">
+      <div class="calendar-header">
+        <span class="calendar-month" id="calendarMonth">2026年3月</span>
+        <button class="calendar-close" onclick="closeCalendar()">×</button>
+      </div>
+      <div class="calendar-weekdays">
+        <div class="calendar-weekday">日</div>
+        <div class="calendar-weekday">一</div>
+        <div class="calendar-weekday">二</div>
+        <div class="calendar-weekday">三</div>
+        <div class="calendar-weekday">四</div>
+        <div class="calendar-weekday">五</div>
+        <div class="calendar-weekday">六</div>
+      </div>
+      <div class="calendar-days" id="calendarDays">
+        <!-- 动态生成日期 -->
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function toggleTodo(checkbox) {
+      const card = checkbox.closest('.todo-card');
+      const content = document.querySelector('.content');
+      let completedSection = document.querySelector('.completed-section');
+
+      if (checkbox.classList.contains('checked')) {
+        // 取消完成，移到待完成区域
+        checkbox.classList.remove('checked');
+        card.classList.remove('completed');
+
+        // 从已完成区域移除
+        if (card.parentElement.classList.contains('completed-items')) {
+          // 找到对应优先级的待完成区域
+          const priority = card.dataset.priority || 'normal';
+          let targetGroup;
+
+          if (priority === 'urgent') {
+            targetGroup = document.querySelector('.urgent-section .urgent-items');
+          } else if (priority === 'high') {
+            targetGroup = document.querySelector('.today-section .today-items');
+          } else {
+            targetGroup = document.querySelector('.today-section .today-items');
+          }
+
+          if (targetGroup) {
+            targetGroup.appendChild(card);
+          }
+
+          // 更新已完成计数
+          updateCompletedCount();
+        }
+      } else {
+        // 完成待办，移到已完成区域
+        checkbox.classList.add('checked');
+        card.classList.add('completed');
+
+        // 确保已完成区域存在
+        if (!completedSection) {
+          completedSection = document.createElement('div');
+          completedSection.className = 'completed-section';
+          completedSection.innerHTML = `
+            <div class="group-title">
+              <span>✓ 已完成</span>
+              <span class="count">0</span>
+            </div>
+            <div class="completed-items"></div>
+          `;
+          content.appendChild(completedSection);
+        }
+
+        const completedItems = completedSection.querySelector('.completed-items');
+        completedItems.appendChild(card);
+
+        // 更新已完成计数
+        updateCompletedCount();
+      }
+    }
+
+    function updateCompletedCount() {
+      const completedSection = document.querySelector('.completed-section');
+      if (completedSection) {
+        const count = completedSection.querySelectorAll('.todo-card.completed').length;
+        completedSection.querySelector('.count').textContent = count;
+      }
+    }
+    
+    // 日期切换功能
+    let currentDate = new Date();
+    let selectedDate = new Date();
+    let isToday = true;
+    
+    function changeDate(delta) {
+      currentDate.setDate(currentDate.getDate() + delta);
+      selectedDate = new Date(currentDate);
+      const today = new Date();
+      isToday = currentDate.toDateString() === today.toDateString();
+      updateDateDisplay();
+    }
+    
+    function updateDateDisplay() {
+      const dateText = document.querySelector('.date-text');
+      const weekdayText = document.querySelector('.date-weekday');
+      const badge = document.querySelector('.date-display .date-badge');
+
+      const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+      dateText.textContent = currentDate.toLocaleDateString('zh-CN', dateOptions);
+      const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+      weekdayText.textContent = weekdays[currentDate.getDay()];
+
+      if (isToday) {
+        badge.textContent = '今天';
+        badge.className = 'date-badge today';
+      } else {
+        badge.textContent = '查看';
+        badge.className = 'date-badge history';
+      }
+    }
+    
+    function openCalendar() {
+      const modal = document.getElementById('calendarModal');
+      modal.classList.add('show');
+      renderCalendar();
+    }
+    
+    function closeCalendar() {
+      const modal = document.getElementById('calendarModal');
+      modal.classList.remove('show');
+    }
+    
+    function renderCalendar() {
+      const calendarDays = document.getElementById('calendarDays');
+      const calendarMonth = document.getElementById('calendarMonth');
+
+      const year = selectedDate.getFullYear();
+      const month = selectedDate.getMonth();
+
+      calendarMonth.textContent = `${year}年${month + 1}月`;
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDay = firstDay.getDay();
+      const totalDays = lastDay.getDate();
+
+      // 模拟待办数据（实际应该从数据库获取）
+      const todosWithDates = [
+        new Date(2026, 2, 30), // 3月30日有未完成待办
+        new Date(2026, 3, 2),   // 4月2日有待办
+        new Date(2026, 3, 5),   // 4月5日有待办
+        new Date(2026, 3, 8),   // 4月8日有待办
+      ];
+
+      let html = '';
+
+      // 上个月的日期
+      const prevLastDay = new Date(year, month, 0).getDate();
+      for (let i = startDay - 1; i >= 0; i--) {
+        html += `<div class="calendar-day other-month">${prevLastDay - i}</div>`;
+      }
+
+      // 当前月的日期
+      const today = new Date();
+      for (let i = 1; i <= totalDays; i++) {
+        const isTodayDate = i === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+        const isSelected = i === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear();
+        const classes = ['calendar-day'];
+        if (isTodayDate) classes.push('today');
+        if (isSelected) classes.push('selected');
+
+        // 检查这一天是否有待办
+        const checkDate = new Date(year, month, i);
+        const hasTodo = todosWithDates.some(todoDate =>
+          todoDate.getDate() === checkDate.getDate() &&
+          todoDate.getMonth() === checkDate.getMonth() &&
+          todoDate.getFullYear() === checkDate.getFullYear()
+        );
+
+        if (hasTodo) {
+          classes.push('has-todo');
+        }
+
+        html += `<div class="${classes.join(' ')}" onclick="selectDate(${i})">${i}</div>`;
+      }
+
+      // 下个月的日期
+      const remainingDays = 42 - (startDay + totalDays);
+      for (let i = 1; i <= remainingDays; i++) {
+        html += `<div class="calendar-day other-month">${i}</div>`;
+      }
+
+      calendarDays.innerHTML = html;
+    }
+    
+    function selectDate(day) {
+      selectedDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day);
+      currentDate = new Date(selectedDate);
+      const today = new Date();
+      isToday = currentDate.toDateString() === today.toDateString();
+      updateDateDisplay();
+      closeCalendar();
+    }
+    
+    // 点击弹窗外部关闭
+    document.getElementById('calendarModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeCalendar();
+      }
+    });
+    
+    // 初始化日期显示
+    updateDateDisplay();
+  </script>
+</body>
+</html>

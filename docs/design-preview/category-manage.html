@@ -179,79 +179,62 @@
     </div>
     
     <div class="content">
-      <div class="add-preset-section">
-        <div class="add-preset-title">🎯 快速开始</div>
-        <div class="add-preset-desc">添加预设分类，快速构建您的习惯体系</div>
-        <button class="add-preset-btn">+ 添加预设分类</button>
-      </div>
-      
-      <div class="category-card">
-        <div class="category-icon-box" style="background: #eff6ff;">🏢</div>
-        <div class="category-info">
-          <div class="category-name">工作</div>
-          <div class="category-desc">3 个项目</div>
+      <!-- 当前分类列表 -->
+      <div class="category-list">
+        <div class="category-card">
+          <div class="category-icon-box" style="background: #eff6ff;">🏢</div>
+          <div class="category-info">
+            <div class="category-name">工作</div>
+            <div class="category-desc">3 个项目</div>
+          </div>
+          <div class="category-actions">
+            <button class="action-btn">编辑</button>
+            <button class="action-btn delete">删除</button>
+          </div>
         </div>
-        <div class="category-actions">
-          <button class="action-btn">编辑</button>
-          <button class="action-btn delete">删除</button>
+
+        <div class="category-card">
+          <div class="category-icon-box" style="background: #fef2f2;">❤️</div>
+          <div class="category-info">
+            <div class="category-name">健康</div>
+            <div class="category-desc">2 个项目</div>
+          </div>
+          <div class="category-actions">
+            <button class="action-btn">编辑</button>
+            <button class="action-btn delete">删除</button>
+          </div>
         </div>
-      </div>
-      
-      <div class="category-card">
-        <div class="category-icon-box" style="background: #fef2f2;">❤️</div>
-        <div class="category-info">
-          <div class="category-name">健康</div>
-          <div class="category-desc">2 个项目</div>
+
+        <div class="category-card">
+          <div class="category-icon-box" style="background: #f0fdf4;">👶</div>
+          <div class="category-info">
+            <div class="category-name">孩子</div>
+            <div class="category-desc">4 个项目</div>
+          </div>
+          <div class="category-actions">
+            <button class="action-btn">编辑</button>
+            <button class="action-btn delete">button</button>
+          </div>
         </div>
-        <div class="category-actions">
-          <button class="action-btn">编辑</button>
-          <button class="action-btn delete">删除</button>
-        </div>
-      </div>
-      
-      <div class="category-card">
-        <div class="category-icon-box" style="background: #f0fdf4;">👶</div>
-        <div class="category-info">
-          <div class="category-name">孩子</div>
-          <div class="category-desc">4 个项目</div>
-        </div>
-        <div class="category-actions">
-          <button class="action-btn">编辑</button>
-          <button class="action-btn delete">删除</button>
-        </div>
-      </div>
-      
-      <div class="category-card">
-        <div class="category-icon-box" style="background: #fef3c7;">💰</div>
-        <div class="category-info">
-          <div class="category-name">财务</div>
-          <div class="category-desc">0 个项目</div>
-        </div>
-        <div class="category-actions">
-          <button class="action-btn">编辑</button>
-          <button class="action-btn delete">删除</button>
+
+        <div class="category-card">
+          <div class="category-icon-box" style="background: #fef3c7;">💰</div>
+          <div class="category-info">
+            <div class="category-name">财务</div>
+            <div class="category-desc">0 个项目</div>
+          </div>
+          <div class="category-actions">
+            <button class="action-btn">编辑</button>
+            <button class="action-btn delete">删除</button>
+          </div>
         </div>
       </div>
-      
-      <button class="add-category-btn">
-        <span style="font-size: 20px;">+</span>
+
+      <!-- 新建分类按钮 -->
+      <button class="add-category-btn" onclick="location.href='category-add.html'">
+        <span style="font-size: 20px; color: white;">+</span>
         新建分类
       </button>
-    </div>
-    
-    <div class="tabbar">
-      <div class="tab-item">
-        <div class="tab-icon">📝</div>
-        <div>待办</div>
-      </div>
-      <div class="tab-item">
-        <div class="tab-icon">🏠</div>
-        <div>首页</div>
-      </div>
-      <div class="tab-item">
-        <div class="tab-icon">📊</div>
-        <div>统计</div>
-      </div>
     </div>
   </div>
 </body>

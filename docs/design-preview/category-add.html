@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新建分类</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      padding-bottom: 10px;
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .header-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .header-btn.save {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .header-btn.save:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .header-btn.cancel:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .content {
+      background: #f8f9fa;
+      padding: 0;
+    }
+
+    .form-group {
+      background: white;
+      padding: 16px;
+      margin-bottom: 1px;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 15px;
+      transition: all 0.2s;
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      padding: 8px 0;
+    }
+
+    .icon-option {
+      width: 50px;
+      height: 50px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .icon-option:hover {
+      border-color: #667eea;
+      background: #f0f9ff;
+      transform: scale(1.05);
+    }
+
+    .icon-option.active {
+      border-color: #667eea;
+      background: #667eea;
+    }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      padding: 8px 0;
+    }
+
+    .color-option {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .color-option:hover {
+      transform: scale(1.1);
+    }
+
+    .color-option.active::after {
+      content: '✓';
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .color-option {
+      position: relative;
+    }
+
+    .color-option.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="header">
+      <button class="header-btn cancel" onclick="history.back()">取消</button>
+      <div class="header-title">新建分类</div>
+      <button class="header-btn save" onclick="alert('保存成功！')">保存</button>
+    </div>
+
+    <div class="content">
+      <!-- 分类名称 -->
+      <div class="form-group">
+        <label class="form-label">分类名称 <span style="color: #ef4444;">*</span></label>
+        <input type="text" class="form-input" placeholder="输入分类名称..." value="">
+      </div>
+
+      <!-- 选择图标 -->
+      <div class="form-group">
+        <label class="form-label">选择图标 <span style="color: #ef4444;">*</span></label>
+        <div class="icon-grid">
+          <div class="icon-option active">🏢</div>
+          <div class="icon-option">❤️</div>
+          <div class="icon-option">👶</div>
+          <div class="icon-option">📚</div>
+          <div class="icon-option">🏠</div>
+          <div class="icon-option">💰</div>
+          <div class="icon-option">🎯</div>
+          <div class="icon-option">🎨</div>
+          <div class="icon-option">🎵</div>
+          <div class="icon-option">⚽</div>
+          <div class="icon-option">🎪</div>
+          <div class="icon-option">✈️</div>
+          <div class="icon-option">📦</div>
+          <div class="icon-option">🎁</div>
+          <div class="icon-option">🌟</div>
+          <div class="icon-option">🔥</div>
+          <div class="icon-option">💡</div>
+        </div>
+      </div>
+
+      <!-- 选择颜色 -->
+      <div class="form-group">
+        <label class="form-label">背景颜色</label>
+        <div class="color-grid">
+          <div class="color-option active selected" style="background: #eff6ff;" data-icon="🏢"></div>
+          <div class="color-option" style="background: #fef2f2;" data-icon="❤️"></div>
+          <div class="color-option" style="background: #f0fdf4;" data-icon="👶"></div>
+          <div class="color-option" style="background: #fef3c7;" data-icon="💰"></div>
+          <div class="color-option" style="background: #f5f3ff;" data-icon="📚"></div>
+          <div class="color-option" style="background: #fef9e7;" data-icon="🏠"></div>
+          <div class="color-option" style="background: #f0f9ff;" data-icon="🎯"></div>
+          <div class="color-option" style="background: #fce7f3;" data-icon="🎨"></div>
+          <div class="color-option" style="background: #fee2e2;" data-icon="🎵"></div>
+          <div class="color-option" style="background: #fef0e0;" data-icon="⚽"></div>
+          <div class="color-option" style="background: #f9f0f0;" data-icon="🎪"></div>
+          <div class="color-option" style="background: #e8f5e9;" data-icon="🌟"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 图标选择
+      document.querySelectorAll('.icon-option').forEach(option => {
+        option.addEventListener('click', function() {
+          document.querySelectorAll('.icon-option').forEach(o => o.classList.remove('active'));
+          this.classList.add('active');
+
+          // 更新颜色选项显示的图标
+          const selectedIcon = this.textContent;
+          document.querySelectorAll('.color-option').forEach(o => {
+            o.textContent = selectedIcon;
+          });
+        });
+      });
+
+      // 颜色选择
+      document.querySelectorAll('.color-option').forEach(option => {
+        option.addEventListener('click', function() {
+          document.querySelectorAll('.color-option').forEach(o => {
+            o.classList.remove('active', 'selected');
+          });
+          this.classList.add('active', 'selected');
+        });
+      });
+    </script>
+  </div>
+</body>
+</html>

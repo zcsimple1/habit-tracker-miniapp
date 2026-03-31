@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>习惯打卡 - 添加待办</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      padding-bottom: 10px;
+    }
+    
+    .header-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    
+    .header-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    
+    .header-btn.save {
+      background: rgba(255, 255, 255, 0.25);
+    }
+    
+    .header-btn.save:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    
+    .header-btn.cancel:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .content {
+      background: #f8f9fa;
+      padding: 0;
+    }
+    
+    .form-group {
+      background: white;
+      padding: 16px;
+      margin-bottom: 1px;
+    }
+    
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 10px;
+      display: block;
+    }
+    
+    .form-input {
+      width: 100%;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 15px;
+      transition: all 0.2s;
+      outline: none;
+    }
+    
+    .form-input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-textarea {
+      width: 100%;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 15px;
+      transition: all 0.2s;
+      outline: none;
+      min-height: 80px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    
+    .form-textarea:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .form-col {
+      flex: 1;
+    }
+    
+    .select-wrapper {
+      position: relative;
+    }
+    
+    .form-select {
+      width: 100%;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 15px;
+      background: white;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+    }
+    
+    .form-select:focus {
+      border-color: #667eea;
+    }
+    
+    .select-arrow {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      pointer-events: none;
+    }
+    
+    .priority-options {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .priority-option {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    
+    .priority-option:hover {
+      border-color: #667eea;
+      background: #f0f9ff;
+    }
+    
+    .priority-option.active {
+      border-color: #667eea;
+      background: #667eea;
+      color: white;
+    }
+    
+    .priority-option.urgent {
+      border-color: #ef4444;
+    }
+    
+    .priority-option.urgent.active {
+      background: #ef4444;
+    }
+    
+    .priority-option.high {
+      border-color: #f97316;
+    }
+    
+    .priority-option.high.active {
+      background: #f97316;
+    }
+    
+    .priority-option.normal {
+      border-color: #667eea;
+    }
+    
+    .priority-option.low {
+      border-color: #6b7280;
+    }
+    
+    .priority-option.low.active {
+      background: #6b7280;
+    }
+    
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .toggle-label {
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+    }
+    
+    .toggle-switch {
+      width: 48px;
+      height: 28px;
+      background: #e5e7eb;
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .toggle-switch.active {
+      background: #10b981;
+    }
+    
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: all 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .toggle-switch.active::after {
+      left: 22px;
+    }
+    
+    .important-flag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="header">
+      <button class="header-btn cancel" onclick="history.back()">取消</button>
+      <div class="header-title">添加待办</div>
+      <button class="header-btn save" onclick="alert('保存成功！')">保存</button>
+    </div>
+    
+    <div class="content">
+      <!-- 任务标题 -->
+      <div class="form-group">
+        <label class="form-label">任务标题 <span style="color: #ef4444;">*</span></label>
+        <input type="text" class="form-input" placeholder="输入待办事项..." value="">
+      </div>
+      
+      <!-- 任务描述 -->
+      <div class="form-group">
+        <label class="form-label">任务描述</label>
+        <textarea class="form-textarea" placeholder="添加详细说明（可选）"></textarea>
+      </div>
+      
+      <!-- 分类和优先级 -->
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label class="form-label">分类</label>
+            <div class="select-wrapper">
+              <select class="form-select">
+                <option value="">无分类</option>
+                <option value="work">🏢 工作</option>
+                <option value="health">❤️ 健康</option>
+                <option value="child">👶 孩子</option>
+                <option value="study">📚 学习</option>
+                <option value="family">🏠 家庭</option>
+              </select>
+              <span class="select-arrow">▼</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-col">
+          <div class="form-group">
+            <label class="form-label">优先级</label>
+            <div class="priority-options">
+              <div class="priority-option low" onclick="selectPriority(this)">低</div>
+              <div class="priority-option normal active" onclick="selectPriority(this)">普通</div>
+              <div class="priority-option high" onclick="selectPriority(this)">高</div>
+              <div class="priority-option urgent" onclick="selectPriority(this)">紧急</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 截止时间 -->
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label class="form-label">截止日期</label>
+            <input type="date" class="form-input" value="2026-03-30">
+          </div>
+        </div>
+        <div class="form-col">
+          <div class="form-group">
+            <label class="form-label">截止时间</label>
+            <input type="time" class="form-input" value="">
+          </div>
+        </div>
+      </div>
+      
+      <!-- 重要标记 -->
+      <div class="form-group">
+        <div class="toggle-row">
+          <span class="toggle-label">
+            <span class="important-flag">🚩</span>
+            标记为重要
+          </span>
+          <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      function selectPriority(element) {
+        const options = element.parentElement.querySelectorAll('.priority-option');
+        options.forEach(opt => opt.classList.remove('active'));
+        element.classList.add('active');
+      }
+    </script>
+  </div>
+</body>
+</html>
