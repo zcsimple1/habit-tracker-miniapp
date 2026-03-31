@@ -1,33 +1,31 @@
 <view class="container">
-  <!-- 顶部标题 -->
+  <!-- 头部 -->
   <view class="header">
-    <view class="header-left">
-      <text class="cancel-btn" bindtap="onCancel">取消</text>
-    </view>
-    <text class="title">{{habitId ? '编辑习惯' : '新建习惯'}}</text>
-    <view class="header-right"></view>
+    <button class="header-btn cancel" bindtap="onCancel">取消</button>
+    <view class="header-title">{{habitId ? '编辑习惯' : '添加习惯'}}</view>
+    <button class="header-btn save" bindtap="onSave" disabled="{{loading}}">保存</button>
   </view>
 
-  <!-- 表单 -->
-  <view class="form">
+  <!-- 表单内容 -->
+  <view class="content">
     <!-- 习惯名称 -->
-    <view class="form-item">
-      <view class="label">习惯名称</view>
+    <view class="form-group">
+      <view class="form-label">习惯名称 <text class="required">*</text></view>
       <input
-        class="input"
-        placeholder="例如：早起/跑步/读书"
+        class="form-input"
+        placeholder="输入习惯名称..."
         value="{{name}}"
         bindinput="onNameInput"
         maxlength="30"
       />
     </view>
 
-    <!-- 描述 -->
-    <view class="form-item vertical">
-      <view class="label">描述（可选）</view>
+    <!-- 习惯描述 -->
+    <view class="form-group">
+      <view class="form-label">习惯描述</view>
       <textarea
-        class="textarea"
-        placeholder="输入描述信息"
+        class="form-textarea"
+        placeholder="添加详细说明（可选）"
         value="{{description}}"
         bindinput="onDescInput"
         maxlength="100"
@@ -35,96 +33,124 @@
     </view>
 
     <!-- 所属分类 -->
-    <view class="form-item">
-      <view class="label">所属分类</view>
+    <view class="form-group">
+      <view class="form-label">所属分类 <text class="required">*</text></view>
       <picker mode="selector" range="{{categories}}" range-key="name" value="{{categoryIndex}}" bindchange="onCategoryChange">
-        <view class="picker">{{categoryName}}</view>
+        <view class="form-picker">
+          <text>{{categoryName}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
       </picker>
     </view>
 
-    <!-- 时间规则 -->
-    <view class="form-section">
-      <view class="section-title">时间规则</view>
+    <!-- 循环规则 -->
+    <view class="form-group">
+      <view class="form-label">循环规则 <text class="required">*</text></view>
+      <view class="radio-group">
+        <view
+          class="radio-option {{timeRuleTypeIndex === 0 ? 'active' : ''}}"
+          bindtap="onTimeRuleTypeChange"
+          data-index="0"
+        >
+          <text class="radio-icon">📅</text> 每日
+        </view>
+        <view
+          class="radio-option {{timeRuleTypeIndex === 1 ? 'active' : ''}}"
+          bindtap="onTimeRuleTypeChange"
+          data-index="1"
+        >
+          <text class="radio-icon">💼</text> 工作日
+        </view>
+        <view
+          class="radio-option {{timeRuleTypeIndex === 2 ? 'active' : ''}}"
+          bindtap="onTimeRuleTypeChange"
+          data-index="2"
+        >
+          <text class="radio-icon">🎪</text> 周末
+        </view>
+        <view
+          class="radio-option {{timeRuleTypeIndex === 3 ? 'active' : ''}}"
+          bindtap="onTimeRuleTypeChange"
+          data-index="3"
+        >
+          <text class="radio-icon">📆</text> 每周
+        </view>
+        <view
+          class="radio-option {{timeRuleTypeIndex === 4 ? 'active' : ''}}"
+          bindtap="onTimeRuleTypeChange"
+          data-index="4"
+        >
+          <text class="radio-icon">✏️</text> 自定义
+        </view>
+      </view>
 
-      <!-- 规则类型 -->
-      <view class="form-item">
-        <view class="label">重复规则</view>
-        <picker mode="selector" range="{{['每日', '仅工作日', '仅周末', '每周指定日期', '自定义日期']}}" value="{{timeRuleTypeIndex}}" bindchange="onTimeRuleTypeChange">
-          <view class="picker">{{timeRuleTypeText}}</view>
+      <!-- 每周选择（仅在 weekly 模式下显示） -->
+      <view wx:if="{{timeRuleTypeIndex === 3}}" class="weekday-selector">
+        <view class="form-label">选择星期几</view>
+        <view class="weekday-desc">勾选需要在哪些星期几打卡</view>
+        <view class="weekday-options">
+          <view
+            wx:for="{{[1,2,3,4,5,6,7]}}"
+            wx:key="*this"
+            class="weekday-option {{timeRule.weekDays.includes(item) ? 'active' : ''}}"
+            bindtap="onWeekDayToggle"
+            data-day="{{item}}"
+          >
+            {{['','一','二','三','四','五','六','日'][item]}}
+          </view>
+        </view>
+        <view class="weekdays-selected">
+          已选择：<text>{{timeRule.weekDays.length}}天</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 固定打卡时间 -->
+    <view class="form-group">
+      <view class="toggle-row">
+        <view>
+          <view class="toggle-label">固定打卡时间</view>
+          <view class="toggle-desc">设置后会在固定时间提醒</view>
+        </view>
+        <view class="toggle-switch {{showTimeInput ? 'active' : ''}}" bindtap="onToggleTimeInput"></view>
+      </view>
+
+      <view wx:if="{{showTimeInput}}" class="time-inputs">
+        <picker mode="time" value="{{timeRule.fixedTime}}" bindchange="onTimePickerConfirm">
+          <view class="form-input">{{timeRule.fixedTime || '选择时间'}}</view>
         </picker>
       </view>
+    </view>
 
-      <!-- 每周指定日期 -->
-      <view wx:if="{{timeRule.type === 'weekly'}}" class="week-days">
-        <view
-          wx:for="{{[1,2,3,4,5,6,7]}}"
-          wx:key="*this"
-          class="week-day {{timeRule.weekDays.includes(item) ? 'active' : ''}}"
-          bindtap="onWeekDayToggle"
-          data-day="{{item}}"
-        >
-          {{['','一','二','三','四','五','六','日'][item]}}
+    <!-- 有效期 -->
+    <view class="form-group">
+      <view class="toggle-row">
+        <view>
+          <view class="toggle-label">设置有效期</view>
+          <view class="toggle-desc">仅在有效期内显示此习惯</view>
         </view>
+        <view class="toggle-switch {{showDateInput ? 'active' : ''}}" bindtap="onToggleDateInput"></view>
       </view>
 
-      <!-- 固定时间 -->
-      <view class="form-item">
-        <view class="label">固定时间（可选）</view>
-        <view class="time-picker-row">
-          <input
-            class="input"
-            placeholder="如: 08:00"
-            value="{{timeRule.fixedTime}}"
-            bindinput="onFixedTimeChange"
-          />
-          <button class="time-btn" size="mini" bindtap="onShowTimePicker">选择时间</button>
-        </view>
-      </view>
-
-      <!-- 时间选择器 -->
-      <picker
-        wx:if="{{showTimePicker}}"
-        mode="time"
-        value="{{timeRule.fixedTime}}"
-        bindchange="onTimePickerConfirm"
-        bindcancel="onTimePickerCancel"
-      />
-
-      <!-- 有效期 -->
-      <view class="form-section-inner">
-        <view class="form-item">
-          <view class="label">开始日期（可选）</view>
-          <picker mode="date" value="{{timeRule.startDate}}" bindchange="onStartDateChange">
-            <view class="picker">{{timeRule.startDate || '选择开始日期'}}</view>
-          </picker>
-        </view>
-
-        <view class="form-item">
-          <view class="label">结束日期（可选）</view>
-          <picker mode="date" value="{{timeRule.endDate}}" bindchange="onEndDateChange">
-            <view class="picker">{{timeRule.endDate || '选择结束日期'}}</view>
-          </picker>
-        </view>
+      <view wx:if="{{showDateInput}}" class="date-inputs">
+        <picker mode="date" value="{{timeRule.startDate}}" bindchange="onStartDateChange">
+          <view class="form-input">{{timeRule.startDate || '选择开始日期'}}</view>
+        </picker>
+        <picker mode="date" value="{{timeRule.endDate}}" bindchange="onEndDateChange">
+          <view class="form-input">{{timeRule.endDate || '选择结束日期'}}</view>
+        </picker>
       </view>
     </view>
 
     <!-- 重要标记 -->
-    <view class="form-item">
-      <view class="label">标记为重要</view>
-      <view class="important-info">
-        <switch checked="{{important}}" bindchange="onImportantChange" />
-        <text class="important-text">重要习惯会显示小红旗标识</text>
+    <view class="form-group">
+      <view class="toggle-row">
+        <text class="toggle-label">
+          <text class="important-flag">🚩</text>
+          标记为重要
+        </text>
+        <view class="toggle-switch {{important ? 'active' : ''}}" bindtap="onImportantToggle"></view>
       </view>
     </view>
-  </view>
-
-  <!-- 底部操作栏 -->
-  <view class="bottom-actions">
-    <button wx:if="{{habitId}}" class="delete-btn" bindtap="onDelete" disabled="{{loading}}">
-      删除习惯
-    </button>
-    <button class="save-btn" bindtap="onSave" disabled="{{loading}}">
-      {{loading ? '保存中...' : '保存'}}
-    </button>
   </view>
 </view>

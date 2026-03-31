@@ -26,10 +26,9 @@ Page({
     // 重要标记
     important: false,
 
-    // 日期选择显示
-    showStartDatePicker: false,
-    showEndDatePicker: false,
-    showTimePicker: false,
+    // 显示控制
+    showTimeInput: false,
+    showDateInput: false,
 
     loading: false
   },
@@ -154,17 +153,25 @@ Page({
 
   // 时间规则选择
   onTimeRuleTypeChange(e) {
-    const index = parseInt(e.detail.value)
+    const index = parseInt(e.currentTarget.dataset.index)
     const types = this.data.timeRuleTypes
-    const typeTexts = ['每日', '仅工作日', '仅周末', '每周指定日期', '自定义日期']
 
     this.setData({
       'timeRule.type': types[index],
       timeRuleTypeIndex: index,
-      timeRuleTypeText: typeTexts[index],
       'timeRule.weekDays': [],
       'timeRule.customDates': []
     })
+  },
+
+  // 切换时间输入显示
+  onToggleTimeInput() {
+    this.setData({ showTimeInput: !this.data.showTimeInput })
+  },
+
+  // 切换日期输入显示
+  onToggleDateInput() {
+    this.setData({ showDateInput: !this.data.showDateInput })
   },
 
   // 星期选择（weekly模式）
@@ -187,24 +194,19 @@ Page({
     this.setData({ 'timeRule.fixedTime': e.detail.value })
   },
 
-  // 显示时间选择器
-  onShowTimePicker() {
-    this.setData({ showTimePicker: true })
-  },
-
   // 时间选择器确认
   onTimePickerConfirm(e) {
-    const { hour, minute } = e.detail
-    const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
-    this.setData({
-      'timeRule.fixedTime': time,
-      showTimePicker: false
-    })
+    this.setData({ 'timeRule.fixedTime': e.detail.value })
   },
 
-  // 时间选择器取消
-  onTimePickerCancel() {
-    this.setData({ showTimePicker: false })
+  // 重要标记切换
+  onImportantToggle() {
+    this.setData({ important: !this.data.important })
+  },
+
+  // 原有方法保持兼容
+  onImportantChange(e) {
+    this.setData({ important: e.detail.checked })
   },
 
   // 开始日期选择
@@ -226,6 +228,11 @@ Page({
   // 取消
   onCancel() {
     wx.navigateBack()
+  },
+
+  // 重要标记切换（新方法）
+  onImportantToggle() {
+    this.setData({ important: !this.data.important })
   },
 
   async onSave() {
