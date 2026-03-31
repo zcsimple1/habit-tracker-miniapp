@@ -6,9 +6,6 @@ Page({
     // 日期选择
     currentDate: new Date(),
     selectedDate: new Date(),
-    displayDate: '',
-    displayWeekday: '',
-    isToday: true,
 
     // 视图模式: category | time
     viewMode: 'category',
@@ -32,11 +29,8 @@ Page({
     // 加载状态
     loading: false,
 
-    // 日历相关
+    // 日历弹窗显示状态
     showCalendar: false,
-    calendarYear: new Date().getFullYear(),
-    calendarMonth: new Date().getMonth(),
-    calendarDays: [],
 
     // 有打卡记录的日期列表（YYYY-MM-DD格式）
     checkinDates: []
@@ -84,50 +78,37 @@ Page({
 
   // 更新日期显示
   updateDateDisplay() {
-    let date = this.data.currentDate
-    const today = new Date()
-
-    // 确保 date 是 Date 对象
-    if (!(date instanceof Date)) {
-      date = new Date(date)
-      this.setData({ currentDate: date })
-    }
-
-    const todayYMD = toYMD(today)
-    const currentYMD = toYMD(date)
-
-    // 判断是否为今天
-    const isToday = todayYMD === currentYMD
-
-    // 格式化日期
-    const year = date.getFullYear()
-    const month = date.getMonth() + 1
-    const day = date.getDate()
-    const weekday = ['日', '一', '二', '三', '四', '五', '六'][date.getDay()]
-
-    this.setData({
-      displayDate: `${year}年${month}月${day}日`,
-      displayWeekday: `星期${weekday}`,
-      isToday
-    })
+    // 由date-picker组件自动处理
   },
 
   // 切换日期
   onChangeDate(e) {
-    const { delta } = e.currentTarget.dataset
+    const { delta } = e.detail
     const newDate = new Date(this.data.currentDate)
     newDate.setDate(newDate.getDate() + delta)
 
     this.setData({ currentDate: newDate })
-    this.updateDateDisplay()
+    this.updateCalendarDate()
     this.loadData()
   },
 
   // 选择日期
   async onChooseDate() {
+    this.updateCalendarDate()
     this.setData({ showCalendar: true })
     await this.loadCheckinDates()
-    this.renderCalendar()
+  },
+
+  // 选择日期（日历）
+  onSelectDate(e) {
+    const { date } = e.detail
+    this.setData({
+      currentDate: date,
+      selectedDate: date,
+      showCalendar: false
+    })
+    this.updateDateDisplay()
+    this.loadData()
   },
 
   // 切换视图模式
@@ -187,103 +168,18 @@ Page({
     }
   },
 
-  // 渲染日历
-  renderCalendar() {
-    const { calendarYear, calendarMonth } = this.data
-    const firstDay = new Date(calendarYear, calendarMonth, 1)
-    const lastDay = new Date(calendarYear, calendarMonth + 1, 0)
-    const startDay = firstDay.getDay()
-    const totalDays = lastDay.getDate()
-
-    const days = []
-
-    // 上个月的日期
-    const prevLastDay = new Date(calendarYear, calendarMonth, 0).getDate()
-    for (let i = startDay - 1; i >= 0; i--) {
-      days.push({
-        day: prevLastDay - i,
-        isOtherMonth: true,
-        isToday: false,
-        isSelected: false,
-        hasCheckin: false
-      })
-    }
-
-    // 当前月的日期
-    const today = new Date()
-    const { checkinDates } = this.data
-
-    for (let i = 1; i <= totalDays; i++) {
-      const isTodayDate = i === today.getDate() && calendarMonth === today.getMonth() && calendarYear === today.getFullYear()
-      const isSelected = i === this.data.selectedDate.getDate() && calendarMonth === this.data.selectedDate.getMonth() && calendarYear === this.data.selectedDate.getFullYear()
-
-      // 检查该日期是否有打卡记录
-      const currentDateStr = toYMD(new Date(calendarYear, calendarMonth, i))
-      const hasCheckin = checkinDates.includes(currentDateStr)
-
-      days.push({
-        day: i,
-        isOtherMonth: false,
-        isToday: isTodayDate,
-        isSelected,
-        hasCheckin
-      })
-    }
-
-    // 下个月的日期
-    const remainingDays = 42 - (startDay + totalDays)
-    for (let i = 1; i <= remainingDays; i++) {
-      days.push({
-        day: i,
-        isOtherMonth: true,
-        isToday: false,
-        isSelected: false,
-        hasCheckin: false
-      })
-    }
-
-    this.setData({ calendarDays: days })
-  },
-
-  // 选择日期
-  onSelectDate(e) {
-    const { index } = e.currentTarget.dataset
-    const day = this.data.calendarDays[index]
-
-    if (day.isOtherMonth) return
-
-    const newDate = new Date(this.data.calendarYear, this.data.calendarMonth, day.day)
-    this.setData({
-      currentDate: newDate,
-      selectedDate: newDate,
-      showCalendar: false
-    })
-
-    this.updateDateDisplay()
-    this.loadData()
-  },
-
-  // 月份切换
-  onMonthChange(e) {
-    const { delta } = e.currentTarget.dataset
-    let { calendarYear, calendarMonth } = this.data
-    calendarMonth += parseInt(delta)
-
-    if (calendarMonth < 0) {
-      calendarMonth = 11
-      calendarYear--
-    } else if (calendarMonth > 11) {
-      calendarMonth = 0
-      calendarYear++
-    }
-
-    this.setData({ calendarYear, calendarMonth })
-    this.renderCalendar()
-  },
-
   // 关闭日历
   onCloseCalendar() {
     this.setData({ showCalendar: false })
+  },
+
+  // 更新日历年月
+  updateCalendarDate() {
+    const { currentDate } = this.data
+    this.setData({
+      calendarYear: currentDate.getFullYear(),
+      calendarMonth: currentDate.getMonth()
+    })
   },
 
   // 加载数据

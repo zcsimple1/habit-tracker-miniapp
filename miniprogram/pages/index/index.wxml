@@ -10,15 +10,11 @@
     </view>
 
     <!-- 日期选择器 -->
-    <view class="date-picker-container">
-      <button class="date-nav-btn" bindtap="onChangeDate" data-delta="-1">◀</button>
-      <view class="date-display" bindtap="onChooseDate">
-        <text class="date-text">{{displayDate}}</text>
-        <text class="date-weekday">{{displayWeekday}}</text>
-        <text class="date-badge {{isToday ? 'today' : 'history'}}">{{isToday ? '今天' : '查看'}}</text>
-      </view>
-      <button class="date-nav-btn" bindtap="onChangeDate" data-delta="1">▶</button>
-    </view>
+    <date-picker
+      currentDate="{{currentDate}}"
+      bind:change="onChangeDate"
+      bind:openCalendar="onChooseDate"
+    />
 
     <!-- 模式切换 -->
     <view class="header-controls">
@@ -125,39 +121,15 @@
   </view>
 
   <!-- 日历弹窗 -->
-  <view wx:if="{{showCalendar}}" class="calendar-modal" catchtap="onCloseCalendar">
-    <view class="calendar-content" catchtap="">
-      <view class="calendar-header">
-        <text class="calendar-month">{{calendarYear}}年{{calendarMonth + 1}}月</text>
-        <text class="calendar-close" bindtap="onCloseCalendar">×</text>
-      </view>
-      <view class="calendar-weekdays">
-        <text class="calendar-weekday">日</text>
-        <text class="calendar-weekday">一</text>
-        <text class="calendar-weekday">二</text>
-        <text class="calendar-weekday">三</text>
-        <text class="calendar-weekday">四</text>
-        <text class="calendar-weekday">五</text>
-        <text class="calendar-weekday">六</text>
-      </view>
-      <view class="calendar-days">
-        <view
-          wx:for="{{calendarDays}}"
-          wx:key="index"
-          class="calendar-day {{item.isOtherMonth ? 'other-month' : ''}} {{item.isToday ? 'today' : ''}} {{item.isSelected ? 'selected' : ''}}"
-          bindtap="onSelectDate"
-          data-index="{{index}}"
-        >
-          {{item.day}}
-          <view wx:if="{{item.hasCheckin && !item.isOtherMonth}}" class="calendar-dot"></view>
-        </view>
-      </view>
-      <view class="calendar-footer">
-        <button class="calendar-nav-btn" bindtap="onMonthChange" data-delta="-1">上个月</button>
-        <button class="calendar-nav-btn" bindtap="onMonthChange" data-delta="1">下个月</button>
-      </view>
-    </view>
-  </view>
+  <calendar
+    wx:if="{{showCalendar}}"
+    year="{{calendarYear}}"
+    month="{{calendarMonth}}"
+    selectedDate="{{selectedDate}}"
+    markedDates="{{checkinDates}}"
+    bind:select="onSelectDate"
+    bind:close="onCloseCalendar"
+  />
 
   <!-- 自定义底部导航 -->
   <custom-tabbar currentPage="pages/index/index" />

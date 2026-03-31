@@ -1,6 +1,8 @@
 {
   "navigationBarTitleText": "打卡",
   "usingComponents": {
-    "custom-tabbar": "/components/custom-tabbar/custom-tabbar"
+    "custom-tabbar": "/components/custom-tabbar/custom-tabbar",
+    "date-picker": "/components/date-picker/date-picker",
+    "calendar": "/components/calendar/calendar"
   }
 }
