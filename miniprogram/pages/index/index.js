@@ -1,5 +1,5 @@
 const { toYMD } = require('../../utils/date')
-const { getAllCategories, getCategoryIcon, getCategoryColor } = require('../../utils/preset-categories')
+const { getAllCategories, getCategoryIcon, getCategoryColor } = require('../../utils/preset-categories.js')
 
 Page({
   data: {

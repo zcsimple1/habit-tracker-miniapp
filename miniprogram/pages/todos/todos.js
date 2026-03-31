@@ -1,5 +1,5 @@
 const { toYMD } = require('../../utils/date')
-const { PRESET_CATEGORIES } = require('../../utils/preset-categories')
+const { PRESET_CATEGORIES } = require('../../utils/preset-categories.js')
 
 Page({
   data: {

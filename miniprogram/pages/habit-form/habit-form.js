@@ -1,3 +1,5 @@
+const { getAllCategories } = require('../../utils/preset-categories.js')
+
 Page({
   data: {
     habitId: null,
@@ -230,6 +232,14 @@ Page({
     if (!this.data.name.trim()) {
       wx.showToast({
         title: '请输入习惯名称',
+        icon: 'none'
+      })
+      return
+    }
+
+    if (!this.data.categoryId) {
+      wx.showToast({
+        title: '请选择分类',
         icon: 'none'
       })
       return

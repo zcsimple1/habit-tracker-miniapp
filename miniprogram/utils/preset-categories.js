@@ -5,7 +5,7 @@
  */
 
 // 预设分类列表
-export const PRESET_CATEGORIES = [
+const PRESET_CATEGORIES = [
   {
     id: 'work',
     name: '工作',
@@ -61,7 +61,7 @@ export const PRESET_CATEGORIES = [
  * @param {Array} customCategories - 用户自定义分类
  * @returns {Array} 所有分类
  */
-export function getAllCategories(customCategories = []) {
+function getAllCategories(customCategories = []) {
   // 预设分类保持固定
   const presets = PRESET_CATEGORIES.map(cat => ({
     ...cat,
@@ -83,7 +83,7 @@ export function getAllCategories(customCategories = []) {
  * @param {Array} customCategories - 用户自定义分类
  * @returns {Object|null} 分类对象
  */
-export function getCategoryById(categoryId, customCategories = []) {
+function getCategoryById(categoryId, customCategories = []) {
   // 先在预设分类中查找
   const preset = PRESET_CATEGORIES.find(cat => cat.id === categoryId)
   if (preset) {
@@ -105,7 +105,7 @@ export function getCategoryById(categoryId, customCategories = []) {
  * @param {Array} customCategories - 用户自定义分类
  * @returns {string} 图标
  */
-export function getCategoryIcon(categoryId, customCategories = []) {
+function getCategoryIcon(categoryId, customCategories = []) {
   const category = getCategoryById(categoryId, customCategories)
   return category ? category.icon : '📦'
 }
@@ -116,7 +116,7 @@ export function getCategoryIcon(categoryId, customCategories = []) {
  * @param {Array} customCategories - 用户自定义分类
  * @returns {string} 颜色
  */
-export function getCategoryColor(categoryId, customCategories = []) {
+function getCategoryColor(categoryId, customCategories = []) {
   const category = getCategoryById(categoryId, customCategories)
   return category ? category.color : '#f3f4f6'
 }
@@ -126,6 +126,16 @@ export function getCategoryColor(categoryId, customCategories = []) {
  * @param {string} categoryId - 分类ID
  * @returns {boolean}
  */
-export function isPresetCategory(categoryId) {
+function isPresetCategory(categoryId) {
   return PRESET_CATEGORIES.some(cat => cat.id === categoryId)
+}
+
+// 导出所有函数
+module.exports = {
+  PRESET_CATEGORIES,
+  getAllCategories,
+  getCategoryById,
+  getCategoryIcon,
+  getCategoryColor,
+  isPresetCategory
 }

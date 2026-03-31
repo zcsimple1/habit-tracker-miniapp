@@ -1,0 +1,15 @@
+{
+  "name": "habit-tracker-miniapp",
+  "version": "1.0.0",
+  "description": "一个功能完善的微信小程序，支持习惯管理、分类打卡、待办事项、统计分析等功能。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
