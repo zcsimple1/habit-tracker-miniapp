@@ -1,10 +1,51 @@
 // cloudfunctions/stats/index.js
 const cloud = require('wx-server-sdk')
 const dayjs = require('dayjs')
-const { getToday, getDateRange, calculateCompletionRate } = require('../common')
 
-cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
+cloud.init({ env: 'cloudbase-8gw8f3c75c015f6' })
 const db = cloud.database()
+
+// 工具函数
+function getToday() {
+  return dayjs().format('YYYY-MM-DD')
+}
+
+function getDateRange(type) {
+  const today = dayjs()
+
+  switch (type) {
+    case 'today':
+      return {
+        startDate: today.format('YYYY-MM-DD'),
+        endDate: today.format('YYYY-MM-DD')
+      }
+    case 'week':
+      return {
+        startDate: today.startOf('week').format('YYYY-MM-DD'),
+        endDate: today.endOf('week').format('YYYY-MM-DD')
+      }
+    case 'month':
+      return {
+        startDate: today.startOf('month').format('YYYY-MM-DD'),
+        endDate: today.endOf('month').format('YYYY-MM-DD')
+      }
+    case 'year':
+      return {
+        startDate: today.startOf('year').format('YYYY-MM-DD'),
+        endDate: today.endOf('year').format('YYYY-MM-DD')
+      }
+    default:
+      return {
+        startDate: today.format('YYYY-MM-DD'),
+        endDate: today.format('YYYY-MM-DD')
+      }
+  }
+}
+
+function calculateCompletionRate(completed, total) {
+  if (total === 0) return 0
+  return Math.round((completed / total) * 100)
+}
 
 /**
  * 统计云函数

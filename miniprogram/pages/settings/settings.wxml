@@ -1,0 +1,126 @@
+<view class="container">
+  <!-- 头部 -->
+  <view class="header">
+    <view class="header-title">设置</view>
+  </view>
+
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <view class="user-avatar">
+      <text class="avatar-placeholder">👤</text>
+    </view>
+    <view class="user-info">
+      <view class="user-name">{{userInfo.nickName || '未登录'}}</view>
+      <view class="user-desc">{{userInfo.nickName ? '坚持养成好习惯' : '点击登录使用全部功能'}}</view>
+    </view>
+    <button wx:if="{{!userInfo.nickName}}" class="login-btn" bindtap="onLogin">登录</button>
+  </view>
+
+  <!-- 功能设置 -->
+  <view class="section">
+    <view class="section-title">功能设置</view>
+    <view class="setting-list">
+      <view class="setting-item" bindtap="onManageCategories">
+        <view class="setting-icon">🏷️</view>
+        <view class="setting-info">
+          <view class="setting-name">管理分类</view>
+          <view class="setting-desc">添加、编辑分类</view>
+        </view>
+        <view class="setting-arrow">▶</view>
+      </view>
+
+      <view class="setting-item" bindtap="onPresetCategories">
+        <view class="setting-icon">📦</view>
+        <view class="setting-info">
+          <view class="setting-name">预设分类</view>
+          <view class="setting-desc">快速添加常用分类</view>
+        </view>
+        <view class="setting-arrow">▶</view>
+      </view>
+
+      <view class="setting-item" bindtap="onInitDatabase">
+        <view class="setting-icon">🗄️</view>
+        <view class="setting-info">
+          <view class="setting-name">初始化数据库</view>
+          <view class="setting-desc">重置所有数据</view>
+        </view>
+        <view class="setting-arrow">▶</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 界面设置 -->
+  <view class="section">
+    <view class="section-title">界面设置</view>
+    <view class="setting-list">
+      <view class="setting-item">
+        <view class="setting-icon">👁️</view>
+        <view class="setting-info">
+          <view class="setting-name">隐藏已完成</view>
+          <view class="setting-desc">自动隐藏已打卡项目</view>
+        </view>
+        <switch checked="{{hideCompleted}}" bindchange="onHideCompletedChange" />
+      </view>
+
+      <view class="setting-item">
+        <view class="setting-icon">🔔</view>
+        <view class="setting-info">
+          <view class="setting-name">打卡提醒</view>
+          <view class="setting-desc">开启后会在指定时间提醒</view>
+        </view>
+        <switch checked="{{reminderEnabled}}" bindchange="onReminderChange" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 数据管理 -->
+  <view class="section">
+    <view class="section-title">数据管理</view>
+    <view class="setting-list">
+      <view class="setting-item" bindtap="onExportData">
+        <view class="setting-icon">📤</view>
+        <view class="setting-info">
+          <view class="setting-name">导出数据</view>
+          <view class="setting-desc">导出所有习惯和打卡记录</view>
+        </view>
+        <view class="setting-arrow">▶</view>
+      </view>
+
+      <view class="setting-item" bindtap="onSyncData">
+        <view class="setting-icon">🔄</view>
+        <view class="setting-info">
+          <view class="setting-name">同步数据</view>
+          <view class="setting-desc">同步到云端</view>
+        </view>
+        <view class="setting-arrow">▶</view>
+      </view>
+
+      <view class="setting-item" bindtap="onClearData">
+        <view class="setting-icon">🗑️</view>
+        <view class="setting-info">
+          <view class="setting-name danger">清除所有数据</view>
+          <view class="setting-desc danger">删除所有习惯和记录</view>
+        </view>
+        <view class="setting-arrow">▶</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 关于 -->
+  <view class="section">
+    <view class="section-title">关于</view>
+    <view class="setting-list">
+      <view class="setting-item" bindtap="onAbout">
+        <view class="setting-icon">ℹ️</view>
+        <view class="setting-info">
+          <view class="setting-name">关于</view>
+          <view class="setting-desc">版本 2.0.0</view>
+        </view>
+        <view class="setting-arrow">▶</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 自定义底部导航 -->
+  <custom-tabbar currentPage="pages/settings/settings" />
+</view>

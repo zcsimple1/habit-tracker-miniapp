@@ -4,8 +4,8 @@
   "description": "公共工具函数",
   "main": "index.js",
   "dependencies": {
-    "wx-server-sdk": "latest",
-    "dayjs": "^1.11.0",
+    "wx-server-sdk": "~2.6.3",
+    "dayjs": "^1.11.10",
     "lodash": "^4.17.21"
   }
 }

@@ -1,9 +1,43 @@
 // cloudfunctions/habit/index.js
 const cloud = require('wx-server-sdk')
-const { getToday, shouldShowOnDate } = require('../common')
+const dayjs = require('dayjs')
 
-cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
+cloud.init({ env: 'cloudbase-8gw8fj3c75c015f6' })
 const db = cloud.database()
+
+// 工具函数
+function getToday() {
+  return dayjs().format('YYYY-MM-DD')
+}
+
+function shouldShowOnDate(habit, ymd) {
+  if (!habit.active) return false
+
+  const { timeRule } = habit
+  if (!timeRule) return true
+
+  // 检查日期范围
+  if (timeRule.startDate && ymd < timeRule.startDate) return false
+  if (timeRule.endDate && ymd > timeRule.endDate) return false
+
+  const date = dayjs(ymd)
+  const dayOfWeek = date.day()
+
+  switch (timeRule.type) {
+    case 'daily':
+      return true
+    case 'weekdays':
+      return dayOfWeek >= 1 && dayOfWeek <= 5
+    case 'weekend':
+      return dayOfWeek === 0 || dayOfWeek === 6
+    case 'weekly':
+      return timeRule.weekDays && timeRule.weekDays.includes(dayOfWeek)
+    case 'custom':
+      return timeRule.customDates && timeRule.customDates.includes(ymd)
+    default:
+      return true
+  }
+}
 
 /**
  * 习惯云函数

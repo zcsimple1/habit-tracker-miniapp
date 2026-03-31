@@ -5,9 +5,9 @@ App({
       return;
     }
 
-    wx.cloud.init({
-      env: "zcsimple1-yun001-5fwuf5q0949ed7d",
-      traceUser: true
-    });
+  wx.cloud.init({
+    env: "cloudbase-8gw8fj3c75c015f6",
+    traceUser: true
+  });
   }
 });

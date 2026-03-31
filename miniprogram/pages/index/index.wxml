@@ -1,30 +1,129 @@
-<view class="card">
-  <view class="row">
-    <view class="title">今日打卡</view>
-    <button size="mini" bindtap="onAdd">+ 新建习惯</button>
-  </view>
-  <view class="muted" style="margin-top: 12rpx;">点击习惯右侧按钮完成/取消今日打卡</view>
-</view>
-
-<block wx:if="{{habits.length === 0}}">
-  <view class="card">
-    <view class="muted">还没有习惯，先建一个吧。</view>
-  </view>
-</block>
-
-<block wx:for="{{habits}}" wx:key="id">
-  <view class="card">
-    <view class="row">
-      <view>
-        <view style="font-size: 32rpx; font-weight: 600;">{{item.name}}</view>
-        <view class="muted">连续：{{item.streak}} 天 · 近7天：{{item.last7.rate}}% · 本月：{{item.monthCount}} 天</view>
+<view class="container">
+  <!-- 头部 -->
+  <view class="header">
+    <view class="header-title">
+      今日打卡
+      <view class="header-eye {{showCompleted ? '' : 'closed'}}" bindtap="toggleShowCompleted">
+        <text class="eye-open">👁</text>
+        <text class="eye-closed">🙈</text>
       </view>
-      <view style="display:flex; gap: 12rpx; align-items:center;">
-        <button size="mini" bindtap="onEdit" data-id="{{item.id}}">编辑</button>
-        <button size="mini" type="{{item.checked ? 'primary' : 'default'}}" bindtap="onToggle" data-id="{{item.id}}">
-          {{item.checked ? '已打卡' : '打卡'}}
-        </button>
+    </view>
+
+    <!-- 日期选择器 -->
+    <view class="date-picker-container">
+      <button class="date-nav-btn" bindtap="onChangeDate" data-delta="-1">◀</button>
+      <view class="date-display" bindtap="onChooseDate">
+        <text class="date-text">{{displayDate}}</text>
+        <text class="date-weekday">{{displayWeekday}}</text>
+        <text class="date-badge {{isToday ? 'today' : 'history'}}">{{isToday ? '今天' : '查看'}}</text>
+      </view>
+      <button class="date-nav-btn" bindtap="onChangeDate" data-delta="1">▶</button>
+    </view>
+
+    <!-- 模式切换 -->
+    <view class="header-controls">
+      <view class="view-toggle">
+        <view class="toggle-btn {{viewMode === 'category' ? 'active' : ''}}" bindtap="toggleViewMode">
+          📋 分类模式
+        </view>
+        <view class="toggle-btn {{viewMode === 'time' ? 'active' : ''}}" bindtap="toggleViewMode">
+          📅 时间模式
+        </view>
+      </view>
+      <button class="add-habit-btn" bindtap="onAddHabit">➕</button>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
+
+  <!-- 分类模式 -->
+  <view wx:if="{{viewMode === 'category' && !loading}}" class="content">
+    <view wx:if="{{categoryGroups.length === 0}}" class="empty-state">
+      <view class="empty-icon">📋</view>
+      <view class="empty-text">还没有习惯</view>
+      <view class="empty-desc">开始添加第一个习惯吧</view>
+      <button class="empty-btn" bindtap="onAddHabit">添加习惯</button>
+    </view>
+    <view wx:for="{{categoryGroups}}" wx:key="_id" class="category-card {{!item.expanded ? 'collapsed' : ''}}" data-category-id="{{item._id}}">
+      <!-- 分类标题 -->
+      <view class="category-header" bindtap="onToggleCategory" data-category-id="{{item._id}}">
+        <text class="category-icon">{{item.icon}}</text>
+        <text class="category-name">{{item.name}}</text>
+        <text class="category-count">{{item.completed}}/{{item.total}}</text>
+        <text class="category-arrow">{{item.expanded ? '▼' : '▶'}}</text>
+      </view>
+      
+      <!-- 习惯列表 -->
+      <view class="category-items" wx:if="{{item.expanded}}">
+        <view wx:for="{{item.habits}}" wx:for-item="habit" wx:key="_id" 
+              class="habit-item {{habit.checked ? 'hidden-item' : ''}} {{!showCompleted && habit.checked ? 'show-hidden' : ''}}" 
+              data-habit-id="{{habit._id}}">
+          <!-- 复选框 -->
+          <view class="habit-checkbox {{habit.checked ? 'checked' : ''}}" 
+                bindtap="habit.checked ? 'onUncheckin' : 'onCheckin'" 
+                data-habit-id="{{habit._id}}">
+            {{habit.checked ? '✓' : ''}}
+          </view>
+          
+          <!-- 时间 -->
+          <text class="habit-time" wx:if="{{habit.timeRule.fixedTime}}">{{habit.timeRule.fixedTime}}</text>
+          <text class="habit-time no-time" wx:else>--:--</text>
+          
+          <!-- 名称 -->
+          <text class="habit-name">{{habit.name}}</text>
+          
+          <!-- 重要标记 -->
+          <text class="important-flag" wx:if="{{habit.important}}">🚩</text>
+        </view>
       </view>
     </view>
   </view>
-</block>
+
+  <!-- 时间模式 -->
+  <view wx:if="{{viewMode === 'time' && !loading}}" class="content">
+    <view wx:if="{{timeHabits.length === 0}}" class="empty-state">
+      <view class="empty-icon">📅</view>
+      <view class="empty-text">还没有习惯</view>
+      <view class="empty-desc">开始添加第一个习惯吧</view>
+      <button class="empty-btn" bindtap="onAddHabit">添加习惯</button>
+    </view>
+    <block wx:else>
+      <!-- 总体统计 -->
+      <view class="total-stats">
+        已完成 <text class="done-count">{{todayStats.completed}}</text>/<text class="total-count">{{todayStats.total}}</text> 项
+      </view>
+      
+      <!-- 习惯列表 -->
+      <view wx:for="{{timeHabits}}" wx:key="_id" 
+            class="habit-item {{item.checked ? 'hidden-item' : ''}} {{!showCompleted && item.checked ? 'show-hidden' : ''}}"
+            data-habit-id="{{item._id}}">
+        <!-- 复选框 -->
+        <view class="habit-checkbox {{item.checked ? 'checked' : ''}}"
+              bindtap="item.checked ? 'onUncheckin' : 'onCheckin'"
+              data-habit-id="{{item._id}}">
+          {{item.checked ? '✓' : ''}}
+        </view>
+        
+        <!-- 分类徽章 -->
+        <view class="category-badge cat-{{item.categoryId}}">{{item.categoryIcon}}</view>
+        
+        <!-- 内容 -->
+        <view class="habit-content">
+          <text class="habit-name">{{item.name}}</text>
+          <text class="habit-time" wx:if="{{item.timeRule.fixedTime}}">{{item.timeRule.fixedTime}}</text>
+          <text class="habit-time no-time" wx:else>无固定时间</text>
+        </view>
+        
+        <!-- 重要标记 -->
+        <text class="important-flag" wx:if="{{item.important}}">🚩</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 自定义底部导航 -->
+  <custom-tabbar currentPage="pages/index/index" />
+</view>

@@ -1,0 +1,54 @@
+<view class="container">
+  <!-- 头部 -->
+  <view class="header">
+    <view class="header-title">选择预设分类</view>
+    <button class="header-btn" bindtap="onConfirm" disabled="{{selectedCount === 0}}">完成</button>
+  </view>
+
+  <!-- 推荐分类 -->
+  <view class="content">
+    <view class="section-title">推荐分类</view>
+    <view class="category-grid">
+      <view
+        wx:for="{{recommendedCategories}}"
+        wx:key="id"
+        class="category-card {{item.selected ? 'selected' : ''}}"
+        bindtap="onToggleCategory"
+        data-id="{{item.id}}"
+      >
+        <view class="category-icon-box" style="background: {{item.bgColor}}">{{item.icon}}</view>
+        <view class="category-info">
+          <view class="category-name">{{item.name}}</view>
+          <view class="category-desc">{{item.desc}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 其他分类 -->
+    <view class="section-title">其他分类</view>
+    <view class="category-grid">
+      <view
+        wx:for="{{otherCategories}}"
+        wx:key="id"
+        class="category-card {{item.selected ? 'selected' : ''}}"
+        bindtap="onToggleCategory"
+        data-id="{{item.id}}"
+      >
+        <view class="category-icon-box" style="background: {{item.bgColor}}">{{item.icon}}</view>
+        <view class="category-info">
+          <view class="category-name">{{item.name}}</view>
+          <view class="category-desc">{{item.desc}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <view class="select-count">已选择 <span>{{selectedCount}}</span> 个分类</view>
+    <view class="action-btns">
+      <button class="btn btn-cancel" bindtap="onClear">清空</button>
+      <button class="btn btn-confirm" bindtap="onConfirm" disabled="{{selectedCount === 0}}">添加 ({{selectedCount}})</button>
+    </view>
+  </view>
+</view>

@@ -4,7 +4,7 @@
   "description": "习惯管理云函数",
   "main": "index.js",
   "dependencies": {
-    "wx-server-sdk": "latest",
-    "dayjs": "^1.11.0"
+    "wx-server-sdk": "~2.6.3",
+    "dayjs": "^1.11.10"
   }
 }

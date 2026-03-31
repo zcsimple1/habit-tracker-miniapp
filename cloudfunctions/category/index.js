@@ -1,7 +1,7 @@
 // cloudfunctions/category/index.js
 const cloud = require('wx-server-sdk')
 
-cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
+cloud.init({ env: 'cloudbase-8gw8fj3c75c015f6' })
 const db = cloud.database()
 
 // 预设分类数据

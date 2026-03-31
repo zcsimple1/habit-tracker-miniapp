@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "统计"
+  "navigationBarTitleText": "统计",
+  "usingComponents": {
+    "custom-tabbar": "/components/custom-tabbar/custom-tabbar"
+  }
 }

@@ -4,6 +4,15 @@
   "projectname": "habit-tracker",
   "description": "习惯打卡 + 轻量统计",
   "appid": "wx980f2fed4c1f4905",
+  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/",
+  "cloudbaseRoot": "",
+  "miniprogram_npm_dir": "",
+  "srcMiniprogramRoot": "",
+  "pluginRoot": "",
+  "condition": {},
+  "editorSetting": {},
+  "libVersion": "3.15.1",
+  "compileType": "miniprogram",
   "setting": {
     "urlCheck": false,
     "es6": true,
@@ -29,11 +38,9 @@
       "outputPath": ""
     }
   },
-  "compileType": "miniprogram",
   "simulatorPluginLibVersion": {},
   "packOptions": {
     "ignore": [],
     "include": []
-  },
-  "editorSetting": {}
+  }
 }

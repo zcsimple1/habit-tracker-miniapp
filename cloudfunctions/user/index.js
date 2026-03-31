@@ -1,9 +1,14 @@
 // cloudfunctions/user/index.js
 const cloud = require('wx-server-sdk')
-const { getToday } = require('../common')
+const dayjs = require('dayjs')
 
-cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
+cloud.init({ env: 'cloudbase-8gw8fj3c75c015f6' })
 const db = cloud.database()
+
+// 工具函数
+function getToday() {
+  return dayjs().format('YYYY-MM-DD')
+}
 
 /**
  * 用户云函数
@@ -48,13 +53,14 @@ exports.main = async (event, context) => {
  * 获取用户信息
  */
 async function getProfile(openid) {
-  let user = await db.collection('users').doc(openid).get()
+  const userResult = await db.collection('users').where({
+    openid: openid
+  }).get()
 
   // 如果用户不存在,创建新用户
-  if (!user.data) {
+  if (!userResult.data || userResult.data.length === 0) {
     const now = Date.now()
     const newUser = {
-      _id: openid,
       openid,
       nickname: '',
       avatarUrl: '',
@@ -80,15 +86,17 @@ async function getProfile(openid) {
       return { code: 0, data: newUser, message: '用户创建成功' }
     } catch (addErr) {
       // 可能是并发创建导致的重复,再次尝试获取
-      user = await db.collection('users').doc(openid).get()
-      if (user.data) {
-        return { code: 0, data: user.data }
+      const retryResult = await db.collection('users').where({
+        openid: openid
+      }).get()
+      if (retryResult.data && retryResult.data.length > 0) {
+        return { code: 0, data: retryResult.data[0] }
       }
       throw addErr
     }
   }
 
-  return { code: 0, data: user.data }
+  return { code: 0, data: userResult.data[0] }
 }
 
 /**
@@ -101,7 +109,16 @@ async function updateProfile(openid, data) {
   if (nickname !== undefined) updateData.nickname = nickname
   if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl
 
-  const result = await db.collection('users').doc(openid).update({
+  // 先获取用户记录以获取正确的 _id
+  const userResult = await db.collection('users').where({
+    openid: openid
+  }).get()
+
+  if (!userResult.data || userResult.data.length === 0) {
+    throw new Error('用户不存在')
+  }
+
+  const result = await db.collection('users').doc(userResult.data[0]._id).update({
     data: updateData
   })
 
@@ -112,7 +129,16 @@ async function updateProfile(openid, data) {
  * 更新用户偏好
  */
 async function updatePreferences(openid, preferences) {
-  const result = await db.collection('users').doc(openid).update({
+  // 先获取用户记录以获取正确的 _id
+  const userResult = await db.collection('users').where({
+    openid: openid
+  }).get()
+
+  if (!userResult.data || userResult.data.length === 0) {
+    throw new Error('用户不存在')
+  }
+
+  const result = await db.collection('users').doc(userResult.data[0]._id).update({
     data: {
       preferences,
       updatedAt: Date.now()
@@ -128,19 +154,23 @@ async function updatePreferences(openid, preferences) {
 async function getStats(openid, options = {}) {
   const { forceRefresh = false } = options
 
-  const user = await db.collection('users').doc(openid).get()
-  if (!user.data) {
+  const userResult = await db.collection('users').where({
+    openid: openid
+  }).get()
+  if (!userResult.data || userResult.data.length === 0) {
     throw new Error('用户不存在')
   }
+  const user = userResult.data[0]
 
   const now = Date.now()
-  const statsCache = user.data.statsCache || {}
+  const statsCache = user.statsCache || {}
   const cacheExpired = !statsCache.lastUpdatedAt || (now - statsCache.lastUpdatedAt) > 3600000 // 1小时
 
   if (cacheExpired || forceRefresh) {
     // 重新计算统计数据
     const stats = await recalculateUserStats(openid)
-    await db.collection('users').doc(openid).update({
+    const id = user._id
+    await db.collection('users').doc(id).update({
       data: {
         statsCache: {
           ...stats,

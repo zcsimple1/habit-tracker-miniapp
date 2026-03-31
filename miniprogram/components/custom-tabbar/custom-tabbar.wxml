@@ -1,0 +1,13 @@
+<view class="custom-tabbar">
+  <view
+    wx:for="{{tabs}}"
+    wx:key="pagePath"
+    class="tab-item {{currentPage === item.pagePath ? 'active' : ''}}"
+    bindtap="onTabClick"
+    data-path="{{item.pagePath}}"
+  >
+    <view class="tab-icon">{{item.icon}}</view>
+    <view class="tab-label">{{item.text}}</view>
+    <view wx:if="{{item.badge > 0}}" class="tab-badge">{{item.badge}}</view>
+  </view>
+</view>

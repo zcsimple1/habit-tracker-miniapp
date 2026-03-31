@@ -3,17 +3,25 @@
     "pages/index/index",
     "pages/habit-form/habit-form",
     "pages/stats/stats",
-    "pages/todos/todos"
+    "pages/todos/todos",
+    "pages/settings/settings",
+    "pages/category-manage/category-manage",
+    "pages/category-form/category-form",
+    "pages/todo-form/todo-form",
+    "pages/preset-categories/preset-categories",
+    "pages/database-init/database-init"
   ],
   "cloud": true,
   "window": {
-    "navigationBarTitleText": "习惯打卡"
+    "navigationBarTitleText": "习惯打卡",
+    "navigationStyle": "custom"
   },
   "tabBar": {
+    "custom": true,
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "打卡"
+        "text": "首页"
       },
       {
         "pagePath": "pages/todos/todos",
@@ -22,7 +30,14 @@
       {
         "pagePath": "pages/stats/stats",
         "text": "统计"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "设置"
       }
     ]
+  },
+  "usingComponents": {
+    "custom-tabbar": "/components/custom-tabbar/custom-tabbar"
   }
 }

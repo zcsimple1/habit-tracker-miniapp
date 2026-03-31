@@ -1,10 +1,48 @@
 // cloudfunctions/checkin/index.js
 const cloud = require('wx-server-sdk')
 const dayjs = require('dayjs')
-const { getToday, calculateStreak } = require('../common')
 
-cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
+cloud.init({ env: 'cloudbase-8gw8fj3c75c015f6' })
 const db = cloud.database()
+
+// 工具函数
+function getToday() {
+  return dayjs().format('YYYY-MM-DD')
+}
+
+function calculateStreak(checkins) {
+  if (!checkins || checkins.length === 0) return 0
+
+  const today = dayjs().format('YYYY-MM-DD')
+  let streak = 0
+  let currentDate = dayjs(today)
+
+  const sortedCheckins = checkins.sort((a, b) => b.ymd.localeCompare(a.ymd))
+
+  let checkinIndex = 0
+  let expectedDate = currentDate
+
+  while (checkinIndex < sortedCheckins.length) {
+    const checkin = sortedCheckins[checkinIndex]
+    const checkinDate = dayjs(checkin.ymd)
+
+    const diffDays = Math.abs(expectedDate.diff(checkinDate, 'day'))
+
+    if (diffDays === 0) {
+      streak++
+      checkinIndex++
+      expectedDate = expectedDate.subtract(1, 'day')
+    } else if (diffDays === 1) {
+      streak++
+      checkinIndex++
+      expectedDate = expectedDate.subtract(1, 'day')
+    } else {
+      break
+    }
+  }
+
+  return streak
+}
 
 /**
  * 打卡云函数

@@ -1,0 +1,163 @@
+<view class="container">
+  <!-- 标题 -->
+  <view class="header">
+    <text class="title">数据库初始化</text>
+    <text class="subtitle">一键初始化数据库和预设数据</text>
+  </view>
+
+  <!-- 数据库状态 -->
+  <view class="status-section">
+    <view class="section-title">数据库状态</view>
+
+    <view class="collection-list">
+      <!-- users 集合 -->
+      <view class="collection-item status-{{status.users.status}}">
+        <view class="collection-icon">👤</view>
+        <view class="collection-info">
+          <text class="collection-name">users</text>
+          <text class="collection-desc">用户信息</text>
+        </view>
+        <view class="collection-status">
+          <text wx:if="{{status.users.status === 'ready'}}" class="status-badge success">✓ 就绪</text>
+          <text wx:elif="{{status.users.status === 'not_ready'}}" class="status-badge pending">⏳ 未就绪</text>
+          <text wx:else class="status-badge checking">⟳ 检查中</text>
+          <text class="status-count">{{status.users.count || 0}} 条</text>
+        </view>
+      </view>
+
+      <!-- categories 集合 -->
+      <view class="collection-item status-{{status.categories.status}}">
+        <view class="collection-icon">📁</view>
+        <view class="collection-info">
+          <text class="collection-name">categories</text>
+          <text class="collection-desc">分类数据</text>
+        </view>
+        <view class="collection-status">
+          <text wx:if="{{status.categories.status === 'ready'}}" class="status-badge success">✓ 就绪</text>
+          <text wx:elif="{{status.categories.status === 'not_ready'}}" class="status-badge pending">⏳ 未就绪</text>
+          <text wx:else class="status-badge checking">⟳ 检查中</text>
+          <text class="status-count">{{status.categories.count || 0}} 条</text>
+        </view>
+      </view>
+
+      <!-- habits 集合 -->
+      <view class="collection-item status-{{status.habits.status}}">
+        <view class="collection-icon">📝</view>
+        <view class="collection-info">
+          <text class="collection-name">habits</text>
+          <text class="collection-desc">习惯项目</text>
+        </view>
+        <view class="collection-status">
+          <text wx:if="{{status.habits.status === 'ready'}}" class="status-badge success">✓ 就绪</text>
+          <text wx:elif="{{status.habits.status === 'not_ready'}}" class="status-badge pending">⏳ 未就绪</text>
+          <text wx:else class="status-badge checking">⟳ 检查中</text>
+          <text class="status-count">{{status.habits.count || 0}} 条</text>
+        </view>
+      </view>
+
+      <!-- checkins 集合 -->
+      <view class="collection-item status-{{status.checkins.status}}">
+        <view class="collection-icon">✓</view>
+        <view class="collection-info">
+          <text class="collection-name">checkins</text>
+          <text class="collection-desc">打卡记录</text>
+        </view>
+        <view class="collection-status">
+          <text wx:if="{{status.checkins.status === 'ready'}}" class="status-badge success">✓ 就绪</text>
+          <text wx:elif="{{status.checkins.status === 'not_ready'}}" class="status-badge pending">⏳ 未就绪</text>
+          <text wx:else class="status-badge checking">⟳ 检查中</text>
+          <text class="status-count">{{status.checkins.count || 0}} 条</text>
+        </view>
+      </view>
+
+      <!-- todos 集合 -->
+      <view class="collection-item status-{{status.todos.status}}">
+        <view class="collection-icon">📋</view>
+        <view class="collection-info">
+          <text class="collection-name">todos</text>
+          <text class="collection-desc">待办事项</text>
+        </view>
+        <view class="collection-status">
+          <text wx:if="{{status.todos.status === 'ready'}}" class="status-badge success">✓ 就绪</text>
+          <text wx:elif="{{status.todos.status === 'not_ready'}}" class="status-badge pending">⏳ 未就绪</text>
+          <text wx:else class="status-badge checking">⟳ 检查中</text>
+          <text class="status-count">{{status.todos.count || 0}} 条</text>
+        </view>
+      </view>
+    </view>
+
+    <button class="refresh-btn" bindtap="onRefresh" disabled="{{checking}}">
+      {{checking ? '检查中...' : '刷新状态'}}
+    </button>
+  </view>
+
+  <!-- 初始化操作 -->
+  <view class="actions-section">
+    <view class="section-title">初始化操作</view>
+
+    <view class="action-buttons">
+      <button class="init-btn" bindtap="onInitDatabase" disabled="{{initializing || status.users.status === 'ready'}}">
+        <view class="btn-icon">🚀</view>
+        <view class="btn-text">
+          <text class="btn-title">初始化数据库</text>
+          <text class="btn-desc">创建用户记录 + 添加预设分类</text>
+        </view>
+        <view class="btn-check" wx:if="{{status.users.status === 'ready'}}">
+          <text class="check-icon">✓</text>
+        </view>
+      </button>
+
+      <button class="preset-btn" bindtap="onAddPresetCategories" disabled="{{initializing || status.categories.status === 'not_ready'}}">
+        <view class="btn-icon">📁</view>
+        <view class="btn-text">
+          <text class="btn-title">添加预设分类</text>
+          <text class="btn-desc">快速添加 9 个常用分类</text>
+        </view>
+      </button>
+    </view>
+  </view>
+
+  <!-- 初始化结果 -->
+  <view wx:if="{{initResult}}" class="result-section">
+    <view class="section-title">初始化结果</view>
+    <view class="result-box success">
+      <text class="result-title">✅ 初始化成功</text>
+      <view class="result-details">
+        <text class="result-item">✓ 用户记录已创建</text>
+        <block wx:for="{{initResult.presetData}}" wx:key="id">
+          <text wx:if="{{item.type === 'category'}}" class="result-item">
+            ✓ 分类：{{item.name}}
+          </text>
+        </block>
+      </view>
+    </view>
+  </view>
+
+  <!-- 预设分类结果 -->
+  <view wx:if="{{presetCategoriesResult}}" class="result-section">
+    <view class="section-title">添加结果</view>
+    <view class="result-box success">
+      <view class="result-details">
+        <block wx:for="{{presetCategoriesResult}}" wx:key="name">
+          <text class="result-item" wx:if="{{item.status === 'created'}}">
+            ✓ {{item.name}}
+          </text>
+          <text class="result-item skipped" wx:elif="{{item.status === 'skipped'}}">
+            ⏭️ {{item.name}} ({{item.reason}})
+          </text>
+          <text class="result-item error" wx:elif="{{item.status === 'failed'}}">
+            ✗ {{item.name}}: {{item.error}}
+          </text>
+        </block>
+      </view>
+    </view>
+  </view>
+
+  <!-- 说明 -->
+  <view class="info-section">
+    <view class="info-card">
+      <text class="info-title">💡 提示</text>
+      <text class="info-text">首次使用建议先点击"初始化数据库"，这将自动创建用户记录并添加预设分类，让你快速开始使用。</text>
+    </view>
+  </view>
+</view>
