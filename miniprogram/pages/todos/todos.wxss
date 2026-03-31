@@ -258,14 +258,13 @@
   gap: 8px;
   font-size: 11px;
   color: #999;
+  flex-wrap: wrap;
 }
 
-.todo-category {
-  background: #f0f9ff;
-  color: #667eea;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: 500;
+.todo-date {
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
 
 .todo-time {
@@ -276,6 +275,14 @@
 
 .todo-time.urgent {
   color: #ef4444;
+  font-weight: 500;
+}
+
+.todo-category {
+  background: #f0f9ff;
+  color: #667eea;
+  padding: 2px 8px;
+  border-radius: 4px;
   font-weight: 500;
 }
 

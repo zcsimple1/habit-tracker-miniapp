@@ -46,11 +46,14 @@
               <text wx:if="{{item.priority === 'urgent'}}" class="priority-badge">紧急</text>
             </view>
             <view class="todo-meta">
-              <text wx:if="{{item.categoryIcon}}" class="todo-category">
-                {{item.categoryIcon}} {{item.categoryName}}
+              <text wx:if="{{item.dueDate}}" class="todo-date">
+                📅 {{item.dueDate}}
               </text>
               <text wx:if="{{item.dueTime}}" class="todo-time">
-                {{item.dueTime}}
+                ⏰ {{item.dueTime}}
+              </text>
+              <text wx:if="{{item.categoryIcon}}" class="todo-category">
+                {{item.categoryIcon}} {{item.categoryName}}
               </text>
             </view>
           </view>
@@ -77,10 +80,15 @@
           <view class="todo-content">
             <view class="todo-title">{{item.title}}</view>
             <view class="todo-meta">
+              <text wx:if="{{item.dueDate}}" class="todo-date">
+                📅 {{item.dueDate}}
+              </text>
+              <text wx:if="{{item.dueTime}}" class="todo-time">
+                ⏰ {{item.dueTime}}
+              </text>
               <text wx:if="{{item.categoryIcon}}" class="todo-category">
                 {{item.categoryIcon}} {{item.categoryName}}
               </text>
-              <text wx:if="{{item.dueTime}}" class="todo-time">{{item.dueTime}}</text>
             </view>
           </view>
           <text wx:if="{{item.important}}" class="todo-important">🚩</text>
@@ -106,10 +114,15 @@
           <view class="todo-content">
             <view class="todo-title">{{item.title}}</view>
             <view class="todo-meta">
+              <text wx:if="{{item.dueDate}}" class="todo-date">
+                📅 {{item.dueDate}}
+              </text>
+              <text wx:if="{{item.dueTime}}" class="todo-time">
+                ⏰ {{item.dueTime}}
+              </text>
               <text wx:if="{{item.categoryIcon}}" class="todo-category">
                 {{item.categoryIcon}} {{item.categoryName}}
               </text>
-              <text wx:if="{{item.dueTime}}" class="todo-time">{{item.dueTime}}</text>
             </view>
           </view>
         </view>

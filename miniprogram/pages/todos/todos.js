@@ -66,6 +66,7 @@ Page({
   onPrevDay() {
     const date = new Date(this.data.currentDate)
     date.setDate(date.getDate() - 1)
+    this.setData({ currentDate: date })
     this.updateDateDisplay()
     this.loadTodos()
   },
@@ -74,6 +75,7 @@ Page({
   onNextDay() {
     const date = new Date(this.data.currentDate)
     date.setDate(date.getDate() + 1)
+    this.setData({ currentDate: date })
     this.updateDateDisplay()
     this.loadTodos()
   },
