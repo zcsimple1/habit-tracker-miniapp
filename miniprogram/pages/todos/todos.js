@@ -29,10 +29,17 @@ Page({
   },
 
   onLoad() {
-    // 确保 currentDate 是 Date 对象
-    if (!(this.data.currentDate instanceof Date)) {
-      this.setData({ currentDate: new Date() })
-    }
+    // 强制使用当前时间
+    const now = new Date()
+    console.log('onLoad - 当前时间:', now, toYMD(now))
+
+    this.setData({
+      currentDate: now,
+      selectedDate: now,
+      calendarYear: now.getFullYear(),
+      calendarMonth: now.getMonth()
+    })
+
     this.loadTodoDates() // 加载有待办记录的日期
     this.updateDateDisplay()
     this.loadTodos()
@@ -46,17 +53,25 @@ Page({
   updateDateDisplay() {
     const date = this.data.currentDate
     const today = new Date()
-    
+
     // 确保 date 是 Date 对象
     const dateObj = date instanceof Date ? date : new Date(date)
-    
+
     // 检查日期是否有效
     if (isNaN(dateObj.getTime())) {
       console.error('无效的日期对象:', date)
+      // 使用当前时间
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = now.getMonth() + 1
+      const day = now.getDate()
+      const weekday = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()]
+
       this.setData({
-        displayDate: '今天',
-        displayWeekday: '星期' + ['日', '一', '二', '三', '四', '五', '六'][today.getDay()],
-        isToday: true
+        displayDate: `${year}年${month}月${day}日`,
+        displayWeekday: `星期${weekday}`,
+        isToday: true,
+        currentDate: now
       })
       return
     }
@@ -71,6 +86,8 @@ Page({
     const month = dateObj.getMonth() + 1
     const day = dateObj.getDate()
     const weekday = ['日', '一', '二', '三', '四', '五', '六'][dateObj.getDay()]
+
+    console.log('日期显示:', { year, month, day, weekday, isToday })
 
     this.setData({
       displayDate: `${year}年${month}月${day}日`,
