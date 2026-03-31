@@ -26,6 +26,10 @@ Page({
   },
 
   onLoad() {
+    // 确保 currentDate 是 Date 对象
+    if (!(this.data.currentDate instanceof Date)) {
+      this.setData({ currentDate: new Date() })
+    }
     this.updateDateDisplay()
     this.loadTodos()
   },
@@ -38,14 +42,25 @@ Page({
   updateDateDisplay() {
     const date = this.data.currentDate
     const today = new Date()
-    const todayYMD = toYMD(today)
-    const currentYMD = toYMD(date)
-
-    // 判断是否为今天
-    const isToday = todayYMD === currentYMD
-
+    
     // 确保 date 是 Date 对象
     const dateObj = date instanceof Date ? date : new Date(date)
+    
+    // 检查日期是否有效
+    if (isNaN(dateObj.getTime())) {
+      console.error('无效的日期对象:', date)
+      this.setData({
+        displayDate: '今天',
+        displayWeekday: '星期' + ['日', '一', '二', '三', '四', '五', '六'][today.getDay()],
+        isToday: true
+      })
+      return
+    }
+
+    // 判断是否为今天
+    const todayYMD = toYMD(today)
+    const currentYMD = toYMD(dateObj)
+    const isToday = todayYMD === currentYMD
 
     // 格式化日期
     const year = dateObj.getFullYear()
