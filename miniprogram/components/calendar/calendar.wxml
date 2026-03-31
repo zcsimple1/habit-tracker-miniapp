@@ -1,0 +1,33 @@
+<view class="calendar-modal" catchtap="onClose">
+  <view class="calendar-content" catchtap="">
+    <view class="calendar-header">
+      <text class="calendar-month">{{year}}年{{month + 1}}月</text>
+      <text class="calendar-close" bindtap="onClose">×</text>
+    </view>
+    <view class="calendar-weekdays">
+      <text class="calendar-weekday">日</text>
+      <text class="calendar-weekday">一</text>
+      <text class="calendar-weekday">二</text>
+      <text class="calendar-weekday">三</text>
+      <text class="calendar-weekday">四</text>
+      <text class="calendar-weekday">五</text>
+      <text class="calendar-weekday">六</text>
+    </view>
+    <view class="calendar-days">
+      <view
+        wx:for="{{days}}"
+        wx:key="index"
+        class="calendar-day {{item.isOtherMonth ? 'other-month' : ''}} {{item.isToday ? 'today' : ''}} {{item.isSelected ? 'selected' : ''}}"
+        bindtap="onSelectDate"
+        data-index="{{index}}"
+      >
+        {{item.day}}
+        <view wx:if="{{item.hasMark && !item.isOtherMonth}}" class="calendar-dot"></view>
+      </view>
+    </view>
+    <view class="calendar-footer">
+      <button class="calendar-nav-btn" bindtap="onMonthChange" data-delta="-1">上个月</button>
+      <button class="calendar-nav-btn" bindtap="onMonthChange" data-delta="1">下个月</button>
+    </view>
+  </view>
+</view>
