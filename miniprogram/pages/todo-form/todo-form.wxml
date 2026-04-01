@@ -7,7 +7,7 @@
   </view>
 
   <!-- 表单内容 -->
-  <view class="content">
+  <view class="form-content">
     <!-- 任务标题 -->
     <view class="form-group">
       <view class="form-label">任务标题 <text class="required">*</text></view>
@@ -32,43 +32,30 @@
       />
     </view>
 
-    <!-- 分类和优先级 -->
-    <view class="form-row">
-      <view class="form-col">
-        <view class="form-group">
-          <view class="form-label">分类</view>
-          <view class="form-select" bindtap="onCategoryTap">
-            <text>{{categoryName}}</text>
-            <text class="select-arrow">▼</text>
-          </view>
-        </view>
-      </view>
-      <view class="form-col">
-        <view class="form-group">
-          <view class="form-label">优先级</view>
-          <view class="priority-options">
-            <view
-              class="priority-option low {{priority === 'low' ? 'active' : ''}}"
-              bindtap="onPriorityTap"
-              data-priority="low"
-            >低</view>
-            <view
-              class="priority-option normal {{priority === 'normal' ? 'active' : ''}}"
-              bindtap="onPriorityTap"
-              data-priority="normal"
-            >普通</view>
-            <view
-              class="priority-option high {{priority === 'high' ? 'active' : ''}}"
-              bindtap="onPriorityTap"
-              data-priority="high"
-            >高</view>
-            <view
-              class="priority-option urgent {{priority === 'urgent' ? 'active' : ''}}"
-              bindtap="onPriorityTap"
-              data-priority="urgent"
-            >紧急</view>
-          </view>
-        </view>
+    <!-- 优先级 -->
+    <view class="form-group">
+      <view class="form-label">优先级</view>
+      <view class="priority-options">
+        <view
+          class="priority-option low {{priority === 'low' ? 'active' : ''}}"
+          bindtap="onPriorityTap"
+          data-priority="low"
+        >低</view>
+        <view
+          class="priority-option normal {{priority === 'normal' ? 'active' : ''}}"
+          bindtap="onPriorityTap"
+          data-priority="normal"
+        >普通</view>
+        <view
+          class="priority-option high {{priority === 'high' ? 'active' : ''}}"
+          bindtap="onPriorityTap"
+          data-priority="high"
+        >高</view>
+        <view
+          class="priority-option urgent {{priority === 'urgent' ? 'active' : ''}}"
+          bindtap="onPriorityTap"
+          data-priority="urgent"
+        >紧急</view>
       </view>
     </view>
 

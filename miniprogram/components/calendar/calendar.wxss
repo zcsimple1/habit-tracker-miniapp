@@ -101,12 +101,8 @@
   flex: 1;
   padding: 24rpx;
   background: #f5f5f5;
-  border: none;
   border-radius: 16rpx;
   font-size: 28rpx;
   color: #666;
-}
-
-.calendar-nav-btn::after {
-  border: none;
+  text-align: center;
 }

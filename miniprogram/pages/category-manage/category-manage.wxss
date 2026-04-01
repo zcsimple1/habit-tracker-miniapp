@@ -7,27 +7,32 @@
 
 /* 头部 */
 .header {
-  padding: 16px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  padding: 120rpx 30rpx 20rpx;
+  padding-top: calc(120rpx + env(safe-area-inset-top));
+  box-shadow: 0 4rpx 20rpx rgba(102, 126, 234, 0.3);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.header-title {
-  font-size: 18px;
-  font-weight: 600;
+.header-btn {
+  padding: 12rpx 24rpx;
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  border: none;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  line-height: 1;
 }
 
-.header-btn {
-  padding: 6px 16px;
-  background: white;
-  color: #667eea;
-  border: none;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
+.header-btn.cancel {
+  min-width: 100rpx;
+}
+
+.header-spacer {
+  min-width: 100rpx;
 }
 
 .header-btn::after {
@@ -170,17 +175,18 @@
 .add-category-btn {
   width: 100%;
   padding: 14px;
-  background: white;
-  border: 2px dashed #e0e0e0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
   border-radius: 10px;
   font-size: 15px;
   font-weight: 600;
-  color: #667eea;
-  margin-top: 8px;
+  color: white;
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 .add-category-btn::after {

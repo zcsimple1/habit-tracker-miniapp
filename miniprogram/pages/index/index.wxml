@@ -1,22 +1,25 @@
 <view class="container">
   <!-- 头部 -->
   <view class="header">
-    <view class="header-title">
-      今日打卡
-      <view class="header-eye {{showCompleted ? '' : 'closed'}}" bindtap="toggleShowCompleted">
-        <text class="eye-open">👁</text>
-        <text class="eye-closed">🙈</text>
-      </view>
+    <!-- 标题栏 -->
+    <view class="header-top">
+      <view class="header-title">今日打卡</view>
     </view>
 
     <!-- 日期选择器 -->
-    <date-picker
-      currentDate="{{currentDate}}"
-      bind:change="onChangeDate"
-      bind:openCalendar="onChooseDate"
-    />
+    <view class="date-picker-container">
+      <view class="date-nav-btn" bindtap="onPrevDay">‹</view>
+      <view class="date-display" bindtap="onChooseDate">
+        <text class="date-main">{{dateMain}}</text>
+        <view class="date-row">
+          <text class="date-weekday">{{dateWeekday}}</text>
+          <text wx:if="{{isToday}}" class="today-badge">今天</text>
+        </view>
+      </view>
+      <view class="date-nav-btn" bindtap="onNextDay">›</view>
+    </view>
 
-    <!-- 模式切换 -->
+    <!-- 模式切换和操作按钮 -->
     <view class="header-controls">
       <view class="view-toggle">
         <view class="toggle-btn {{viewMode === 'category' ? 'active' : ''}}" bindtap="toggleViewMode">
@@ -26,7 +29,13 @@
           📅 时间模式
         </view>
       </view>
-      <button class="add-habit-btn" bindtap="onAddHabit">➕</button>
+      <view class="action-buttons">
+        <view class="eye-btn {{tempShowCompleted ? '' : 'closed'}}" bindtap="toggleShowCompleted">
+          <image class="eye-icon eye-open" src="/images/eye-open.svg" mode="aspectFit"></image>
+          <image class="eye-icon eye-closed" src="/images/eye-closed.svg" mode="aspectFit"></image>
+        </view>
+        <button class="add-habit-btn" bindtap="onAddHabit">+</button>
+      </view>
     </view>
   </view>
 
@@ -55,25 +64,31 @@
       
       <!-- 习惯列表 -->
       <view class="category-items" wx:if="{{item.expanded}}">
-        <view wx:for="{{item.habits}}" wx:for-item="habit" wx:key="_id" 
-              class="habit-item {{habit.checked ? 'hidden-item' : ''}} {{!showCompleted && habit.checked ? 'show-hidden' : ''}}" 
+        <view wx:for="{{item.habits}}" wx:for-item="habit" wx:key="_id"
+              class="habit-item {{habit.checked ? 'checked' : ''}} {{!tempShowCompleted && habit.checked ? 'hidden-item' : ''}}"
               data-habit-id="{{habit._id}}">
           <!-- 复选框 -->
-          <view class="habit-checkbox {{habit.checked ? 'checked' : ''}}" 
-                bindtap="habit.checked ? 'onUncheckin' : 'onCheckin'" 
+          <view class="habit-checkbox {{habit.checked ? 'checked' : ''}}"
+                bindtap="{{habit.checked ? 'onUncheckin' : 'onCheckin'}}"
                 data-habit-id="{{habit._id}}">
             {{habit.checked ? '✓' : ''}}
           </view>
-          
-          <!-- 时间 -->
-          <text class="habit-time" wx:if="{{habit.timeRule.fixedTime}}">{{habit.timeRule.fixedTime}}</text>
-          <text class="habit-time no-time" wx:else>--:--</text>
-          
-          <!-- 名称 -->
-          <text class="habit-name">{{habit.name}}</text>
-          
-          <!-- 重要标记 -->
-          <text class="important-flag" wx:if="{{habit.important}}">🚩</text>
+
+          <!-- 内容 -->
+          <view class="habit-content">
+            <text class="habit-name">{{habit.name}} <text class="important-flag-text" wx:if="{{habit.important}}">🚩</text></text>
+            <view class="habit-meta">
+              <text class="habit-time {{habit.timeRule && habit.timeRule.fixedTime ? 'has-time' : ''}}" wx:if="{{habit.timeRule && habit.timeRule.fixedTime}}">{{habit.timeRule.fixedTime}}</text>
+              <text class="habit-time no-time" wx:else>无固定时间</text>
+              <text class="habit-count">{{habit.checked ? '已完成' : '待完成'}}</text>
+            </view>
+          </view>
+
+          <!-- 编辑删除按钮 -->
+          <view class="habit-actions">
+            <text class="action-btn edit-btn" bindtap="onEditHabit" data-habit-id="{{habit._id}}">✎</text>
+            <text class="action-btn delete-btn" bindtap="onDeleteHabit" data-habit-id="{{habit._id}}">🗑</text>
+          </view>
         </view>
       </view>
     </view>
@@ -95,7 +110,7 @@
 
       <!-- 习惯列表 -->
       <view wx:for="{{timeHabits}}" wx:key="_id"
-            class="habit-item {{item.checked ? 'hidden-item' : ''}} {{!showCompleted && item.checked ? 'show-hidden' : ''}}"
+            class="habit-item {{item.checked ? 'checked' : ''}} {{!tempShowCompleted && item.checked ? 'hidden-item' : ''}}"
             data-habit-id="{{item._id}}">
         <!-- 复选框 -->
         <view class="habit-checkbox {{item.checked ? 'checked' : ''}}"
@@ -109,13 +124,19 @@
 
         <!-- 内容 -->
         <view class="habit-content">
-          <text class="habit-name">{{item.name}}</text>
-          <text class="habit-time" wx:if="{{item.timeRule.fixedTime}}">{{item.timeRule.fixedTime}}</text>
-          <text class="habit-time no-time" wx:else>无固定时间</text>
+          <text class="habit-name">{{item.name}} <text class="important-flag-text" wx:if="{{item.important}}">🚩</text></text>
+          <view class="habit-meta">
+            <text class="habit-time {{item.timeRule && item.timeRule.fixedTime ? 'has-time' : ''}}" wx:if="{{item.timeRule && item.timeRule.fixedTime}}">{{item.timeRule.fixedTime}}</text>
+            <text class="habit-time no-time" wx:else>无固定时间</text>
+            <text class="habit-count">{{item.checked ? '已完成' : '待完成'}}</text>
+          </view>
         </view>
 
-        <!-- 重要标记 -->
-        <text class="important-flag" wx:if="{{item.important}}">🚩</text>
+        <!-- 编辑删除按钮 -->
+        <view class="habit-actions">
+          <text class="action-btn edit-btn" bindtap="onEditHabit" data-habit-id="{{item._id}}">✎</text>
+          <text class="action-btn delete-btn" bindtap="onDeleteHabit" data-habit-id="{{item._id}}">🗑</text>
+        </view>
       </view>
     </block>
   </view>

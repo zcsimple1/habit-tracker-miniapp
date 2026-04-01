@@ -63,10 +63,11 @@ async function getProfile(openid) {
     const newUser = {
       openid,
       nickname: '',
+      nickName: '', // 兼容前端使用的字段名
       avatarUrl: '',
       preferences: {
         viewMode: 'category',
-        showCompleted: false,
+        hideCompleted: false,
         defaultCategory: '',
         themeColor: '#667eea'
       },
@@ -96,17 +97,30 @@ async function getProfile(openid) {
     }
   }
 
-  return { code: 0, data: userResult.data[0] }
+  // 返回用户数据，确保字段名兼容
+  const userData = userResult.data[0]
+  // 如果只有 nickname，添加 nickName 字段
+  if (userData.nickname && !userData.nickName) {
+    userData.nickName = userData.nickname
+  }
+  // 如果只有 nickName，添加 nickname 字段
+  if (userData.nickName && !userData.nickname) {
+    userData.nickname = userData.nickName
+  }
+
+  return { code: 0, data: userData }
 }
 
 /**
  * 更新用户信息
  */
 async function updateProfile(openid, data) {
-  const { nickname, avatarUrl } = data
+  // 兼容前端使用的 nickName 和云函数使用的 nickname
+  const { nickname, nickName, avatarUrl } = data
   const updateData = { updatedAt: Date.now() }
 
   if (nickname !== undefined) updateData.nickname = nickname
+  if (nickName !== undefined) updateData.nickname = nickName
   if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl
 
   // 先获取用户记录以获取正确的 _id
@@ -138,9 +152,16 @@ async function updatePreferences(openid, preferences) {
     throw new Error('用户不存在')
   }
 
+  // 合并 preferences，保留其他未修改的字段
+  const currentPreferences = userResult.data[0].preferences || {}
+  const mergedPreferences = {
+    ...currentPreferences,
+    ...preferences
+  }
+
   const result = await db.collection('users').doc(userResult.data[0]._id).update({
     data: {
-      preferences,
+      preferences: mergedPreferences,
       updatedAt: Date.now()
     }
   })

@@ -2,15 +2,15 @@
   <!-- 头部 -->
   <view class="header">
     <button class="header-btn cancel" bindtap="onCancel">取消</button>
-    <view class="header-title">{{habitId ? '编辑习惯' : '添加习惯'}}</view>
+    <view class="header-title">{{habitId ? '编辑打卡' : '添加打卡'}}</view>
     <button class="header-btn save" bindtap="onSave" disabled="{{loading}}">保存</button>
   </view>
 
   <!-- 表单内容 -->
   <view class="content">
-    <!-- 习惯名称 -->
+    <!-- 任务标题 -->
     <view class="form-group">
-      <view class="form-label">习惯名称 <text class="required">*</text></view>
+      <view class="form-label">任务标题 <text class="required">*</text></view>
       <input
         class="form-input"
         placeholder="输入习惯名称..."
@@ -20,9 +20,9 @@
       />
     </view>
 
-    <!-- 习惯描述 -->
+    <!-- 任务描述 -->
     <view class="form-group">
-      <view class="form-label">习惯描述</view>
+      <view class="form-label">任务描述</view>
       <textarea
         class="form-textarea"
         placeholder="添加详细说明（可选）"
@@ -35,7 +35,7 @@
     <!-- 所属分类 -->
     <view class="form-group">
       <view class="form-label">所属分类 <text class="required">*</text></view>
-      <picker mode="selector" range="{{categories}}" range-key="name" value="{{categoryIndex}}" bindchange="onCategoryChange">
+      <picker mode="selector" range="{{categories}}" range-key="displayName" value="{{categoryIndex}}" bindchange="onCategoryChange">
         <view class="form-picker">
           <text>{{categoryName}}</text>
           <text class="picker-arrow">▼</text>
@@ -75,32 +75,19 @@
         >
           <text class="radio-icon">📆</text> 每周
         </view>
-        <view
-          class="radio-option {{timeRuleTypeIndex === 4 ? 'active' : ''}}"
-          bindtap="onTimeRuleTypeChange"
-          data-index="4"
-        >
-          <text class="radio-icon">✏️</text> 自定义
-        </view>
       </view>
 
       <!-- 每周选择（仅在 weekly 模式下显示） -->
       <view wx:if="{{timeRuleTypeIndex === 3}}" class="weekday-selector">
         <view class="form-label">选择星期几</view>
-        <view class="weekday-desc">勾选需要在哪些星期几打卡</view>
         <view class="weekday-options">
-          <view
-            wx:for="{{[1,2,3,4,5,6,7]}}"
-            wx:key="*this"
-            class="weekday-option {{timeRule.weekDays.includes(item) ? 'active' : ''}}"
-            bindtap="onWeekDayToggle"
-            data-day="{{item}}"
-          >
-            {{['','一','二','三','四','五','六','日'][item]}}
-          </view>
-        </view>
-        <view class="weekdays-selected">
-          已选择：<text>{{timeRule.weekDays.length}}天</text>
+          <view class="weekday-option {{weekdayMon ? 'active' : ''}}" bindtap="onWeekDayToggle" data-day="1">一</view>
+          <view class="weekday-option {{weekdayTue ? 'active' : ''}}" bindtap="onWeekDayToggle" data-day="2">二</view>
+          <view class="weekday-option {{weekdayWed ? 'active' : ''}}" bindtap="onWeekDayToggle" data-day="3">三</view>
+          <view class="weekday-option {{weekdayThu ? 'active' : ''}}" bindtap="onWeekDayToggle" data-day="4">四</view>
+          <view class="weekday-option {{weekdayFri ? 'active' : ''}}" bindtap="onWeekDayToggle" data-day="5">五</view>
+          <view class="weekday-option {{weekdaySat ? 'active' : ''}}" bindtap="onWeekDayToggle" data-day="6">六</view>
+          <view class="weekday-option {{weekdaySun ? 'active' : ''}}" bindtap="onWeekDayToggle" data-day="7">日</view>
         </view>
       </view>
     </view>
@@ -133,10 +120,10 @@
       </view>
 
       <view wx:if="{{showDateInput}}" class="date-inputs">
-        <picker mode="date" value="{{timeRule.startDate}}" bindchange="onStartDateChange">
+        <picker mode="date" value="{{timeRule.startDate}}" start="2024-01-01" end="2099-12-31" bindchange="onStartDateChange">
           <view class="form-input">{{timeRule.startDate || '选择开始日期'}}</view>
         </picker>
-        <picker mode="date" value="{{timeRule.endDate}}" bindchange="onEndDateChange">
+        <picker mode="date" value="{{timeRule.endDate}}" start="2024-01-01" end="2099-12-31" bindchange="onEndDateChange">
           <view class="form-input">{{timeRule.endDate || '选择结束日期'}}</view>
         </picker>
       </view>

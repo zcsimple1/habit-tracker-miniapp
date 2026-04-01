@@ -6,14 +6,18 @@ Page({
     // 日期
     currentDate: new Date(),
     selectedDate: new Date(),
-    displayDate: '',
-    displayWeekday: '',
+    dateMain: '',
+    dateWeekday: '',
     isToday: true,
 
-    // 待办列表
-    urgentTodos: [],
-    todayTodos: [],
-    completedTodos: [],
+    // 临时显示已完成状态（眼睛按钮控制）
+    tempShowCompleted: true,
+
+    // 待办列表 - 按新分类
+    todayTodos: [],      // 今日
+    futureTodos: [],     // 将来
+    overdueTodos: [],    // 已过期
+    completedTodos: [],  // 已完成
 
     // 加载状态
     loading: false,
@@ -25,7 +29,10 @@ Page({
     calendarDays: [],
 
     // 有待办记录的日期列表（YYYY-MM-DD格式）
-    todoDates: []
+    todoDates: [],
+
+    // 刷新标记
+    needRefresh: false
   },
 
   onLoad() {
@@ -42,11 +49,26 @@ Page({
 
     this.loadTodoDates() // 加载有待办记录的日期
     this.updateDateDisplay()
-    this.loadTodos()
+    this.loadTodos(true) // 首次加载强制刷新
   },
 
   onShow() {
-    this.loadTodos()
+    // 检查全局刷新标记
+    const app = getApp()
+    if (app.globalData && app.globalData.todosNeedRefresh) {
+      app.globalData.todosNeedRefresh = false
+      this.loadTodos(true)
+      return
+    }
+
+    // 检查本地刷新标记
+    if (this.data.needRefresh) {
+      this.loadTodos(true)
+      this.setData({ needRefresh: false })
+      return
+    }
+
+    this.loadTodos(false) // 使用缓存，不强制刷新
   },
 
   // 更新日期显示
@@ -68,8 +90,8 @@ Page({
       const weekday = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()]
 
       this.setData({
-        displayDate: `${year}年${month}月${day}日`,
-        displayWeekday: `星期${weekday}`,
+        dateMain: `${year}年${month}月${day}日`,
+        dateWeekday: `星期${weekday}`,
         isToday: true,
         currentDate: now
       })
@@ -87,11 +109,9 @@ Page({
     const day = dateObj.getDate()
     const weekday = ['日', '一', '二', '三', '四', '五', '六'][dateObj.getDay()]
 
-    console.log('日期显示:', { year, month, day, weekday, isToday })
-
     this.setData({
-      displayDate: `${year}年${month}月${day}日`,
-      displayWeekday: `星期${weekday}`,
+      dateMain: `${year}年${month}月${day}日`,
+      dateWeekday: `星期${weekday}`,
       isToday,
       currentDate: dateObj,
       selectedDate: dateObj
@@ -127,6 +147,9 @@ Page({
   onCloseCalendar() {
     this.setData({ showCalendar: false })
   },
+
+  // 日历内容点击（阻止冒泡）
+  onCalendarContentTap() {},
 
   // 渲染日历
   renderCalendar() {
@@ -226,7 +249,8 @@ Page({
       const { result } = await wx.cloud.callFunction({
         name: 'todos',
         data: {
-          action: 'getTodoDates'
+          action: 'getTodoDates',
+          data: { days: 365 } // 获取未来一年的日期
         }
       })
 
@@ -238,12 +262,35 @@ Page({
   },
 
   // 加载待办列表
-  async loadTodos() {
+  async loadTodos(forceRefresh = false) {
+    const ymd = toYMD(this.data.currentDate)
+    const cacheKey = `todos_${ymd}`
+
+    // 检查缓存
+    if (!forceRefresh) {
+      const cachedData = wx.getStorageSync(cacheKey)
+      if (cachedData) {
+        const now = Date.now()
+        const cacheTime = cachedData.timestamp || 0
+        const cacheDuration = 5 * 60 * 1000 // 5分钟缓存
+
+        if (now - cacheTime < cacheDuration) {
+          console.log('从缓存加载待办数据:', cacheKey, '缓存时间:', cacheDuration / 1000, '秒')
+          this.setData({
+            todayTodos: cachedData.todayTodos,
+            futureTodos: cachedData.futureTodos,
+            overdueTodos: cachedData.overdueTodos,
+            completedTodos: cachedData.completedTodos,
+            loading: false
+          })
+          return
+        }
+      }
+    }
+
     this.setData({ loading: true })
 
     try {
-      const ymd = toYMD(this.data.currentDate)
-
       // 获取指定日期的待办
       const { result } = await wx.cloud.callFunction({
         name: 'todos',
@@ -254,10 +301,13 @@ Page({
       })
 
       const todos = result.data || []
+      // 用选中的日期来分组，而不是今天的日期
+      const selectedDateStr = ymd
 
-      // 按优先级分组：紧急、高/普通/低为"今天"，已完成
-      const urgentTodos = []
+      // 按截止日期与选中日期的关系分组：今日、将来、已过期、已完成
       const todayTodos = []
+      const futureTodos = []
+      const overdueTodos = []
       const completedTodos = []
 
       todos.forEach(todo => {
@@ -271,19 +321,41 @@ Page({
 
         if (todo.completed) {
           completedTodos.push(todo)
-        } else if (todo.priority === 'urgent') {
-          urgentTodos.push(todo)
+        } else if (todo.dueDate && todo.dueDate.length === 10) {
+          // 根据截止日期与选中日期的关系分组
+          if (todo.dueDate < selectedDateStr) {
+            // 截止日期在选中日期之前 -> 已过期
+            overdueTodos.push(todo)
+          } else if (todo.dueDate === selectedDateStr) {
+            // 截止日期等于选中日期 -> 今日
+            todayTodos.push(todo)
+          } else {
+            // 截止日期在选中日期之后 -> 将来
+            futureTodos.push(todo)
+          }
         } else {
+          // 没有截止日期的放到今日
           todayTodos.push(todo)
         }
       })
 
       this.setData({
-        urgentTodos,
         todayTodos,
+        futureTodos,
+        overdueTodos,
         completedTodos,
         loading: false
       })
+
+      // 保存到缓存（包含时间戳）
+      wx.setStorageSync(cacheKey, {
+        todayTodos,
+        futureTodos,
+        overdueTodos,
+        completedTodos,
+        timestamp: Date.now()
+      })
+      console.log('待办数据已缓存:', cacheKey)
     } catch (err) {
       console.error('加载待办失败', err)
       this.setData({ loading: false })
@@ -307,11 +379,22 @@ Page({
     return { name: '自定义', icon: '📌', color: '#f3f4f6' }
   },
 
+  // 切换临时显示已完成（眼睛按钮）
+  toggleShowCompleted() {
+    const tempShowCompleted = !this.data.tempShowCompleted
+    console.log('toggleShowCompleted:', { old: this.data.tempShowCompleted, new: tempShowCompleted })
+    this.setData({
+      tempShowCompleted
+    })
+  },
+
   // 添加待办
   onAddTodo() {
     wx.navigateTo({
       url: '/pages/todo-form/todo-form'
     })
+    // 设置刷新标记，从表单返回时会刷新数据
+    this.setData({ needRefresh: true })
   },
 
   // 编辑待办
@@ -326,8 +409,9 @@ Page({
   async onToggleTodo(e) {
     const { todoId } = e.currentTarget.dataset
     const allTodos = [
-      ...this.data.urgentTodos,
       ...this.data.todayTodos,
+      ...this.data.futureTodos,
+      ...this.data.overdueTodos,
       ...this.data.completedTodos
     ]
     const todo = allTodos.find(t => t._id === todoId)
@@ -351,7 +435,14 @@ Page({
         icon: 'none'
       })
 
-      this.loadTodos()
+      // 清除缓存
+      const ymd = toYMD(this.data.currentDate)
+      wx.removeStorageSync(`todos_${ymd}`)
+      wx.removeStorageSync('stats_week')
+      wx.removeStorageSync('stats_month')
+      wx.removeStorageSync('stats_year')
+
+      this.loadTodos(true)
     } catch (err) {
       console.error('更新状态失败', err)
       wx.showToast({
@@ -380,7 +471,15 @@ Page({
             })
 
             wx.showToast({ title: '删除成功' })
-            this.loadTodos()
+
+            // 清除缓存
+            const ymd = toYMD(this.data.currentDate)
+            wx.removeStorageSync(`todos_${ymd}`)
+            wx.removeStorageSync('stats_week')
+            wx.removeStorageSync('stats_month')
+            wx.removeStorageSync('stats_year')
+
+            this.loadTodos(true)
           } catch (err) {
             console.error('删除失败', err)
             wx.showToast({
@@ -422,5 +521,53 @@ Page({
         icon: 'none'
       })
     }
+  },
+
+  // 一键删除所有已过期待办
+  onDeleteOverdueTodos() {
+    const { overdueTodos } = this.data
+    if (overdueTodos.length === 0) {
+      wx.showToast({ title: '没有已过期项', icon: 'none' })
+      return
+    }
+
+    wx.showModal({
+      title: '确认删除',
+      content: `确定要删除所有 ${overdueTodos.length} 项已过期待办吗？`,
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            const deletePromises = overdueTodos.map(todo => {
+              return wx.cloud.callFunction({
+                name: 'todos',
+                data: {
+                  action: 'delete',
+                  data: { todoId: todo._id }
+                }
+              })
+            })
+
+            await Promise.all(deletePromises)
+
+            wx.showToast({ title: `已删除 ${overdueTodos.length} 项` })
+
+            // 清除缓存
+            const ymd = toYMD(this.data.currentDate)
+            wx.removeStorageSync(`todos_${ymd}`)
+            wx.removeStorageSync('stats_week')
+            wx.removeStorageSync('stats_month')
+            wx.removeStorageSync('stats_year')
+
+            this.loadTodos(true)
+          } catch (err) {
+            console.error('删除失败', err)
+            wx.showToast({
+              title: '删除失败',
+              icon: 'none'
+            })
+          }
+        }
+      }
+    })
   }
 })

@@ -7,27 +7,15 @@
 /* 顶部 */
 .header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 60rpx 30rpx 30rpx;
-  padding-top: calc(60rpx + env(safe-area-inset-top));
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  padding: 120rpx 30rpx 20rpx;
+  padding-top: calc(120rpx + env(safe-area-inset-top));
   box-shadow: 0 4rpx 20rpx rgba(102, 126, 234, 0.3);
 }
 
-.title {
-  font-size: 36rpx;
+.header-title {
+  font-size: 48rpx;
   font-weight: 700;
   color: white;
-}
-
-.share-btn {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 2rpx solid rgba(255, 255, 255, 0.3);
-  border-radius: 50rpx;
-  padding: 12rpx 24rpx;
-  font-size: 26rpx;
 }
 
 /* 日期范围选择 */

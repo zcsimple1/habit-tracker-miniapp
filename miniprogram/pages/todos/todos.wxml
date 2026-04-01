@@ -1,19 +1,36 @@
 <view class="container">
   <!-- 头部 -->
   <view class="header">
-    <view class="header-title">
-      <text class="title">今日待办</text>
-      <button class="add-btn" bindtap="onAddTodo">+</button>
+    <!-- 标题栏 -->
+    <view class="header-top">
+      <view class="header-title">今日待办</view>
     </view>
+
     <!-- 日期选择器 -->
     <view class="date-picker-container">
-      <button class="date-nav-btn" bindtap="onPrevDay">‹</button>
-      <button class="date-display" bindtap="onOpenCalendar">
-        <text class="date-text">{{displayDate}}</text>
-        <text class="date-weekday">{{displayWeekday}}</text>
-        <text class="date-badge {{isToday ? 'today' : 'history'}}">{{isToday ? '今天' : '查看'}}</text>
-      </button>
-      <button class="date-nav-btn" bindtap="onNextDay">›</button>
+      <view class="date-nav-btn" bindtap="onPrevDay">‹</view>
+      <view class="date-display" bindtap="onOpenCalendar">
+        <text class="date-main">{{dateMain}}</text>
+        <view class="date-row">
+          <text class="date-weekday">{{dateWeekday}}</text>
+          <text wx:if="{{isToday}}" class="today-badge">今天</text>
+        </view>
+      </view>
+      <view class="date-nav-btn" bindtap="onNextDay">›</view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="header-controls">
+      <view class="action-buttons">
+        <view class="eye-btn {{tempShowCompleted ? '' : 'closed'}}" bindtap="toggleShowCompleted">
+          <image class="eye-icon eye-open" src="/images/eye-open.svg" mode="aspectFit"></image>
+          <image class="eye-icon eye-closed" src="/images/eye-closed.svg" mode="aspectFit"></image>
+        </view>
+        <view wx:if="{{overdueTodos.length > 0}}" class="delete-overdue-btn" bindtap="onDeleteOverdueTodos">
+          <text class="delete-icon">×</text>
+        </view>
+        <button class="add-todo-btn" bindtap="onAddTodo">+</button>
+      </view>
     </view>
   </view>
 
@@ -25,17 +42,17 @@
 
   <!-- 内容区 -->
   <view wx:if="{{!loading}}" class="content">
-    <!-- 紧急 -->
-    <view wx:if="{{urgentTodos.length > 0}}" class="urgent-section">
+    <!-- 今日 -->
+    <view wx:if="{{todayTodos.length > 0}}" class="today-section">
       <view class="group-title">
-        <text>🔥 紧急</text>
-        <text class="count">{{urgentTodos.length}}</text>
+        <text>📋 今日</text>
+        <text class="count">{{todayTodos.length}}</text>
       </view>
-      <view class="urgent-items">
+      <view class="today-items">
         <view
-          wx:for="{{urgentTodos}}"
+          wx:for="{{todayTodos}}"
           wx:key="_id"
-          class="todo-card priority-urgent"
+          class="todo-card {{item.priority === 'high' || item.priority === 'urgent' ? 'priority-high' : ''}}"
           bindlongpress="onEditTodo"
           data-todo-id="{{item._id}}"
         >
@@ -43,42 +60,44 @@
           <view class="todo-content">
             <view class="todo-title">
               {{item.title}}
-              <text wx:if="{{item.priority === 'urgent'}}" class="priority-badge">紧急</text>
+              <text wx:if="{{item.priority === 'urgent' || item.priority === 'high'}}" class="priority-badge">重要</text>
+              <text wx:if="{{item.important}}" class="important-flag-text">🚩</text>
             </view>
             <view class="todo-meta">
-              <text wx:if="{{item.dueDate}}" class="todo-date">
-                📅 {{item.dueDate}}
-              </text>
               <text wx:if="{{item.dueTime}}" class="todo-time">
                 ⏰ {{item.dueTime}}
               </text>
-              <text wx:if="{{item.categoryIcon}}" class="todo-category">
-                {{item.categoryIcon}} {{item.categoryName}}
-              </text>
             </view>
           </view>
-          <text wx:if="{{item.important}}" class="todo-important">🚩</text>
+          <!-- 编辑删除按钮 -->
+          <view class="todo-actions">
+            <text class="action-btn edit-btn" bindtap="onEditTodo" data-todo-id="{{item._id}}">✎</text>
+            <text class="action-btn delete-btn" bindtap="onDeleteTodo" data-todo-id="{{item._id}}">🗑</text>
+          </view>
         </view>
       </view>
     </view>
 
-    <!-- 今天 -->
-    <view wx:if="{{todayTodos.length > 0}}" class="today-section">
+    <!-- 将来 -->
+    <view wx:if="{{futureTodos.length > 0}}" class="future-section">
       <view class="group-title">
-        <text>📋 今天</text>
-        <text class="count">{{todayTodos.length}}</text>
+        <text>📅 将来</text>
+        <text class="count">{{futureTodos.length}}</text>
       </view>
-      <view class="today-items">
+      <view class="future-items">
         <view
-          wx:for="{{todayTodos}}"
+          wx:for="{{futureTodos}}"
           wx:key="_id"
-          class="todo-card {{item.priority === 'high' ? 'priority-high' : ''}}"
+          class="todo-card"
           bindlongpress="onEditTodo"
           data-todo-id="{{item._id}}"
         >
           <view class="todo-checkbox {{item.completed ? 'checked' : ''}}" bindtap="onToggleTodo" data-todo-id="{{item._id}}"></view>
           <view class="todo-content">
-            <view class="todo-title">{{item.title}}</view>
+            <view class="todo-title">
+              {{item.title}}
+              <text wx:if="{{item.important}}" class="important-flag-text">🚩</text>
+            </view>
             <view class="todo-meta">
               <text wx:if="{{item.dueDate}}" class="todo-date">
                 📅 {{item.dueDate}}
@@ -86,18 +105,57 @@
               <text wx:if="{{item.dueTime}}" class="todo-time">
                 ⏰ {{item.dueTime}}
               </text>
-              <text wx:if="{{item.categoryIcon}}" class="todo-category">
-                {{item.categoryIcon}} {{item.categoryName}}
+            </view>
+          </view>
+          <!-- 编辑删除按钮 -->
+          <view class="todo-actions">
+            <text class="action-btn edit-btn" bindtap="onEditTodo" data-todo-id="{{item._id}}">✎</text>
+            <text class="action-btn delete-btn" bindtap="onDeleteTodo" data-todo-id="{{item._id}}">🗑</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 已过期 -->
+    <view wx:if="{{overdueTodos.length > 0}}" class="overdue-section">
+      <view class="group-title">
+        <text>⚠️ 已过期</text>
+        <text class="count">{{overdueTodos.length}}</text>
+      </view>
+      <view class="overdue-items">
+        <view
+          wx:for="{{overdueTodos}}"
+          wx:key="_id"
+          class="todo-card overdue"
+          bindlongpress="onEditTodo"
+          data-todo-id="{{item._id}}"
+        >
+          <view class="todo-checkbox {{item.completed ? 'checked' : ''}}" bindtap="onToggleTodo" data-todo-id="{{item._id}}"></view>
+          <view class="todo-content">
+            <view class="todo-title">
+              {{item.title}}
+              <text wx:if="{{item.important}}" class="important-flag-text">🚩</text>
+            </view>
+            <view class="todo-meta">
+              <text wx:if="{{item.dueDate}}" class="todo-date">
+                📅 {{item.dueDate}}
+              </text>
+              <text wx:if="{{item.dueTime}}" class="todo-time">
+                ⏰ {{item.dueTime}}
               </text>
             </view>
           </view>
-          <text wx:if="{{item.important}}" class="todo-important">🚩</text>
+          <!-- 编辑删除按钮 -->
+          <view class="todo-actions">
+            <text class="action-btn edit-btn" bindtap="onEditTodo" data-todo-id="{{item._id}}">✎</text>
+            <text class="action-btn delete-btn" bindtap="onDeleteTodo" data-todo-id="{{item._id}}">🗑</text>
+          </view>
         </view>
       </view>
     </view>
 
     <!-- 已完成 -->
-    <view wx:if="{{completedTodos.length > 0}}" class="completed-section">
+    <view wx:if="{{completedTodos.length > 0 && tempShowCompleted}}" class="completed-section">
       <view class="group-title">
         <text>✓ 已完成</text>
         <text class="count">{{completedTodos.length}}</text>
@@ -112,16 +170,16 @@
         >
           <view class="todo-checkbox checked" bindtap="onToggleTodo" data-todo-id="{{item._id}}"></view>
           <view class="todo-content">
-            <view class="todo-title">{{item.title}}</view>
+            <view class="todo-title">
+              {{item.title}}
+              <text wx:if="{{item.important}}" class="important-flag-text">🚩</text>
+            </view>
             <view class="todo-meta">
               <text wx:if="{{item.dueDate}}" class="todo-date">
                 📅 {{item.dueDate}}
               </text>
               <text wx:if="{{item.dueTime}}" class="todo-time">
                 ⏰ {{item.dueTime}}
-              </text>
-              <text wx:if="{{item.categoryIcon}}" class="todo-category">
-                {{item.categoryIcon}} {{item.categoryName}}
               </text>
             </view>
           </view>
@@ -130,7 +188,7 @@
     </view>
 
     <!-- 空状态 -->
-    <view wx:if="{{urgentTodos.length === 0 && todayTodos.length === 0 && completedTodos.length === 0}}" class="empty-state">
+    <view wx:if="{{todayTodos.length === 0 && futureTodos.length === 0 && overdueTodos.length === 0 && completedTodos.length === 0}}" class="empty-state">
       <text class="emoji">📝</text>
       <text class="text">今天还没有待办事项</text>
       <button bindtap="onAddTodo">添加待办</button>
@@ -138,8 +196,8 @@
   </view>
 
   <!-- 日历弹窗 -->
-  <view wx:if="{{showCalendar}}" class="calendar-modal" catchtap="onCloseCalendar">
-    <view class="calendar-content" catchtap="">
+  <view wx:if="{{showCalendar}}" class="calendar-modal" bindtap="onCloseCalendar">
+    <view class="calendar-content" catchtap="onCalendarContentTap">
       <view class="calendar-header">
         <text class="calendar-month">{{calendarYear}}年{{calendarMonth + 1}}月</text>
         <text class="calendar-close" bindtap="onCloseCalendar">×</text>
@@ -166,8 +224,8 @@
       </view>
       </view>
       <view class="calendar-footer">
-        <button class="calendar-nav-btn" bindtap="onMonthChange" data-delta="-1">上个月</button>
-        <button class="calendar-nav-btn" bindtap="onMonthChange" data-delta="1">下个月</button>
+        <view class="calendar-nav-btn" catchtap="onMonthChange" data-delta="-1">上个月</view>
+        <view class="calendar-nav-btn" catchtap="onMonthChange" data-delta="1">下个月</view>
       </view>
     </view>
   </view>

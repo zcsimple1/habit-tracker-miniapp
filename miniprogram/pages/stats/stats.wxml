@@ -1,8 +1,7 @@
 <view class="container">
-  <!-- 顶部日期选择 -->
+  <!-- 头部 -->
   <view class="header">
-    <view class="title">统计中心</view>
-    <view class="share-btn" bindtap="onShare">📤 分享</view>
+    <view class="header-title">统计中心</view>
   </view>
 
   <!-- 日期范围选择 -->

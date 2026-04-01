@@ -2,14 +2,22 @@ Page({
   data: {
     categoryId: null,
     name: '',
-    icon: '',
+    icon: '📌',
     color: '#667eea',
-    icons: ['📌', '🏢', '💼', '❤️', '📚', '🏠', '👶', '💰', '⭐', '💬', '🎯', '🎮', '🎨', '🎵', '🏃', '🍎', '☕', '🎁'],
+    icons: ['📌', '👦', '👧', '🏢', '💼', '❤️', '📚', '🏠', '👶', '💰', '⭐', '💬', '🎯', '🎮', '🎨', '🎵', '🏃', '🍎', '☕', '🎁'],
     colors: ['#667eea', '#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#6b7280'],
     loading: false
   },
 
   onLoad(options) {
+    // 重置表单数据
+    this.setData({
+      categoryId: null,
+      name: '',
+      icon: '📌',
+      color: '#667eea'
+    })
+
     if (options.id) {
       this.setData({ categoryId: options.id })
       this.loadCategory(options.id)
@@ -28,7 +36,7 @@ Page({
         const category = result.data
         this.setData({
           name: category.name || '',
-          icon: category.icon || '',
+          icon: category.icon || '📌',
           color: category.color || '#667eea'
         })
       }
@@ -52,6 +60,11 @@ Page({
     this.setData({ color: e.currentTarget.dataset.color })
   },
 
+  // 取消
+  onCancel() {
+    wx.navigateBack()
+  },
+
   // 保存
   async onSave() {
     if (!this.data.name.trim()) {
@@ -70,6 +83,7 @@ Page({
       return
     }
 
+    if (this.data.loading) return
     this.setData({ loading: true })
 
     try {
@@ -106,6 +120,12 @@ Page({
 
       wx.hideLoading()
       wx.showToast({ title: '保存成功' })
+
+      // 设置全局刷新标记
+      const app = getApp()
+      if (app.globalData) {
+        app.globalData.categoryNeedRefresh = true
+      }
 
       setTimeout(() => {
         wx.navigateBack()

@@ -6,12 +6,17 @@ Page({
     // 日期选择
     currentDate: new Date(),
     selectedDate: new Date(),
+    dateMain: '',
+    dateWeekday: '',
+    isToday: true,
+    calendarYear: new Date().getFullYear(),
+    calendarMonth: new Date().getMonth(),
 
     // 视图模式: category | time
     viewMode: 'category',
 
-    // 显示已完成
-    showCompleted: false,
+    // 临时显示已完成状态（眼睛按钮控制）
+    tempShowCompleted: true,
 
     // 分类模式数据
     categoryGroups: [],
@@ -33,63 +38,116 @@ Page({
     showCalendar: false,
 
     // 有打卡记录的日期列表（YYYY-MM-DD格式）
-    checkinDates: []
+    checkinDates: [],
+
+    // 缓存键
+    cacheKey: ''
   },
 
   onLoad() {
     // 强制使用当前时间
     const now = new Date()
+    console.log('[index] onLoad - 当前时间:', now, toYMD(now))
+
     this.setData({
       currentDate: now,
       selectedDate: now,
       calendarYear: now.getFullYear(),
       calendarMonth: now.getMonth()
+    }, () => {
+      console.log('[index] setData 完成，当前数据:', this.data)
+      this.updateDateDisplay(now)
+      this.loadUserPreferences()
+      this.loadCheckinDates()
+      this.loadData(true) // 首次加载强制刷新
     })
-    this.loadUserPreferences()
-    this.loadCheckinDates()
-    this.updateDateDisplay()
-    this.loadData()
   },
 
   onShow() {
-    this.loadData()
+    console.log('[index] onShow - 当前数据:', {
+      currentDate: this.data.currentDate,
+      selectedDate: this.data.selectedDate,
+      tempShowCompleted: this.data.tempShowCompleted
+    })
+    // 从缓存读取数据，不强制刷新
+    this.loadData(false)
+    this.loadCheckinDates() // 确保打卡记录日期是最新的
+  },
+
+
+
+  // 更新日期显示
+  updateDateDisplay(date) {
+    if (!date) return
+
+    const dateObj = date instanceof Date ? date : new Date(date)
+    const today = new Date()
+
+    const todayYMD = toYMD(today)
+    const currentYMD = toYMD(dateObj)
+    const isToday = todayYMD === currentYMD
+
+    const year = dateObj.getFullYear()
+    const month = dateObj.getMonth() + 1
+    const day = dateObj.getDate()
+    const weekday = ['日', '一', '二', '三', '四', '五', '六'][dateObj.getDay()]
+
+    this.setData({
+      dateMain: `${year}年${month}月${day}日`,
+      dateWeekday: `星期${weekday}`,
+      isToday
+    })
   },
 
   // 加载用户偏好设置
   async loadUserPreferences() {
     try {
+      console.log('[index] 开始加载用户偏好...')
       const { result } = await wx.cloud.callFunction({
         name: 'user',
         data: { action: 'getProfile' }
       })
 
+      console.log('[index] 云函数返回:', result)
+
       if (result && result.data && result.data.preferences) {
-        const { viewMode, showCompleted } = result.data.preferences
+        const { viewMode } = result.data.preferences
+        console.log('[index] 用户偏好:', { viewMode })
+
+        // 只更新视图模式，不影响临时的眼睛按钮状态
         this.setData({
-          viewMode: viewMode || 'category',
-          showCompleted: showCompleted || false,
-          eyeIcon: showCompleted ? '👁' : '👁'
+          viewMode: viewMode || 'category'
+        }, () => {
+          console.log('[index] 用户偏好已设置到 data:', {
+            viewMode: this.data.viewMode,
+            tempShowCompleted: this.data.tempShowCompleted
+          })
         })
       }
     } catch (err) {
-      console.warn('加载用户偏好失败', err)
+      console.warn('[index] 加载用户偏好失败', err)
     }
   },
 
-  // 更新日期显示
-  updateDateDisplay() {
-    // 由date-picker组件自动处理
-  },
+
 
   // 切换日期
-  onChangeDate(e) {
-    const { delta } = e.detail
+  onPrevDay() {
     const newDate = new Date(this.data.currentDate)
-    newDate.setDate(newDate.getDate() + delta)
-
+    newDate.setDate(newDate.getDate() - 1)
     this.setData({ currentDate: newDate })
+    this.updateDateDisplay(newDate)
     this.updateCalendarDate()
-    this.loadData()
+    this.loadData(true) // 日期切换强制刷新
+  },
+
+  onNextDay() {
+    const newDate = new Date(this.data.currentDate)
+    newDate.setDate(newDate.getDate() + 1)
+    this.setData({ currentDate: newDate })
+    this.updateDateDisplay(newDate)
+    this.updateCalendarDate()
+    this.loadData(true) // 日期切换强制刷新
   },
 
   // 选择日期
@@ -107,8 +165,8 @@ Page({
       selectedDate: date,
       showCalendar: false
     })
-    this.updateDateDisplay()
-    this.loadData()
+    this.updateDateDisplay(date)
+    this.loadData(true) // 日期选择强制刷新
   },
 
   // 切换视图模式
@@ -123,31 +181,34 @@ Page({
     this.loadData()
   },
 
-  // 切换显示已完成
+  // 切换临时显示已完成（眼睛按钮）
   toggleShowCompleted() {
-    const showCompleted = !this.data.showCompleted
+    const tempShowCompleted = !this.data.tempShowCompleted
+    console.log('[index] toggleShowCompleted:', { old: this.data.tempShowCompleted, new: tempShowCompleted })
     this.setData({
-      showCompleted
+      tempShowCompleted
     })
-
-    this.saveUserPreferences()
+    // 不保存到用户偏好，这是临时状态
   },
 
-  // 保存用户偏好
+  // 保存用户偏好（只保存视图模式，不保存眼睛按钮状态）
   async saveUserPreferences() {
     try {
-      await wx.cloud.callFunction({
+      console.log('[index] 保存用户偏好:', {
+        viewMode: this.data.viewMode
+      })
+      const res = await wx.cloud.callFunction({
         name: 'user',
         data: {
           action: 'updatePreferences',
           data: {
-            viewMode: this.data.viewMode,
-            showCompleted: this.data.showCompleted
+            viewMode: this.data.viewMode
           }
         }
       })
+      console.log('[index] 保存用户偏好成功:', res.result)
     } catch (err) {
-      console.warn('保存用户偏好失败', err)
+      console.warn('[index] 保存用户偏好失败', err)
     }
   },
 
@@ -161,7 +222,19 @@ Page({
         }
       })
 
-      const checkinDates = result.data || []
+      console.log('[index] 云函数返回 result:', result)
+      console.log('[index] result.data:', result.data)
+
+      // 确保日期格式为 YYYY-MM-DD
+      const checkinDates = (result.data || []).map(d => {
+        if (d instanceof Date) {
+          return toYMD(d)
+        } else if (typeof d === 'object' && d.ymd) {
+          return d.ymd
+        }
+        return d
+      })
+      console.log('[index] 加载打卡日期 checkinDates:', checkinDates)
       this.setData({ checkinDates })
     } catch (err) {
       console.error('加载打卡日期失败', err)
@@ -178,12 +251,31 @@ Page({
     const { currentDate } = this.data
     this.setData({
       calendarYear: currentDate.getFullYear(),
-      calendarMonth: currentDate.getMonth()
+      calendarMonth: currentDate.getMonth(),
+      selectedDate: currentDate
     })
   },
 
   // 加载数据
-  async loadData() {
+  async loadData(forceRefresh = false) {
+    const ymd = toYMD(this.data.currentDate)
+    const cacheKey = `habits_${ymd}`
+
+    // 检查缓存
+    if (!forceRefresh) {
+      const cachedData = wx.getStorageSync(cacheKey)
+      if (cachedData) {
+        console.log('[index] 从缓存加载数据:', cacheKey)
+        this.setData({
+          categoryGroups: cachedData.categoryGroups,
+          timeHabits: cachedData.timeHabits,
+          todayStats: cachedData.todayStats,
+          loading: false
+        })
+        return
+      }
+    }
+
     this.setData({ loading: true })
 
     try {
@@ -295,6 +387,18 @@ Page({
         },
         loading: false
       })
+
+      // 保存到缓存
+      wx.setStorageSync(cacheKey, {
+        categoryGroups,
+        timeHabits,
+        todayStats: {
+          total: totalHabits,
+          completed: completedHabits,
+          rate
+        }
+      })
+      console.log('[index] 数据已缓存:', cacheKey)
     } catch (err) {
       console.error('加载数据失败', err)
       this.setData({ loading: false })
@@ -312,6 +416,8 @@ Page({
 
     try {
       wx.showLoading({ title: '打卡中' })
+      const ymd = toYMD(this.data.currentDate)
+      console.log('[index] 打卡 - habitId:', habitId, 'ymd:', ymd)
 
       await wx.cloud.callFunction({
         name: 'checkin',
@@ -320,7 +426,20 @@ Page({
 
       wx.hideLoading()
       wx.showToast({ title: '打卡成功' })
-      this.loadData()
+
+      // 清除缓存
+      wx.removeStorageSync(`habits_${ymd}`)
+      wx.removeStorageSync('stats_week')
+      wx.removeStorageSync('stats_month')
+      wx.removeStorageSync('stats_year')
+
+      // 设置统计页面刷新标记
+      const app = getApp()
+      if (app.globalData) {
+        app.globalData.statsNeedRefresh = true
+      }
+
+      this.loadData(true) // 打卡后强制刷新
     } catch (err) {
       console.error('打卡失败', err)
       wx.hideLoading()
@@ -351,7 +470,24 @@ Page({
 
             wx.hideLoading()
             wx.showToast({ title: '已取消' })
-            this.loadData()
+
+            // 清除缓存
+            wx.removeStorageSync(`habits_${ymd}`)
+            wx.removeStorageSync('stats_week')
+            wx.removeStorageSync('stats_month')
+            wx.removeStorageSync('stats_year')
+
+            // 设置统计页面刷新标记
+            const app = getApp()
+            if (app.globalData) {
+              app.globalData.statsNeedRefresh = true
+            }
+            wx.removeStorageSync(`habits_${ymd}`)
+            wx.removeStorageSync('stats_week')
+            wx.removeStorageSync('stats_month')
+            wx.removeStorageSync('stats_year')
+
+            this.loadData(true) // 取消打卡后强制刷新
           } catch (err) {
             console.error('取消打卡失败', err)
             wx.hideLoading()
@@ -368,6 +504,7 @@ Page({
   // 跳过今日
   async onSkip(e) {
     const { habitId } = e.currentTarget.dataset
+    const ymd = toYMD(this.data.currentDate)
 
     wx.showModal({
       title: '跳过今日',
@@ -384,7 +521,14 @@ Page({
 
             wx.hideLoading()
             wx.showToast({ title: '已跳过' })
-            this.loadData()
+
+            // 清除缓存
+            wx.removeStorageSync(`habits_${ymd}`)
+            wx.removeStorageSync('stats_week')
+            wx.removeStorageSync('stats_month')
+            wx.removeStorageSync('stats_year')
+
+            this.loadData(true) // 跳过后强制刷新
           } catch (err) {
             console.error('跳过失败', err)
             wx.hideLoading()
@@ -416,6 +560,48 @@ Page({
     const { habitId } = e.currentTarget.dataset
     wx.navigateTo({
       url: `/pages/habit-form/habit-form?id=${habitId}`
+    })
+  },
+
+  // 删除习惯
+  onDeleteHabit(e) {
+    const { habitId } = e.currentTarget.dataset
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除这个习惯吗？删除后将无法恢复。',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            wx.showLoading({ title: '删除中' })
+            await wx.cloud.callFunction({
+              name: 'habit',
+              data: {
+                action: 'delete',
+                data: { habitId }
+              }
+            })
+            wx.hideLoading()
+            wx.showToast({ title: '删除成功' })
+
+            // 清除缓存
+            const ymd = toYMD(this.data.currentDate)
+            wx.removeStorageSync(`habits_${ymd}`)
+            wx.removeStorageSync('stats_week')
+            wx.removeStorageSync('stats_month')
+            wx.removeStorageSync('stats_year')
+
+            this.loadData(true)
+            this.loadCheckinDates()
+          } catch (err) {
+            console.error('删除失败', err)
+            wx.hideLoading()
+            wx.showToast({
+              title: '删除失败',
+              icon: 'none'
+            })
+          }
+        }
+      }
     })
   },
 

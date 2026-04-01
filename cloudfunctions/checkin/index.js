@@ -328,7 +328,7 @@ async function getCheckinsByHabit(openid, data) {
  * 获取有打卡记录的日期列表
  */
 async function getCheckinDates(openid, data) {
-  const { days = 90 } = data || {} // 默认获取最近90天的日期
+  const { days = 365 } = data || {} // 默认获取最近365天的日期
 
   // 计算时间范围
   const startDate = dayjs().subtract(days, 'day').format('YYYY-MM-DD')

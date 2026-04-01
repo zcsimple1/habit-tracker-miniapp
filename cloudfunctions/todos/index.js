@@ -250,21 +250,43 @@ async function archiveTodo(openid, data) {
 
 /**
  * 获取某天的待办
+ * 规则：
+ * 1. 截止日期 <= 当前日期的未完成待办
+ * 2. 截止日期 == 当前日期的所有待办（包括已完成）
+ * 3. 已完成的待办只在截止日期当天显示
  */
 async function getTodosByDate(openid, data) {
   const { ymd } = data
+  const today = dayjs()
 
-  const result = await db.collection('todos')
+  // 查询截止日期 <= ymd 的未完成待办
+  const uncompletedResult = await db.collection('todos')
     .where({
       openid,
-      dueDate: ymd,
-      archived: false
+      completed: false,
+      archived: false,
+      dueDate: db.command.lte(ymd)
     })
     .orderBy('priority', 'asc')
     .orderBy('dueTime', 'asc')
+    .orderBy('createdAt', 'asc')
     .get()
 
-  return { code: 0, data: result.data }
+  // 查询截止日期 == ymd 的已完成待办
+  const completedResult = await db.collection('todos')
+    .where({
+      openid,
+      completed: true,
+      archived: false,
+      dueDate: ymd
+    })
+    .orderBy('completedAt', 'desc')
+    .get()
+
+  // 合并结果
+  const todos = [...uncompletedResult.data, ...completedResult.data]
+
+  return { code: 0, data: todos }
 }
 
 /**
@@ -289,17 +311,20 @@ async function getTodosByPriority(openid, data) {
  * 获取有待办记录的日期列表
  */
 async function getTodoDates(openid, data) {
-  const { days = 90 } = data || {} // 默认获取最近90天的日期
+  const { days = 180 } = data || {} // 默认获取最近180天的日期
 
   // 计算时间范围
-  const startDate = dayjs().subtract(days, 'day').toDate()
-  const endDate = dayjs().add(days, 'day').toDate()
+  const startDate = dayjs().subtract(30, 'day').format('YYYY-MM-DD') // 包括过去30天
+  const endDate = dayjs().add(days, 'day').format('YYYY-MM-DD')
 
   const result = await db.collection('todos')
     .where({
       openid,
       archived: false,
-      dueDate: db.command.gte(dayjs(startDate).format('YYYY-MM-DD'))
+      dueDate: db.command.and(
+        db.command.gte(startDate),
+        db.command.lte(endDate)
+      )
     })
     .field({
       dueDate: true

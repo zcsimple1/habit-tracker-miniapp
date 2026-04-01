@@ -1,13 +1,25 @@
 Page({
   data: {
     userInfo: {},
-    hideCompleted: true,  // 默认为 true，即隐藏已完成
-    reminderEnabled: false
+    hideCompleted: false,  // 默认为 false，即显示已完成
+    reminderEnabled: false,
+    showProfileModal: false,
+    tempAvatarUrl: '',
+    tempNickname: '',
+    isDevMode: false  // 是否为开发者模式
   },
 
   onLoad() {
     this.loadUserInfo();
     this.loadSettings();
+    this.checkDevMode();
+  },
+
+  // 检查是否为开发者模式
+  checkDevMode() {
+    const accountInfo = wx.getAccountInfoSync();
+    const isDev = accountInfo.miniProgram.envVersion === 'develop' || accountInfo.miniProgram.envVersion === 'trial';
+    this.setData({ isDevMode: isDev });
   },
 
   // 加载用户信息
@@ -19,8 +31,8 @@ Page({
           action: 'getProfile'
         }
       });
-      if (res.result.success) {
-        this.setData({ userInfo: res.result.data });
+      if (res.result.code === 0) {
+        this.setData({ userInfo: res.result.data || {} });
       }
     } catch (err) {
       console.error('加载用户信息失败:', err);
@@ -38,9 +50,11 @@ Page({
       });
       if (res.result.code === 0) {
         const profile = res.result.data || {};
+        const preferences = profile.preferences || {};
         this.setData({
-          hideCompleted: profile.hideCompleted || false,
-          reminderEnabled: profile.reminderEnabled || false
+          hideCompleted: preferences.hideCompleted !== undefined ? preferences.hideCompleted : false,
+          reminderEnabled: preferences.reminderEnabled || false,
+          reminderTime: preferences.reminderTime || '09:00'
         });
       }
     } catch (err) {
@@ -48,41 +62,95 @@ Page({
     }
   },
 
-  // 登录
-  async onLogin() {
-    try {
-      const { userInfo } = await wx.getUserProfile({
-        desc: '用于完善用户资料'
-      });
+  // 打开头像昵称填写弹窗
+  onChooseAvatar() {
+    this.setData({
+      showProfileModal: true,
+      tempAvatarUrl: this.data.userInfo.avatarUrl || '',
+      tempNickname: this.data.userInfo.nickName || ''
+    });
+  },
 
-      const res = await wx.cloud.callFunction({
-        name: 'login',
+  // 选择头像
+  onChooseAvatar(e) {
+    const { avatarUrl } = e.detail;
+    this.setData({ tempAvatarUrl: avatarUrl });
+  },
+
+  // 输入昵称
+  onNicknameInput(e) {
+    this.setData({ tempNickname: e.detail.value });
+  },
+
+  // 编辑资料
+  onEditProfile() {
+    this.setData({
+      showProfileModal: true,
+      tempAvatarUrl: this.data.userInfo.avatarUrl || '',
+      tempNickname: this.data.userInfo.nickName || ''
+    });
+  },
+
+  // 保存资料
+  async onSaveProfile() {
+    const { tempAvatarUrl, tempNickname } = this.data;
+
+    if (!tempNickname) {
+      wx.showToast({
+        title: '请输入昵称',
+        icon: 'none'
+      });
+      return;
+    }
+
+    try {
+      wx.showLoading({ title: '保存中...' });
+
+      // 上传头像到云存储
+      let avatarUrl = tempAvatarUrl;
+      if (tempAvatarUrl && !tempAvatarUrl.startsWith('cloud://')) {
+        const uploadRes = await wx.cloud.uploadFile({
+          cloudPath: `avatars/${Date.now()}.png`,
+          filePath: tempAvatarUrl
+        });
+        avatarUrl = uploadRes.fileID;
+      }
+
+      // 更新用户信息
+      await wx.cloud.callFunction({
+        name: 'user',
         data: {
-          userInfo
+          action: 'updateProfile',
+          data: {
+            avatarUrl,
+            nickName: tempNickname
+          }
         }
       });
 
-      if (res.result.success) {
-        wx.showToast({ title: '登录成功', icon: 'success' });
-        this.loadUserInfo();
-      }
+      wx.hideLoading();
+      wx.showToast({ title: '保存成功', icon: 'success' });
+      this.setData({ showProfileModal: false });
+      this.loadUserInfo();
     } catch (err) {
-      console.error('登录失败:', err);
-      wx.showToast({ title: '登录失败', icon: 'error' });
+      console.error('保存失败:', err);
+      wx.hideLoading();
+      wx.showToast({
+        title: '保存失败',
+        icon: 'none'
+      });
     }
+  },
+
+  // 取消编辑
+  onCancelProfile() {
+    this.setData({ showProfileModal: false });
   },
 
   // 管理分类
   onManageCategories() {
     wx.navigateTo({
       url: '/pages/category-manage/category-manage'
-    });
-  },
-
-  // 预设分类
-  onPresetCategories() {
-    wx.navigateTo({
-      url: '/pages/preset-categories/preset-categories'
     });
   },
 

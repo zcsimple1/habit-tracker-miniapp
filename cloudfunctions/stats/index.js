@@ -2,7 +2,7 @@
 const cloud = require('wx-server-sdk')
 const dayjs = require('dayjs')
 
-cloud.init({ env: 'cloudbase-8gw8f3c75c015f6' })
+cloud.init({ env: 'cloudbase-8gw8fj3c75c015f6' })
 const db = cloud.database()
 
 // 工具函数

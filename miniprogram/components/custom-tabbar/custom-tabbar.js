@@ -10,6 +10,16 @@ Component({
     }
   },
 
+  lifetimes: {
+    attached() {
+      this.updateActiveTab();
+    },
+    show() {
+      // 页面显示时更新高亮
+      this.updateActiveTab();
+    }
+  },
+
   data: {
     tabs: [
       {
@@ -36,7 +46,8 @@ Component({
         icon: '⚙️',
         badge: 0
       }
-    ]
+    ],
+    activeTab: ''
   },
 
   observers: {
@@ -46,6 +57,15 @@ Component({
   },
 
   methods: {
+    // 更新当前高亮的 tab
+    updateActiveTab() {
+      const pages = getCurrentPages();
+      if (pages.length > 0) {
+        const currentRoute = pages[pages.length - 1].route;
+        this.setData({ activeTab: currentRoute });
+      }
+    },
+
     updateBadge(count) {
       const tabs = this.data.tabs.map(tab => {
         if (tab.pagePath === 'pages/todos/todos') {
@@ -58,7 +78,7 @@ Component({
 
     onTabClick(e) {
       const { path } = e.currentTarget.dataset;
-      
+
       // 获取当前页面栈
       const pages = getCurrentPages();
       const currentPage = pages[pages.length - 1];
@@ -69,10 +89,30 @@ Component({
         return;
       }
 
-      // 使用 reLaunch 替换当前页面栈
-      wx.reLaunch({
-        url: `/${path}`
-      });
+      // 检查目标页面是否已在栈中
+      const targetPageIndex = pages.findIndex(page => page.route === path);
+
+      if (targetPageIndex >= 0) {
+        // 如果目标页面已存在，使用 navigateBack 返回
+        wx.navigateBack({
+          delta: pages.length - 1 - targetPageIndex,
+          fail: () => {
+            wx.switchTab({
+              url: `/${path}`
+            });
+          }
+        });
+      } else {
+        // 如果目标页面不在栈中，使用 switchTab
+        wx.switchTab({
+          url: `/${path}`,
+          fail: () => {
+            wx.navigateTo({
+              url: `/${path}`
+            });
+          }
+        });
+      }
     }
   }
 });

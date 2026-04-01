@@ -19,9 +19,18 @@ Page({
       startDate: '',             // 开始日期
       endDate: ''               // 结束日期
     },
-    timeRuleTypes: ['daily','weekdays','weekend','weekly','custom'],
+    timeRuleTypes: ['daily','weekdays','weekend','weekly'],
     timeRuleTypeIndex: 0,
     timeRuleTypeText: '每日',
+
+    // 星期选择状态
+    weekdayMon: false,
+    weekdayTue: false,
+    weekdayWed: false,
+    weekdayThu: false,
+    weekdayFri: false,
+    weekdaySat: false,
+    weekdaySun: false,
 
     // 重要标记
     important: false,
@@ -52,17 +61,27 @@ Page({
 
       if (result && result.data) {
         const habit = result.data
+        const timeRule = habit.timeRule || { type: 'daily' }
+        // 更新星期选中状态
+        const weekDays = timeRule.weekDays || []
         this.setData({
           name: habit.name || '',
           description: habit.description || '',
           categoryId: habit.categoryId || '',
           important: habit.important || false,
-          timeRule: habit.timeRule || { type: 'daily' }
+          timeRule: timeRule,
+          weekdayMon: weekDays.includes(1),
+          weekdayTue: weekDays.includes(2),
+          weekdayWed: weekDays.includes(3),
+          weekdayThu: weekDays.includes(4),
+          weekdayFri: weekDays.includes(5),
+          weekdaySat: weekDays.includes(6),
+          weekdaySun: weekDays.includes(7)
         })
         // 更新分类索引和名称
         this.updateCategoryInfo(habit.categoryId)
         // 更新时间规则类型索引和文本
-        this.updateTimeRuleTypeInfo(habit.timeRule ? habit.timeRule.type : 'daily')
+        this.updateTimeRuleTypeInfo(timeRule.type)
       }
     } catch (err) {
       console.error('加载习惯失败', err)
@@ -80,8 +99,11 @@ Page({
 
       const customCategories = result.data || []
 
-      // 合并预设分类和自定义分类
-      const allCategories = getAllCategories(customCategories)
+      // 合并预设分类和自定义分类，添加displayName用于picker显示
+      const allCategories = getAllCategories(customCategories).map(cat => ({
+        ...cat,
+        displayName: `${cat.icon} ${cat.name}`
+      }))
 
       this.setData({
         categories: allCategories
@@ -107,19 +129,19 @@ Page({
     }
 
     const categories = this.data.categories || []
-    const index = categories.findIndex(c => c._id === categoryId)
+    const index = categories.findIndex(c => c._id === categoryId || (c.isPreset && c.id === categoryId))
     const category = categories[index]
 
     this.setData({
       categoryIndex: index >= 0 ? index : 0,
-      categoryName: category ? category.name : '选择分类'
+      categoryName: category ? category.displayName : '选择分类'
     })
   },
 
   // 更新时间规则类型索引和文本
   updateTimeRuleTypeInfo(type) {
     const types = this.data.timeRuleTypes
-    const typeTexts = ['每日', '仅工作日', '仅周末', '每周指定日期', '自定义日期']
+    const typeTexts = ['每日', '仅工作日', '仅周末', '每周']
     const index = types.indexOf(type)
 
     this.setData({
@@ -145,9 +167,9 @@ Page({
     const category = categories[index]
 
     this.setData({
-      categoryId: category ? category._id : '',
+      categoryId: category ? (category._id || category.id) : '',
       categoryIndex: index,
-      categoryName: category ? category.name : '选择分类'
+      categoryName: category ? category.displayName : '选择分类'
     })
   },
 
@@ -160,7 +182,14 @@ Page({
       'timeRule.type': types[index],
       timeRuleTypeIndex: index,
       'timeRule.weekDays': [],
-      'timeRule.customDates': []
+      'timeRule.customDates': [],
+      weekdayMon: false,
+      weekdayTue: false,
+      weekdayWed: false,
+      weekdayThu: false,
+      weekdayFri: false,
+      weekdaySat: false,
+      weekdaySun: false
     })
   },
 
@@ -177,16 +206,32 @@ Page({
   // 星期选择（weekly模式）
   onWeekDayToggle(e) {
     const { day } = e.currentTarget.dataset
+    const weekdayMap = {
+      '1': 'weekdayMon',
+      '2': 'weekdayTue',
+      '3': 'weekdayWed',
+      '4': 'weekdayThu',
+      '5': 'weekdayFri',
+      '6': 'weekdaySat',
+      '7': 'weekdaySun'
+    }
+    const key = weekdayMap[day]
+    if (!key) return
+
+    const newValue = !this.data[key]
     const weekDays = [...this.data.timeRule.weekDays]
 
-    const index = weekDays.indexOf(day)
-    if (index > -1) {
-      weekDays.splice(index, 1)
+    if (newValue) {
+      weekDays.push(parseInt(day))
     } else {
-      weekDays.push(day)
+      const index = weekDays.indexOf(parseInt(day))
+      if (index > -1) weekDays.splice(index, 1)
     }
 
-    this.setData({ 'timeRule.weekDays': weekDays })
+    this.setData({
+      [key]: newValue,
+      'timeRule.weekDays': weekDays.sort((a, b) => a - b)
+    })
   },
 
   // 固定时间选择

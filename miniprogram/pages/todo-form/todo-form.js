@@ -146,6 +146,15 @@ Page({
       wx.hideLoading()
       wx.showToast({ title: '保存成功' })
 
+      // 清除待办缓存
+      wx.removeStorageSync('todos_' + this.data.dueDate)
+
+      // 设置全局刷新标记
+      const app = getApp()
+      if (app.globalData) {
+        app.globalData.todosNeedRefresh = true
+      }
+
       setTimeout(() => {
         wx.navigateBack()
       }, 1500)

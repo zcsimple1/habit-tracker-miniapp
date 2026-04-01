@@ -4,7 +4,9 @@ Page({
   data: {
     presetCategories: [],
     customCategories: [],
-    loading: false
+    loading: false,
+    lastLoadTime: 0,  // 上次加载时间
+    cacheDuration: 5 * 60 * 1000  // 缓存5分钟
   },
 
   onLoad() {
@@ -12,7 +14,14 @@ Page({
   },
 
   onShow() {
-    this.loadCustomCategories()
+    // 检查是否需要刷新
+    const now = Date.now()
+    const timeSinceLastLoad = now - this.data.lastLoadTime
+
+    // 如果距离上次加载超过缓存时间，或者没有数据，则重新加载
+    if (timeSinceLastLoad > this.data.cacheDuration || this.data.customCategories.length === 0) {
+      this.loadCustomCategories()
+    }
   },
 
   // 初始化分类列表
@@ -33,7 +42,8 @@ Page({
 
       this.setData({
         customCategories: result.data || [],
-        loading: false
+        loading: false,
+        lastLoadTime: Date.now()  // 更新加载时间
       })
     } catch (err) {
       console.error('加载分类失败', err)
@@ -56,6 +66,8 @@ Page({
     wx.navigateTo({
       url: '/pages/category-form/category-form'
     })
+    // 设置刷新标记，从分类表单返回时会刷新数据
+    this.setData({ needRefresh: true })
   },
 
   // 编辑分类

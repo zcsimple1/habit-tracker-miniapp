@@ -1,9 +1,9 @@
 <view class="date-picker-wrapper">
-  <button class="date-nav-btn" bindtap="onPrevDay">◀</button>
+  <view class="date-nav-btn" bindtap="onPrevDay">‹</view>
   <view class="date-display" bindtap="onOpenCalendar">
     <text class="date-text">{{displayDate}}</text>
     <text class="date-weekday">{{displayWeekday}}</text>
     <text class="date-badge {{isToday ? 'today' : 'history'}}">{{isToday ? '今天' : '查看'}}</text>
   </view>
-  <button class="date-nav-btn" bindtap="onNextDay">▶</button>
+  <view class="date-nav-btn" bindtap="onNextDay">›</view>
 </view>

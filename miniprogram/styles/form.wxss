@@ -1,0 +1,280 @@
+/* 表单公共样式 */
+
+/* 内容区 */
+.form-content {
+  padding: 0;
+  background: #f8f9fa;
+}
+
+/* 表单组 */
+.form-group {
+  background: white;
+  padding: 28rpx 32rpx;
+  margin-bottom: 2rpx;
+}
+
+.form-label {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.required {
+  color: #ef4444;
+}
+
+/* 输入框 */
+.form-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  font-size: 30rpx;
+  background: white;
+  height: 88rpx;
+  line-height: 1.5;
+}
+
+.form-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  font-size: 30rpx;
+  background: white;
+  min-height: 160rpx;
+  line-height: 1.5;
+}
+
+/* 选择器 */
+.form-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  font-size: 30rpx;
+  color: #333;
+}
+
+.picker-arrow {
+  color: #999;
+  font-size: 24rpx;
+}
+
+/* Toggle 开关 */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toggle-label {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.toggle-desc {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+.toggle-switch {
+  width: 96rpx;
+  height: 56rpx;
+  background: #e5e7eb;
+  border-radius: 28rpx;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.toggle-switch.active {
+  background: #10b981;
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  width: 48rpx;
+  height: 48rpx;
+  background: white;
+  border-radius: 50%;
+  top: 4rpx;
+  left: 4rpx;
+  transition: all 0.3s;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+}
+
+.toggle-switch.active::after {
+  left: 44rpx;
+}
+
+/* 重要标记 */
+.important-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 单选组 */
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.radio-option {
+  flex: 0 0 auto;
+  padding: 20rpx 24rpx;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 16rpx;
+  text-align: center;
+  font-size: 26rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.radio-option.active {
+  border-color: #667eea;
+  background: #667eea;
+  color: white;
+}
+
+.radio-icon {
+  font-size: 32rpx;
+}
+
+/* 优先级选项 */
+.priority-options {
+  display: flex;
+  gap: 16rpx;
+}
+
+.priority-option {
+  flex: 1;
+  padding: 20rpx 8rpx;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 16rpx;
+  text-align: center;
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #666;
+  background: white;
+}
+
+.priority-option.urgent {
+  border-color: #fecaca;
+  color: #ef4444;
+}
+
+.priority-option.urgent.active {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: white;
+}
+
+.priority-option.high {
+  border-color: #fed7aa;
+  color: #f97316;
+}
+
+.priority-option.high.active {
+  background: #f97316;
+  border-color: #f97316;
+  color: white;
+}
+
+.priority-option.normal {
+  border-color: #c7d2fe;
+  color: #667eea;
+}
+
+.priority-option.normal.active {
+  background: #667eea;
+  border-color: #667eea;
+  color: white;
+}
+
+.priority-option.low {
+  border-color: #d1d5db;
+  color: #6b7280;
+}
+
+.priority-option.low.active {
+  background: #6b7280;
+  border-color: #6b7280;
+  color: white;
+}
+
+/* 星期选择 */
+.weekday-selector {
+  margin-top: 24rpx;
+}
+
+.weekday-options {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: nowrap;
+}
+
+.weekday-option {
+  flex: 1;
+  min-width: 0;
+  height: 72rpx;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.weekday-option.active {
+  border-color: #667eea;
+  background: #667eea;
+  color: white;
+}
+
+/* 时间/日期输入 */
+.time-inputs,
+.date-inputs {
+  margin-top: 24rpx;
+  display: flex;
+  gap: 24rpx;
+}
+
+.time-inputs .form-input,
+.date-inputs .form-input {
+  flex: 1;
+  text-align: center;
+  background: #f5f5f5;
+  border-color: transparent;
+}
+
+/* 日期时间行 */
+.form-row {
+  display: flex;
+  gap: 24rpx;
+}
+
+.form-col {
+  flex: 1;
+}

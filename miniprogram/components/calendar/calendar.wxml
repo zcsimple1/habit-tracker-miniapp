@@ -1,8 +1,8 @@
 <view class="calendar-modal" catchtap="onClose">
-  <view class="calendar-content" catchtap="">
+  <view class="calendar-content" catchtap="onContentTap">
     <view class="calendar-header">
       <text class="calendar-month">{{year}}年{{month + 1}}月</text>
-      <text class="calendar-close" bindtap="onClose">×</text>
+      <text class="calendar-close" catchtap="onClose">×</text>
     </view>
     <view class="calendar-weekdays">
       <text class="calendar-weekday">日</text>
@@ -18,7 +18,7 @@
         wx:for="{{days}}"
         wx:key="index"
         class="calendar-day {{item.isOtherMonth ? 'other-month' : ''}} {{item.isToday ? 'today' : ''}} {{item.isSelected ? 'selected' : ''}}"
-        bindtap="onSelectDate"
+        catchtap="onSelectDate"
         data-index="{{index}}"
       >
         {{item.day}}
@@ -26,8 +26,8 @@
       </view>
     </view>
     <view class="calendar-footer">
-      <button class="calendar-nav-btn" bindtap="onMonthChange" data-delta="-1">上个月</button>
-      <button class="calendar-nav-btn" bindtap="onMonthChange" data-delta="1">下个月</button>
+      <view class="calendar-nav-btn" catchtap="onMonthChange" data-delta="-1">上个月</view>
+      <view class="calendar-nav-btn" catchtap="onMonthChange" data-delta="1">下个月</view>
     </view>
   </view>
 </view>

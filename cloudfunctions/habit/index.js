@@ -148,7 +148,7 @@ async function getHabitsByCategory(openid, data) {
  * 获取今日需打卡的习惯
  */
 async function getTodayHabits(openid, options = {}) {
-  const { categoryId = null, hideCompleted = true } = options
+  const { categoryId = null, hideCompleted = false } = options
   const today = getToday()
 
   // 获取所有习惯

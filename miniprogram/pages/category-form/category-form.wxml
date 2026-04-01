@@ -1,17 +1,19 @@
 <view class="container">
-  <!-- 标题 -->
+  <!-- 头部 -->
   <view class="header">
-    <text class="title">{{categoryId ? '编辑分类' : '新建分类'}}</text>
+    <button class="header-btn cancel" bindtap="onCancel">取消</button>
+    <view class="header-title">{{categoryId ? '编辑分类' : '新建分类'}}</view>
+    <button class="header-btn save" bindtap="onSave" disabled="{{loading}}">保存</button>
   </view>
 
-  <!-- 表单 -->
-  <view class="form">
+  <!-- 表单内容 -->
+  <view class="content">
     <!-- 分类名称 -->
-    <view class="form-item">
-      <view class="label">分类名称</view>
+    <view class="form-group">
+      <view class="form-label">名称 <text class="required">*</text></view>
       <input
-        class="input"
-        placeholder="输入分类名称"
+        class="form-input"
+        placeholder="输入分类名称..."
         value="{{name}}"
         bindinput="onNameInput"
         maxlength="20"
@@ -19,8 +21,8 @@
     </view>
 
     <!-- 图标选择 -->
-    <view class="form-section">
-      <view class="section-title">选择图标</view>
+    <view class="form-group">
+      <view class="form-label">图标 <text class="required">*</text></view>
       <view class="icon-grid">
         <view
           wx:for="{{icons}}"
@@ -30,14 +32,13 @@
           data-icon="{{item}}"
         >
           <text class="icon-text">{{item}}</text>
-          <view wx:if="{{icon === item}}" class="icon-check">✓</view>
         </view>
       </view>
     </view>
 
     <!-- 颜色选择 -->
-    <view class="form-section">
-      <view class="section-title">选择颜色</view>
+    <view class="form-group">
+      <view class="form-label">颜色</view>
       <view class="color-grid">
         <view
           wx:for="{{colors}}"
@@ -47,25 +48,18 @@
           bindtap="onColorSelect"
           data-color="{{item}}"
         >
-          <view wx:if="{{color === item}}" class="color-check">✓</view>
+          <text wx:if="{{color === item}}" class="color-check">✓</text>
         </view>
       </view>
     </view>
 
     <!-- 预览 -->
-    <view class="preview-section">
-      <view class="section-title">预览</view>
+    <view class="form-group preview-section">
+      <view class="form-label">预览</view>
       <view class="preview-card" style="background-color: {{color}}">
-        <view class="preview-icon">{{icon || '?'}}</view>
-        <view class="preview-name">{{name || '分类名称'}}</view>
+        <text class="preview-icon">{{icon || '?'}}</text>
+        <text class="preview-name">{{name || '分类名称'}}</text>
       </view>
     </view>
-  </view>
-
-  <!-- 保存按钮 -->
-  <view class="bottom-actions">
-    <button class="save-btn" bindtap="onSave" disabled="{{loading}}">
-      {{loading ? '保存中...' : '保存'}}
-    </button>
   </view>
 </view>

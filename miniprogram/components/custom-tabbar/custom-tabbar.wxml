@@ -2,7 +2,7 @@
   <view
     wx:for="{{tabs}}"
     wx:key="pagePath"
-    class="tab-item {{currentPage === item.pagePath ? 'active' : ''}}"
+    class="tab-item {{activeTab === item.pagePath ? 'active' : ''}}"
     bindtap="onTabClick"
     data-path="{{item.pagePath}}"
   >

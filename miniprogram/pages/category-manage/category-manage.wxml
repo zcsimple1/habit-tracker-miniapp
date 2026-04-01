@@ -1,8 +1,9 @@
 <view class="container">
   <!-- 头部 -->
   <view class="header">
-    <view class="header-title">分类管理</view>
-    <button class="header-btn" bindtap="onFinish">完成</button>
+    <button class="header-btn cancel" bindtap="onFinish">取消</button>
+    <view class="header-title">今日打卡</view>
+    <view class="header-spacer"></view>
   </view>
 
   <!-- 内容区 -->
@@ -12,6 +13,12 @@
       <view class="loading-spinner"></view>
       <view class="loading-text">加载中...</view>
     </view>
+
+    <!-- 新建分类按钮 -->
+    <button wx:if="{{!loading}}" class="add-category-btn" bindtap="onAddCategory">
+      <span style="font-size: 20px; color: white;">+</span>
+      新建分类
+    </button>
 
     <!-- 空状态 -->
     <view wx:if="{{!loading && customCategories.length === 0}}" class="empty-state">
@@ -45,11 +52,5 @@
         <button class="action-btn delete" bindtap="onDeleteCategory" data-category-id="{{item._id}}">删除</button>
       </view>
     </view>
-
-    <!-- 新建分类按钮 -->
-    <button class="add-category-btn" bindtap="onAddCategory">
-      <span style="font-size: 20px; color: white;">+</span>
-      新建分类
-    </button>
   </view>
 </view>

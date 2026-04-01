@@ -7,135 +7,119 @@
 /* 头部 */
 .header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 60rpx 30rpx 40rpx;
-  padding-top: calc(100rpx + env(safe-area-inset-top));
+  padding: 120rpx 30rpx 20rpx;
+  padding-top: calc(120rpx + env(safe-area-inset-top));
   box-shadow: 0 4rpx 20rpx rgba(102, 126, 234, 0.3);
 }
 
+.header-top {
+  margin-bottom: 16rpx;
+}
+
 .header-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20rpx;
-  font-size: 36rpx;
+  font-size: 48rpx;
   font-weight: 700;
   color: white;
 }
 
-.header-eye {
-  width: 40rpx;
-  height: 40rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.eye-open {
-  display: flex;
-}
-
-.eye-closed {
-  display: none;
-}
-
-.header-eye.closed .eye-open {
-  display: none;
-}
-
-.header-eye.closed .eye-closed {
-  display: flex;
-}
-
-/* 日期选择器 */
+/* 日期选择器 - 统一样式 */
 .date-picker-container {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 20rpx;
-  margin-bottom: 20rpx;
+  margin-bottom: 16rpx;
 }
 
 .date-nav-btn {
-  width: 50rpx;
-  height: 50rpx;
+  width: 56rpx;
+  height: 56rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.25);
   color: white;
-  border: none;
-  font-size: 24rpx;
+  font-size: 32rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  line-height: 1;
   flex-shrink: 0;
-}
-
-.date-nav-btn::after {
-  border: none;
 }
 
 .date-display {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10rpx;
   justify-content: center;
-  color: white;
-  cursor: pointer;
+  padding: 20rpx 32rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  min-height: 100rpx;
 }
 
-.date-text {
-  font-size: 28rpx;
-  font-weight: 600;
+.date-main {
+  font-size: 38rpx;
+  color: white;
+  font-weight: 700;
+  margin-bottom: 6rpx;
+}
+
+.date-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
 }
 
 .date-weekday {
   font-size: 24rpx;
-  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.9);
 }
 
-.date-badge {
+.today-badge {
   font-size: 20rpx;
-  padding: 4rpx 12rpx;
+  font-weight: 600;
+  padding: 4rpx 16rpx;
   border-radius: 20rpx;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.4);
+  color: white;
 }
 
 .date-badge.today {
-  background: rgba(16, 185, 129, 0.3);
+  background: rgba(255, 255, 255, 0.4);
+  color: white;
 }
 
 .date-badge.history {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* 头部控制区 */
 .header-controls {
   display: flex;
   align-items: center;
-  gap: 20rpx;
+  gap: 16rpx;
 }
 
 .view-toggle {
   flex: 1;
   display: flex;
-  gap: 16rpx;
+  gap: 8rpx;
   background: rgba(255, 255, 255, 0.15);
-  padding: 8rpx;
+  padding: 6rpx;
   border-radius: 40rpx;
 }
 
 .toggle-btn {
   flex: 1;
-  height: 60rpx;
-  border-radius: 30rpx;
+  height: 64rpx;
+  border-radius: 32rpx;
   background: transparent;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26rpx;
+  font-size: 30rpx;
   border: none;
   padding: 0;
 }
@@ -146,9 +130,48 @@
   font-weight: 600;
 }
 
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.eye-btn {
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.eye-icon {
+  width: 36rpx;
+  height: 36rpx;
+  display: none;
+}
+
+.eye-open {
+  display: block;
+}
+
+.eye-closed {
+  display: none;
+}
+
+.eye-btn.closed .eye-open {
+  display: none;
+}
+
+.eye-btn.closed .eye-closed {
+  display: block;
+}
+
 .add-habit-btn {
-  width: 72rpx;
-  height: 72rpx;
+  width: 68rpx;
+  height: 68rpx;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.25);
   border: none;
@@ -165,6 +188,10 @@
 .add-habit-btn:active {
   background: rgba(255, 255, 255, 0.4);
   transform: scale(0.95);
+}
+
+.add-habit-btn::after {
+  border: none;
 }
 
 /* 内容区 */
@@ -218,6 +245,13 @@
   border-top: 1rpx solid #f5f5f5;
 }
 
+.category-items .habit-item {
+  background: transparent;
+  box-shadow: none;
+  padding: 16rpx 20rpx;
+  margin-bottom: 4rpx;
+}
+
 .category-card.collapsed .category-items {
   display: none;
 }
@@ -230,7 +264,7 @@
   gap: 12rpx;
   padding: 20rpx;
   margin-bottom: 8rpx;
-  border-radius: 10rpx;
+  border-radius: 12rpx;
   border-bottom: none;
   transition: all 0.2s;
 }
@@ -244,15 +278,11 @@
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
 }
 
-.habit-item.hidden-item {
+.habit-item.checked {
   opacity: 0.5;
 }
 
-.habit-item.show-hidden {
-  display: flex;
-}
-
-.habit-item.hidden-item:not(.show-hidden) {
+.habit-item.hidden-item {
   display: none;
 }
 
@@ -278,13 +308,14 @@
 
 .habit-time {
   font-size: 24rpx;
-  color: #667eea;
-  font-weight: 600;
+  color: #999;
+  font-weight: 500;
   flex-shrink: 0;
+  min-width: 90rpx;
 }
 
-.habit-time.no-time {
-  color: #999;
+.habit-time.has-time {
+  color: #667eea;
 }
 
 .habit-name {
@@ -293,6 +324,20 @@
   color: #333;
   font-weight: 500;
   min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.important-flag-text {
+  margin-left: 8rpx;
+  font-size: 28rpx;
+}
+
+.habit-meta {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 4rpx;
 }
 
 .important-flag {
@@ -330,9 +375,10 @@
 
 .time-mode .habit-item {
   background: white;
-  border-radius: 10rpx;
+  border-radius: 12rpx;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
-  margin-bottom: 8rpx;
+  margin-bottom: 12rpx;
+  padding: 24rpx;
 }
 
 .category-badge {
@@ -358,6 +404,61 @@
 .habit-content {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.habit-meta {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 8rpx;
+}
+
+.habit-count {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.habit-item:not(.hidden-item) .habit-count {
+  background: #f0fdf4;
+  color: #10b981;
+}
+
+.habit-item.hidden-item .habit-count {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+/* 编辑删除按钮 */
+.habit-actions {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  flex-shrink: 0;
+}
+
+.edit-btn {
+  color: #3b82f6;
+}
+
+.delete-btn {
+  color: #ef4444;
 }
 
 /* 加载状态 */

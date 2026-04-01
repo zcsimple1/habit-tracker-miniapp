@@ -6,14 +6,57 @@
 
   <!-- 用户信息卡片 -->
   <view class="user-card">
-    <view class="user-avatar">
+    <!-- 已登录状态 -->
+    <view wx:if="{{userInfo.nickName}}" class="user-avatar">
+      <image class="avatar-image" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+    </view>
+    <!-- 未登录状态 -->
+    <view wx:else class="user-avatar">
       <text class="avatar-placeholder">👤</text>
     </view>
+
     <view class="user-info">
       <view class="user-name">{{userInfo.nickName || '未登录'}}</view>
       <view class="user-desc">{{userInfo.nickName ? '坚持养成好习惯' : '点击登录使用全部功能'}}</view>
     </view>
-    <button wx:if="{{!userInfo.nickName}}" class="login-btn" bindtap="onLogin">登录</button>
+
+    <!-- 未登录时显示登录按钮 -->
+    <button wx:if="{{!userInfo.nickName}}" class="login-btn" bindtap="onChooseAvatar">
+      选择头像
+    </button>
+
+    <!-- 已登录时显示编辑按钮 -->
+    <button wx:if="{{userInfo.nickName}}" class="edit-btn" bindtap="onEditProfile">
+      编辑资料
+    </button>
+  </view>
+
+  <!-- 头像昵称填写弹窗 -->
+  <view wx:if="{{showProfileModal}}" class="profile-modal">
+    <view class="profile-modal-content">
+      <view class="profile-modal-title">完善个人信息</view>
+
+      <!-- 头像选择 -->
+      <view class="profile-field">
+        <text class="profile-label">头像</text>
+        <button class="avatar-picker" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+          <image wx:if="{{tempAvatarUrl}}" class="preview-avatar" src="{{tempAvatarUrl}}" mode="aspectFill"></image>
+          <text wx:else class="choose-avatar-text">选择头像</text>
+        </button>
+      </view>
+
+      <!-- 昵称输入 -->
+      <view class="profile-field">
+        <text class="profile-label">昵称</text>
+        <input class="nickname-input" type="nickname" placeholder="请输入昵称" value="{{tempNickname}}" bindinput="onNicknameInput" />
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="profile-actions">
+        <button class="cancel-btn" bindtap="onCancelProfile">取消</button>
+        <button class="confirm-btn" bindtap="onSaveProfile">保存</button>
+      </view>
+    </view>
   </view>
 
   <!-- 功能设置 -->
@@ -29,20 +72,12 @@
         <view class="setting-arrow">▶</view>
       </view>
 
-      <view class="setting-item" bindtap="onPresetCategories">
-        <view class="setting-icon">📦</view>
-        <view class="setting-info">
-          <view class="setting-name">预设分类</view>
-          <view class="setting-desc">快速添加常用分类</view>
-        </view>
-        <view class="setting-arrow">▶</view>
-      </view>
-
-      <view class="setting-item" bindtap="onInitDatabase">
+      <!-- 仅开发者可见 -->
+      <view wx:if="{{isDevMode}}" class="setting-item" bindtap="onInitDatabase">
         <view class="setting-icon">🗄️</view>
         <view class="setting-info">
           <view class="setting-name">初始化数据库</view>
-          <view class="setting-desc">重置所有数据</view>
+          <view class="setting-desc">重置所有数据（开发者）</view>
         </view>
         <view class="setting-arrow">▶</view>
       </view>
@@ -66,7 +101,7 @@
         <view class="setting-icon">🔔</view>
         <view class="setting-info">
           <view class="setting-name">打卡提醒</view>
-          <view class="setting-desc">开启后会在指定时间提醒</view>
+          <view class="setting-desc">{{reminderEnabled ? '每天 ' + reminderTime + ' 提醒' : '开启后会在指定时间提醒'}}</view>
         </view>
         <switch checked="{{reminderEnabled}}" bindchange="onReminderChange" />
       </view>
@@ -86,20 +121,22 @@
         <view class="setting-arrow">▶</view>
       </view>
 
-      <view class="setting-item" bindtap="onSyncData">
+      <!-- 仅开发者可见 -->
+      <view wx:if="{{isDevMode}}" class="setting-item" bindtap="onSyncData">
         <view class="setting-icon">🔄</view>
         <view class="setting-info">
           <view class="setting-name">同步数据</view>
-          <view class="setting-desc">同步到云端</view>
+          <view class="setting-desc">同步到云端（开发者）</view>
         </view>
         <view class="setting-arrow">▶</view>
       </view>
 
-      <view class="setting-item" bindtap="onClearData">
+      <!-- 仅开发者可见 -->
+      <view wx:if="{{isDevMode}}" class="setting-item" bindtap="onClearData">
         <view class="setting-icon">🗑️</view>
         <view class="setting-info">
           <view class="setting-name danger">清除所有数据</view>
-          <view class="setting-desc danger">删除所有习惯和记录</view>
+          <view class="setting-desc danger">删除所有习惯和记录（开发者）</view>
         </view>
         <view class="setting-arrow">▶</view>
       </view>
