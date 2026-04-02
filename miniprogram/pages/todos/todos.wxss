@@ -305,18 +305,31 @@
 .todo-card {
   background: white;
   border-radius: 16rpx;
-  padding: 20rpx 24rpx;
+  padding: 18rpx 20rpx;
   margin-bottom: 12rpx;
   box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.05);
   display: flex;
   align-items: center;
-  gap: 16rpx;
   transition: all 0.2s;
 }
 
 .todo-card:active {
   box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.1);
   transform: translateY(-2rpx);
+}
+
+/* 复选框 */
+.todo-checkbox {
+  width: 34rpx;
+  height: 34rpx;
+  border: 3rpx solid #ddd;
+  border-radius: 10rpx;
+  flex-shrink: 0;
+  margin-right: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
 
 /* 优先级左边框 */
@@ -371,7 +384,7 @@
   color: #333;
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  flex-wrap: wrap;
   line-height: 1.3;
   margin: 0;
   padding: 0;
@@ -436,7 +449,6 @@
 .todo-actions {
   display: flex;
   align-items: center;
-  gap: 4rpx;
   margin-left: 8rpx;
   flex-shrink: 0;
 }
