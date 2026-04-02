@@ -80,7 +80,9 @@
             <view class="habit-meta">
               <text class="habit-time {{habit.timeRule && habit.timeRule.fixedTime ? 'has-time' : ''}}" wx:if="{{habit.timeRule && habit.timeRule.fixedTime}}">{{habit.timeRule.fixedTime}}</text>
               <text class="habit-time no-time" wx:else>无固定时间</text>
-              <text class="habit-count">{{habit.checked ? '已完成' : '待完成'}}</text>
+              <view wx:if="{{habit.totalCheckins > 0}}" class="streak-badge">
+                🔥 {{habit.totalCheckins}}天
+              </view>
             </view>
           </view>
 
@@ -128,8 +130,9 @@
           <view class="habit-meta">
             <text class="habit-time {{item.timeRule && item.timeRule.fixedTime ? 'has-time' : ''}}" wx:if="{{item.timeRule && item.timeRule.fixedTime}}">{{item.timeRule.fixedTime}}</text>
             <text class="habit-time no-time" wx:else>无固定时间</text>
-            <text class="habit-count">{{item.checked ? '已完成' : '待完成'}}</text>
-            <text wx:if="{{item.totalCheckins > 0}}" class="habit-total">累计 {{item.totalCheckins}} 天</text>
+            <view wx:if="{{item.totalCheckins > 0}}" class="streak-badge">
+              🔥 {{item.totalCheckins}}天
+            </view>
           </view>
         </view>
 

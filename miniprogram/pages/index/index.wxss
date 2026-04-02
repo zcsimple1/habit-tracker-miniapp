@@ -432,20 +432,24 @@
   flex-shrink: 0;
 }
 
-.habit-item:not(.hidden-item) .habit-count {
-  background: #f0fdf4;
-  color: #10b981;
-}
-
-.habit-item.hidden-item .habit-count {
-  background: #f3f4f6;
-  color: #9ca3af;
-}
-
-.habit-total {
+/* 累计天数徽章 */
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
   font-size: 20rpx;
-  color: #999;
-  margin-left: 12rpx;
+  font-weight: 500;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.habit-item.checked .streak-badge {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
 }
 
 /* 编辑删除按钮 */
