@@ -7,7 +7,7 @@
   </view>
 
   <!-- 表单内容 -->
-  <view class="content">
+  <view class="form-content">
     <!-- 任务标题 -->
     <view class="form-group">
       <view class="form-label">任务标题 <text class="required">*</text></view>
