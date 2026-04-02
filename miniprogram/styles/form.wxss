@@ -37,6 +37,7 @@
   padding: 24rpx 28rpx;
   font-size: 30rpx;
   background: white;
+  min-height: 88rpx;
   line-height: 1.5;
   transition: all 0.2s;
 }
