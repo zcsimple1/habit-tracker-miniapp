@@ -30,6 +30,7 @@
   font-weight: 600;
   padding: 12rpx 24rpx;
   border-radius: 12rpx;
+  margin: 0;
 }
 
 .header-btn::after {
