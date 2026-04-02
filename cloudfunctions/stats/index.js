@@ -80,8 +80,12 @@ async function getAllStats(openid, options = {}) {
   const { startDate, endDate } = getDateRange(range)
   const daysCount = dayjs(endDate).diff(dayjs(startDate), 'day') + 1
 
+  // 计算时间戳范围
+  const rangeStartTimestamp = dayjs(startDate).startOf('day').valueOf()
+  const rangeEndTimestamp = dayjs(endDate).endOf('day').valueOf()
+
   // 并行获取基础数据
-  const [habitsResult, categoriesResult, rangeCheckinsResult, todayCheckinsResult] = await Promise.all([
+  const [habitsResult, categoriesResult, rangeCheckinsResult, todosResult] = await Promise.all([
     db.collection('habits').where({ openid }).get(),
     db.collection('categories').where({ openid }).get(),
     db.collection('checkins').where({
@@ -89,17 +93,18 @@ async function getAllStats(openid, options = {}) {
       ymd: db.command.gte(startDate).and(db.command.lte(endDate)),
       skipped: false
     }).get(),
-    db.collection('checkins').where({
+    // 查询范围内完成的待办
+    db.collection('todos').where({
       openid,
-      ymd: today,
-      skipped: false
-    }).get()
+      completed: true,
+      completedAt: db.command.gte(rangeStartTimestamp).and(db.command.lte(rangeEndTimestamp))
+    }).count()
   ])
 
   const habits = habitsResult.data || []
   const categories = categoriesResult.data || []
   const rangeCheckins = rangeCheckinsResult.data || []
-  const todayCheckins = todayCheckinsResult.data || []
+  const todosCompleted = todosResult.total || 0
   const totalHabits = habits.length
 
   // 构建分类映射
@@ -107,10 +112,6 @@ async function getAllStats(openid, options = {}) {
   categories.forEach(cat => {
     categoriesMap[cat._id] = cat
   })
-
-  // 统计今日打卡
-  const todayHabitIds = new Set(todayCheckins.map(c => c.habitId))
-  const todayCompleted = todayHabitIds.size
 
   // 统计范围内的数据
   const habitCheckinMap = {} // habitId -> checkin count
@@ -188,9 +189,7 @@ async function getAllStats(openid, options = {}) {
     data: {
       overview: {
         totalHabits,
-        todayCompleted,
-        todayTotal: totalHabits,
-        todayRate: calcRate(todayCompleted, totalHabits),
+        todosCompleted,
         rangeCompleted,
         rangeTotal: totalPossible,
         rangeRate,

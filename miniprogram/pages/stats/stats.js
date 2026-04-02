@@ -8,9 +8,7 @@ Page({
     // 总体统计
     overview: {
       totalHabits: 0,
-      todayCompleted: 0,
-      todayTotal: 0,
-      todayRate: 0,
+      todosCompleted: 0,
       rangeCompleted: 0,
       rangeTotal: 0,
       rangeRate: 0,
@@ -111,9 +109,7 @@ Page({
       this.setData({
         overview: {
           totalHabits: overview.totalHabits || 0,
-          todayCompleted: overview.todayCompleted || 0,
-          todayTotal: overview.todayTotal || 0,
-          todayRate: overview.todayRate || 0,
+          todosCompleted: overview.todosCompleted || 0,
           rangeCompleted: overview.rangeCompleted || 0,
           rangeTotal: overview.rangeTotal || 0,
           rangeRate: overview.rangeRate || 0,

@@ -38,8 +38,8 @@
           <span class="overview-value">{{overview.activeDays}} 天</span>
         </view>
         <view class="overview-row">
-          <span class="overview-label">今日完成</span>
-          <span class="overview-value">{{overview.todayCompleted}}/{{overview.todayTotal}}</span>
+          <span class="overview-label">{{dateRange === 'week' ? '本周' : dateRange === 'month' ? '本月' : '本年'}}已完成待办</span>
+          <span class="overview-value">{{overview.todosCompleted}} 项</span>
         </view>
       </view>
     </view>
