@@ -26,12 +26,12 @@
       <view class="section-title">📊 总体概况</view>
       <view class="overview-card">
         <view class="overview-row">
-          <span class="overview-label">本月完成率</span>
+          <span class="overview-label">{{dateRange === 'week' ? '本周' : dateRange === 'month' ? '本月' : '本年'}}完成率</span>
           <span class="overview-value">{{overview.rangeRate}}%</span>
         </view>
         <view class="overview-row">
-          <span class="overview-label">总打卡次数</span>
-          <span class="overview-value">{{overview.totalCheckins}} 次</span>
+          <span class="overview-label">已打卡次数</span>
+          <span class="overview-value">{{overview.rangeCompleted}} 次</span>
         </view>
         <view class="overview-row">
           <span class="overview-label">活跃天数</span>

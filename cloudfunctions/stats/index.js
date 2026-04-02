@@ -160,26 +160,53 @@ async function getCategoryStats(openid, options = {}) {
   const { range = 'month' } = options
   const { startDate, endDate } = getDateRange(range)
 
+  console.log('[stats] getCategoryStats - range:', range, 'dates:', startDate, '-', endDate)
+
   // 获取所有习惯
   const habitsResult = await db.collection('habits').where({ openid }).get()
   const habits = habitsResult.data || []
+  console.log('[stats] 习惯数量:', habits.length)
+  
+  // 打印习惯的 categoryId
+  habits.forEach(h => {
+    console.log('[stats] 习惯:', h.name, 'categoryId:', h.categoryId)
+  })
 
   // 获取所有分类
   const categoriesResult = await db.collection('categories').where({ openid }).get()
+  const categories = categoriesResult.data || []
+  console.log('[stats] 分类数量:', categories.length)
+  
+  // 构建分类映射 - 同时用 _id 和 name 作为 key
   const categoriesMap = {}
-  categoriesResult.data?.forEach(cat => {
+  const categoriesByName = {}
+  categories.forEach(cat => {
     categoriesMap[cat._id] = cat
+    categoriesByName[cat.name] = cat
   })
+  console.log('[stats] 分类列表:', categories.map(c => c.name))
 
   // 按分类聚合数据
   const categoryStats = {}
-  let uncategorizedCount = 0
 
   for (const habit of habits) {
-    const catId = habit.categoryId || 'uncategorized'
+    // 优先使用 categoryId 匹配，其次用 categoryName 匹配
+    let catId = habit.categoryId
+    let cat = categoriesMap[catId]
+    
+    // 如果 categoryId 匹配不到，尝试用 categoryName 匹配
+    if (!cat && habit.categoryName) {
+      cat = categoriesByName[habit.categoryName]
+    }
+    
+    // 如果还是匹配不到，使用"未分类"
+    if (!cat) {
+      catId = 'uncategorized'
+    } else {
+      catId = cat._id
+    }
     
     if (!categoryStats[catId]) {
-      const cat = categoriesMap[catId]
       categoryStats[catId] = {
         categoryId: catId,
         categoryName: cat?.name || '未分类',
@@ -213,6 +240,7 @@ async function getCategoryStats(openid, options = {}) {
   // 按完成率排序
   result.sort((a, b) => b.rate - a.rate)
 
+  console.log('[stats] 分类统计结果:', JSON.stringify(result))
   return { code: 0, data: result }
 }
 
@@ -230,8 +258,10 @@ async function getRanking(openid, options = {}) {
   // 获取所有分类
   const categoriesResult = await db.collection('categories').where({ openid }).get()
   const categoriesMap = {}
+  const categoriesByName = {}
   categoriesResult.data?.forEach(cat => {
     categoriesMap[cat._id] = cat
+    categoriesByName[cat.name] = cat
   })
 
   const ranking = []
@@ -248,12 +278,17 @@ async function getRanking(openid, options = {}) {
       .count()
 
     const completed = checkins.total || 0
-    const cat = categoriesMap[habit.categoryId] || {}
+    
+    // 优先用 categoryId 匹配，其次用 categoryName 匹配
+    let cat = categoriesMap[habit.categoryId]
+    if (!cat && habit.categoryName) {
+      cat = categoriesByName[habit.categoryName]
+    }
 
     ranking.push({
       habitId: habit._id,
       habitName: habit.name,
-      categoryName: cat.name || '未分类',
+      categoryName: cat?.name || '未分类',
       completed,
       rate: completed // 直接用打卡数作为排行依据
     })
