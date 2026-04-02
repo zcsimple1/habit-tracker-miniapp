@@ -1,18 +1,29 @@
 Page({
   data: {
     userInfo: {},
-    hideCompleted: false,  // 默认为 false，即显示已完成
+    hideCompleted: false,
     reminderEnabled: false,
     showProfileModal: false,
     tempAvatarUrl: '',
     tempNickname: '',
-    isDevMode: false  // 是否为开发者模式
+    isDevMode: false
   },
 
   onLoad() {
-    this.loadUserInfo();
-    this.loadSettings();
+    this.loadUserInfo(true);
+    this.loadSettings(true);
     this.checkDevMode();
+  },
+
+  onShow() {
+    // 每次显示时检查是否需要刷新
+    const lastUpdate = wx.getStorageSync('settings_lastUpdate') || 0;
+    const now = Date.now();
+    // 超过5分钟自动刷新
+    if (now - lastUpdate > 5 * 60 * 1000) {
+      this.loadUserInfo(true);
+      this.loadSettings(true);
+    }
   },
 
   // 检查是否为开发者模式
@@ -23,7 +34,18 @@ Page({
   },
 
   // 加载用户信息
-  async loadUserInfo() {
+  async loadUserInfo(forceRefresh = false) {
+    const cacheKey = 'settings_userInfo';
+    
+    // 先从缓存加载
+    if (!forceRefresh) {
+      const cached = wx.getStorageSync(cacheKey);
+      if (cached) {
+        this.setData({ userInfo: cached });
+        return;
+      }
+    }
+
     try {
       const res = await wx.cloud.callFunction({
         name: 'user',
@@ -32,7 +54,10 @@ Page({
         }
       });
       if (res.result.code === 0) {
-        this.setData({ userInfo: res.result.data || {} });
+        const userInfo = res.result.data || {};
+        this.setData({ userInfo });
+        wx.setStorageSync(cacheKey, userInfo);
+        console.log('[settings] 用户信息已缓存');
       }
     } catch (err) {
       console.error('加载用户信息失败:', err);
@@ -40,7 +65,18 @@ Page({
   },
 
   // 加载设置
-  async loadSettings() {
+  async loadSettings(forceRefresh = false) {
+    const cacheKey = 'settings_preferences';
+
+    // 先从缓存加载
+    if (!forceRefresh) {
+      const cached = wx.getStorageSync(cacheKey);
+      if (cached) {
+        this.setData(cached);
+        return;
+      }
+    }
+
     try {
       const res = await wx.cloud.callFunction({
         name: 'user',
@@ -51,11 +87,15 @@ Page({
       if (res.result.code === 0) {
         const profile = res.result.data || {};
         const preferences = profile.preferences || {};
-        this.setData({
+        const settings = {
           hideCompleted: preferences.hideCompleted !== undefined ? preferences.hideCompleted : false,
           reminderEnabled: preferences.reminderEnabled || false,
           reminderTime: preferences.reminderTime || '09:00'
-        });
+        };
+        this.setData(settings);
+        wx.setStorageSync(cacheKey, settings);
+        wx.setStorageSync('settings_lastUpdate', Date.now());
+        console.log('[settings] 设置已缓存');
       }
     } catch (err) {
       console.error('加载设置失败:', err);
@@ -131,7 +171,16 @@ Page({
       wx.hideLoading();
       wx.showToast({ title: '保存成功', icon: 'success' });
       this.setData({ showProfileModal: false });
-      this.loadUserInfo();
+      
+      // 更新缓存
+      const cacheKey = 'settings_userInfo';
+      const userInfo = {
+        ...this.data.userInfo,
+        avatarUrl,
+        nickName: tempNickname
+      };
+      wx.setStorageSync(cacheKey, userInfo);
+      this.setData({ userInfo });
     } catch (err) {
       console.error('保存失败:', err);
       wx.hideLoading();
@@ -173,6 +222,9 @@ Page({
   async onHideCompletedChange(e) {
     const hideCompleted = e.detail.value;
     this.setData({ hideCompleted });
+    
+    // 更新缓存
+    this.updateSettingsCache({ hideCompleted });
 
     try {
       await wx.cloud.callFunction({
@@ -191,6 +243,9 @@ Page({
   async onReminderChange(e) {
     const reminderEnabled = e.detail.value;
     this.setData({ reminderEnabled });
+    
+    // 更新缓存
+    this.updateSettingsCache({ reminderEnabled });
 
     if (reminderEnabled) {
       wx.showModal({
@@ -217,6 +272,15 @@ Page({
     } catch (err) {
       console.error('保存设置失败:', err);
     }
+  },
+  
+  // 更新设置缓存
+  updateSettingsCache(updates) {
+    const cacheKey = 'settings_preferences';
+    const current = wx.getStorageSync(cacheKey) || {};
+    const updated = { ...current, ...updates };
+    wx.setStorageSync(cacheKey, updated);
+    wx.setStorageSync('settings_lastUpdate', Date.now());
   },
 
   // 请求订阅消息
