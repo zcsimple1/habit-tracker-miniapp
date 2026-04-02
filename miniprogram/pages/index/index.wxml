@@ -114,7 +114,7 @@
             data-habit-id="{{item._id}}">
         <!-- 复选框 -->
         <view class="habit-checkbox {{item.checked ? 'checked' : ''}}"
-              bindtap="item.checked ? 'onUncheckin' : 'onCheckin'"
+              bindtap="{{item.checked ? 'onUncheckin' : 'onCheckin'}}"
               data-habit-id="{{item._id}}">
           {{item.checked ? '✓' : ''}}
         </view>
@@ -129,6 +129,7 @@
             <text class="habit-time {{item.timeRule && item.timeRule.fixedTime ? 'has-time' : ''}}" wx:if="{{item.timeRule && item.timeRule.fixedTime}}">{{item.timeRule.fixedTime}}</text>
             <text class="habit-time no-time" wx:else>无固定时间</text>
             <text class="habit-count">{{item.checked ? '已完成' : '待完成'}}</text>
+            <text wx:if="{{item.totalCheckins > 0}}" class="habit-total">累计 {{item.totalCheckins}} 天</text>
           </view>
         </view>
 

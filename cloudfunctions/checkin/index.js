@@ -428,17 +428,19 @@ async function updateUserStats(openid) {
     })
     .count()
 
-  // 获取活跃天数
+  // 获取活跃天数（使用聚合查询）
   const activeDaysResult = await db.collection('checkins')
-    .where({
+    .aggregate()
+    .match({
       openid,
       skipped: false
     })
-    .groupBy('ymd')
-    .groupField('count', 1)
-    .get()
+    .group({
+      _id: '$ymd'
+    })
+    .end()
 
-  const activeDays = activeDaysResult.data ? activeDaysResult.data.length : 0
+  const activeDays = activeDaysResult.list ? activeDaysResult.list.length : 0
 
   // 获取当前连续天数（简化版本）
   const recentCheckins = await db.collection('checkins')

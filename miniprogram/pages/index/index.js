@@ -312,19 +312,20 @@ Page({
         checkinMap[c.habitId] = c
       })
 
-      // 为每个习惯添加打卡状态
-      habits.forEach(h => {
+      // 为每个习惯添加打卡状态和累计打卡天数
+      for (const h of habits) {
         const checkin = checkinMap[h._id]
         h.checked = !!checkin && !checkin.skipped
         h.skipped = !!checkin && checkin.skipped
         h.checkinTime = checkin ? checkin.time : null
+        h.totalCheckins = h.stats?.totalCheckins || 0
 
         // 关联分类信息
         const category = categories.find(c => (c.isPreset && c.id === h.categoryId) || (!c.isPreset && c._id === h.categoryId))
         h.categoryName = category ? category.name : '未分类'
         h.categoryColor = category ? category.color : '#999'
         h.categoryIcon = category ? category.icon : '📌'
-      })
+      }
 
       // 分类模式数据
       const categoryGroups = categories.map(cat => {
@@ -415,7 +416,6 @@ Page({
     const { habitId } = e.currentTarget.dataset
 
     try {
-      wx.showLoading({ title: '打卡中' })
       const ymd = toYMD(this.data.currentDate)
       console.log('[index] 打卡 - habitId:', habitId, 'ymd:', ymd)
 
@@ -424,7 +424,6 @@ Page({
         data: { action: 'checkin', data: { habitId } }
       })
 
-      wx.hideLoading()
       wx.showToast({ title: '打卡成功' })
 
       // 清除缓存
@@ -439,10 +438,10 @@ Page({
         app.globalData.statsNeedRefresh = true
       }
 
-      this.loadData(true) // 打卡后强制刷新
+      // 局部更新：只更新当前习惯的状态
+      this.updateHabitCheckinStatus(habitId, true)
     } catch (err) {
       console.error('打卡失败', err)
-      wx.hideLoading()
       wx.showToast({
         title: err.message || '打卡失败',
         icon: 'none'
@@ -461,14 +460,11 @@ Page({
       success: async (res) => {
         if (res.confirm) {
           try {
-            wx.showLoading({ title: '取消中' })
-
             await wx.cloud.callFunction({
               name: 'checkin',
               data: { action: 'uncheckin', data: { habitId, ymd } }
             })
 
-            wx.hideLoading()
             wx.showToast({ title: '已取消' })
 
             // 清除缓存
@@ -482,15 +478,11 @@ Page({
             if (app.globalData) {
               app.globalData.statsNeedRefresh = true
             }
-            wx.removeStorageSync(`habits_${ymd}`)
-            wx.removeStorageSync('stats_week')
-            wx.removeStorageSync('stats_month')
-            wx.removeStorageSync('stats_year')
 
-            this.loadData(true) // 取消打卡后强制刷新
+            // 局部更新：只更新当前习惯的状态
+            this.updateHabitCheckinStatus(habitId, false)
           } catch (err) {
             console.error('取消打卡失败', err)
-            wx.hideLoading()
             wx.showToast({
               title: '操作失败',
               icon: 'none'
@@ -601,6 +593,62 @@ Page({
             })
           }
         }
+      }
+    })
+  },
+
+  // 局部更新习惯打卡状态
+  updateHabitCheckinStatus(habitId, isChecked) {
+    const ymd = toYMD(this.data.currentDate)
+    const now = new Date().toTimeString().slice(0, 8)
+
+    // 更新时间模式数据
+    let timeHabits = this.data.timeHabits.map(h => {
+      if (h._id === habitId) {
+        return {
+          ...h,
+          checked: isChecked,
+          checkinTime: isChecked ? now : null,
+          totalCheckins: isChecked ? (h.totalCheckins || 0) + 1 : Math.max(0, (h.totalCheckins || 0) - 1)
+        }
+      }
+      return h
+    })
+
+    // 更新分类模式数据
+    let categoryGroups = this.data.categoryGroups.map(group => ({
+      ...group,
+      habits: group.habits.map(h => {
+        if (h._id === habitId) {
+          return {
+            ...h,
+            checked: isChecked,
+            checkinTime: isChecked ? now : null,
+            totalCheckins: isChecked ? (h.totalCheckins || 0) + 1 : Math.max(0, (h.totalCheckins || 0) - 1)
+          }
+        }
+        return h
+      })
+    }))
+
+    // 更新分类的已完成数
+    categoryGroups = categoryGroups.map(group => {
+      const completed = group.habits.filter(h => h.checked).length
+      return { ...group, completed }
+    })
+
+    // 更新今日统计
+    const total = timeHabits.length
+    const completed = timeHabits.filter(h => h.checked).length
+    const rate = total > 0 ? Math.round((completed / total) * 100) : 0
+
+    this.setData({
+      timeHabits,
+      categoryGroups,
+      todayStats: {
+        total,
+        completed,
+        rate
       }
     })
   },

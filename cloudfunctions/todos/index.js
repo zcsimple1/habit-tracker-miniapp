@@ -251,16 +251,20 @@ async function archiveTodo(openid, data) {
 /**
  * 获取某天的待办
  * 规则：
- * 1. 截止日期 <= 当前日期的未完成待办
- * 2. 截止日期 == 当前日期的所有待办（包括已完成）
- * 3. 已完成的待办只在截止日期当天显示
+ * 1. 截止日期 <= ymd 的未完成待办（已过期/今日）
+ * 2. 截止日期 > ymd 的未完成待办（将来，最多365天）
+ * 3. 在 ymd 完成的已完成待办（基于 completedAt）
  */
 async function getTodosByDate(openid, data) {
   const { ymd } = data
-  const today = dayjs()
+  const futureLimit = dayjs().add(365, 'day').format('YYYY-MM-DD')
 
-  // 查询截止日期 <= ymd 的未完成待办
-  const uncompletedResult = await db.collection('todos')
+  // 计算 ymd 的时间戳范围（该天的 00:00:00 到 23:59:59）
+  const dayStart = dayjs(ymd).startOf('day').valueOf()
+  const dayEnd = dayjs(ymd).endOf('day').valueOf()
+
+  // 查询截止日期 <= ymd 的未完成待办（已过期 + 今日）
+  const overdueResult = await db.collection('todos')
     .where({
       openid,
       completed: false,
@@ -269,22 +273,41 @@ async function getTodosByDate(openid, data) {
     })
     .orderBy('priority', 'asc')
     .orderBy('dueTime', 'asc')
-    .orderBy('createdAt', 'asc')
     .get()
 
-  // 查询截止日期 == ymd 的已完成待办
+  // 查询截止日期 > ymd 且在365天内的未完成待办（将来）
+  const futureResult = await db.collection('todos')
+    .where({
+      openid,
+      completed: false,
+      archived: false,
+      dueDate: db.command.and(
+        db.command.gt(ymd),
+        db.command.lte(futureLimit)
+      )
+    })
+    .orderBy('dueDate', 'asc')
+    .orderBy('dueTime', 'asc')
+    .get()
+
+  // 查询在 ymd 完成的已完成待办（基于 completedAt）
   const completedResult = await db.collection('todos')
     .where({
       openid,
       completed: true,
       archived: false,
-      dueDate: ymd
+      completedAt: db.command.gte(dayStart).and(db.command.lte(dayEnd))
     })
     .orderBy('completedAt', 'desc')
     .get()
 
   // 合并结果
-  const todos = [...uncompletedResult.data, ...completedResult.data]
+  const todos = [...overdueResult.data, ...futureResult.data, ...completedResult.data]
+
+  console.log('[todos] getTodosByDate:', ymd)
+  console.log('[todos] 已过期/今日:', overdueResult.data.length)
+  console.log('[todos] 将来:', futureResult.data.length)
+  console.log('[todos] 已完成:', completedResult.data.length)
 
   return { code: 0, data: todos }
 }

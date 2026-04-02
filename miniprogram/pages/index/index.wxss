@@ -217,7 +217,15 @@
 }
 
 .category-icon {
-  font-size: 32rpx;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  flex-shrink: 0;
+  background: #f0f0f0;
 }
 
 .category-name {
@@ -432,6 +440,12 @@
 .habit-item.hidden-item .habit-count {
   background: #f3f4f6;
   color: #9ca3af;
+}
+
+.habit-total {
+  font-size: 20rpx;
+  color: #999;
+  margin-left: 12rpx;
 }
 
 /* 编辑删除按钮 */

@@ -110,6 +110,11 @@ Page({
   async loadStats(forceRefresh = false) {
     const cacheKey = `stats_${this.data.dateRange}`
 
+    // 强制刷新时清除缓存
+    if (forceRefresh) {
+      wx.removeStorageSync(cacheKey)
+    }
+
     // 检查缓存
     if (!forceRefresh) {
       const cachedData = wx.getStorageSync(cacheKey)
@@ -129,7 +134,7 @@ Page({
 
     try {
       // 获取总体统计
-      const { result: overviewResult } = await wx.cloud.callFunction({
+      const overviewResult = await wx.cloud.callFunction({
         name: 'stats',
         data: {
           action: 'getOverview',
@@ -138,9 +143,10 @@ Page({
           }
         }
       })
+      console.log('[stats] getOverview 结果:', JSON.stringify(overviewResult))
 
       // 获取分类统计
-      const { result: categoryResult } = await wx.cloud.callFunction({
+      const categoryResult = await wx.cloud.callFunction({
         name: 'stats',
         data: {
           action: 'getCategoryStats',
@@ -149,9 +155,10 @@ Page({
           }
         }
       })
+      console.log('[stats] getCategoryStats 结果:', JSON.stringify(categoryResult))
 
       // 获取排行榜
-      const { result: rankingResult } = await wx.cloud.callFunction({
+      const rankingResult = await wx.cloud.callFunction({
         name: 'stats',
         data: {
           action: 'getRanking',
@@ -160,9 +167,13 @@ Page({
           }
         }
       })
+      console.log('[stats] getRanking 结果:', JSON.stringify(rankingResult))
 
       // 转换数据格式
-      const overviewData = overviewResult.data || {}
+      const result = overviewResult.result || overviewResult
+      const overviewData = result.data || {}
+      console.log('[stats] overviewData:', JSON.stringify(overviewData))
+      
       const overview = {
         totalHabits: overviewData.totalHabits || 0,
         todayCompleted: overviewData.today?.completed || 0,
@@ -175,8 +186,11 @@ Page({
         activeDays: overviewData.range?.activeDays || 0
       }
 
-      const categoryStats = categoryResult.data?.habits || []
-      const ranking = rankingResult.data?.ranking || []
+      const catResult = categoryResult.result || categoryResult
+      const categoryStats = catResult.data?.categoryStats || []
+      
+      const rankRes = rankingResult.result || rankingResult
+      const ranking = rankRes.data?.ranking || []
 
       this.setData({
         overview,
@@ -193,14 +207,15 @@ Page({
         ranking,
         timestamp: Date.now()
       })
-      console.log('[stats] 数据已缓存:', cacheKey)
+      console.log('[stats] 数据已缓存:', cacheKey, 'overview:', JSON.stringify(overview))
     } catch (err) {
-      console.error('加载统计数据失败', err)
+      console.error('[stats] 加载统计数据失败', err)
       this.setData({ loading: false })
 
       wx.showToast({
-        title: '加载失败',
-        icon: 'none'
+        title: '加载失败: ' + (err.message || '未知错误'),
+        icon: 'none',
+        duration: 3000
       })
     }
   },
