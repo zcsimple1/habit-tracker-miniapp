@@ -1,7 +1,7 @@
 <view class="container">
   <!-- 头部 -->
-  <view class="stats-header">
-    <view class="stats-title">📊 统计中心</view>
+  <view class="header">
+    <view class="header-title">📊 统计中心</view>
     <view class="date-tabs">
       <view 
         wx:for="{{['本周', '本月', '本年']}}"
