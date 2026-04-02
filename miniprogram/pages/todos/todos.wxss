@@ -6,18 +6,27 @@
 
 /* 隐藏提示 */
 .hidden-hint {
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 12rpx;
-  padding: 20rpx 24rpx;
+  background: rgba(102, 126, 234, 0.03);
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  border-radius: 16rpx;
+  padding: 28rpx 30rpx;
   margin: 0 30rpx 20rpx;
   font-size: 26rpx;
   color: #4a5568;
   line-height: 1.6;
 }
 
-.hint-text {
+.hint-title {
+  font-size: 28rpx;
   color: #4a5568;
+  margin-bottom: 12rpx;
+  font-weight: 500;
+}
+
+.hint-content {
+  font-size: 26rpx;
+  color: #718096;
+  line-height: 1.6;
 }
 
 .hint-count {
