@@ -233,16 +233,9 @@ async function getOverview(openid, options = {}) {
     .count()
   console.log('[stats] 总打卡数:', totalCheckinsResult.total)
 
-  const allCheckinsResult = await db.collection('checkins')
-    .where({
-      openid,
-      skipped: false
-    })
-    .orderBy('ymd', 'desc')
-    .limit(365)
-    .get()
-
-  const currentStreak = calculateStreak(allCheckinsResult.data || [])
+  const user = await db.collection('users').doc(openid).get()
+  const userStats = user.data?.statsCache || {}
+  console.log('[stats] 用户统计:', JSON.stringify(userStats))
 
   let todayShouldCheck = 0
   let totalPossible = 0
@@ -262,10 +255,6 @@ async function getOverview(openid, options = {}) {
     ? calculateCompletionRate(rangeCheckins.total, totalPossible)
     : 0
 
-  const user = await db.collection('users').doc(openid).get()
-  const userStats = user.data?.statsCache || {}
-  const longestStreak = Math.max(userStats.longestStreak || 0, currentStreak)
-
   const result = {
     code: 0,
     data: {
@@ -282,8 +271,8 @@ async function getOverview(openid, options = {}) {
       },
       overall: {
         totalCheckins: totalCheckinsResult.total || 0,
-        currentStreak,
-        longestStreak
+        currentStreak: userStats.currentStreak || 0,
+        longestStreak: userStats.longestStreak || 0
       },
       totalHabits
     }
