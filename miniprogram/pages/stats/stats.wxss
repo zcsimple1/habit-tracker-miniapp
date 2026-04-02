@@ -120,24 +120,19 @@
   font-size: 28rpx;
   font-weight: 600;
   flex-shrink: 0;
+  color: white;
 }
 
-.rank-badge.rank-1 { 
-  background: linear-gradient(135deg, #ffd700, #ffb347); 
-  color: white; 
-}
-.rank-badge.rank-2 { 
-  background: linear-gradient(135deg, #c0c0c0, #e8e8e8); 
-  color: white; 
-}
-.rank-badge.rank-3 { 
-  background: linear-gradient(135deg, #cd7f32, #daa520); 
-  color: white; 
-}
-.rank-badge.rank-other { 
-  background: #f0f0f0; 
-  color: #999; 
-}
+.rank-badge.rank-1 { background: linear-gradient(135deg, #ffd700, #ffb347); }
+.rank-badge.rank-2 { background: linear-gradient(135deg, #b8b8b8, #d8d8d8); }
+.rank-badge.rank-3 { background: linear-gradient(135deg, #cd7f32, #e8a020); }
+.rank-badge.rank-4 { background: linear-gradient(135deg, #86efac, #4ade80); }
+.rank-badge.rank-5 { background: linear-gradient(135deg, #93c5fd, #60a5fa); }
+.rank-badge.rank-6 { background: linear-gradient(135deg, #c4b5fd, #a78bfa); }
+.rank-badge.rank-7 { background: linear-gradient(135deg, #fda4af, #fb7185); }
+.rank-badge.rank-8 { background: linear-gradient(135deg, #fcd34d, #f59e0b); }
+.rank-badge.rank-9 { background: linear-gradient(135deg, #67e8f9, #22d3ee); }
+.rank-badge.rank-10 { background: linear-gradient(135deg, #f9a8d4, #f472b6); }
 
 .rank-info {
   flex: 1;

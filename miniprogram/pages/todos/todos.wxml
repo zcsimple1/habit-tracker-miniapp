@@ -58,15 +58,13 @@
         >
           <view class="todo-checkbox {{item.completed ? 'checked' : ''}}" bindtap="onToggleTodo" data-todo-id="{{item._id}}"></view>
           <view class="todo-content">
-            <view class="todo-title">
-              {{item.title}}
+            <view class="todo-title-row">
+              <text class="todo-title-text">{{item.title}}</text>
               <text wx:if="{{item.priority === 'urgent' || item.priority === 'high'}}" class="priority-badge">重要</text>
               <text wx:if="{{item.important}}" class="important-flag-text">🚩</text>
             </view>
             <view class="todo-meta">
-              <text wx:if="{{item.dueTime}}" class="todo-time">
-                ⏰ {{item.dueTime}}
-              </text>
+              <text wx:if="{{item.dueTime}}" class="todo-time">⏰ {{item.dueTime}}</text>
             </view>
           </view>
           <!-- 编辑删除按钮 -->
@@ -106,17 +104,13 @@
         >
           <view class="todo-checkbox {{item.completed ? 'checked' : ''}}" bindtap="onToggleTodo" data-todo-id="{{item._id}}"></view>
           <view class="todo-content">
-            <view class="todo-title">
-              {{item.title}}
+            <view class="todo-title-row">
+              <text class="todo-title-text">{{item.title}}</text>
               <text wx:if="{{item.important}}" class="important-flag-text">🚩</text>
             </view>
             <view class="todo-meta">
-              <text wx:if="{{item.dueDate}}" class="todo-date">
-                📅 {{item.dueDate}}
-              </text>
-              <text wx:if="{{item.dueTime}}" class="todo-time">
-                ⏰ {{item.dueTime}}
-              </text>
+              <text wx:if="{{item.dueDate}}" class="todo-date">📅 {{item.dueDate}}</text>
+              <text wx:if="{{item.dueTime}}" class="todo-time">⏰ {{item.dueTime}}</text>
             </view>
           </view>
           <!-- 编辑删除按钮 -->
@@ -144,17 +138,13 @@
         >
           <view class="todo-checkbox {{item.completed ? 'checked' : ''}}" bindtap="onToggleTodo" data-todo-id="{{item._id}}"></view>
           <view class="todo-content">
-            <view class="todo-title">
-              {{item.title}}
+            <view class="todo-title-row">
+              <text class="todo-title-text">{{item.title}}</text>
               <text wx:if="{{item.important}}" class="important-flag-text">🚩</text>
             </view>
             <view class="todo-meta">
-              <text wx:if="{{item.dueDate}}" class="todo-date">
-                📅 {{item.dueDate}}
-              </text>
-              <text wx:if="{{item.dueTime}}" class="todo-time">
-                ⏰ {{item.dueTime}}
-              </text>
+              <text wx:if="{{item.dueDate}}" class="todo-date">📅 {{item.dueDate}}</text>
+              <text wx:if="{{item.dueTime}}" class="todo-time">⏰ {{item.dueTime}}</text>
             </view>
           </view>
           <!-- 编辑删除按钮 -->
@@ -182,17 +172,13 @@
         >
           <view class="todo-checkbox checked" bindtap="onToggleTodo" data-todo-id="{{item._id}}"></view>
           <view class="todo-content">
-            <view class="todo-title">
-              {{item.title}}
+            <view class="todo-title-row">
+              <text class="todo-title-text">{{item.title}}</text>
               <text wx:if="{{item.important}}" class="important-flag-text">🚩</text>
             </view>
             <view class="todo-meta">
-              <text wx:if="{{item.dueDate}}" class="todo-date">
-                📅 {{item.dueDate}}
-              </text>
-              <text wx:if="{{item.dueTime}}" class="todo-time">
-                ⏰ {{item.dueTime}}
-              </text>
+              <text wx:if="{{item.dueDate}}" class="todo-date">📅 {{item.dueDate}}</text>
+              <text wx:if="{{item.dueTime}}" class="todo-time">⏰ {{item.dueTime}}</text>
             </view>
           </view>
         </view>

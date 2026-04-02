@@ -354,18 +354,23 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 }
 
-.todo-title {
-  font-size: 30rpx;
-  font-weight: 500;
-  color: #333;
+/* 标题行：包含标题文本和标签 */
+.todo-title-row {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  line-height: 1.3;
-  margin: 0;
-  padding: 0;
+  gap: 12rpx;
+  line-height: 1.4;
+  margin-bottom: 8rpx;
+}
+
+.todo-title-text {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
 }
 
 /* 优先级徽章 */
@@ -376,6 +381,13 @@
   border-radius: 8rpx;
   background: #fef2f2;
   color: #ef4444;
+  flex-shrink: 0;
+}
+
+/* 重要标记 */
+.important-flag-text {
+  font-size: 28rpx;
+  flex-shrink: 0;
 }
 
 /* 待办元信息 */
@@ -386,7 +398,6 @@
   font-size: 22rpx;
   color: #999;
   flex-wrap: wrap;
-  margin-top: 6rpx;
 }
 
 .todo-date {
@@ -427,20 +438,33 @@
 .todo-actions {
   display: flex;
   align-items: center;
-  margin-left: 8rpx;
+  gap: 8rpx;
   flex-shrink: 0;
 }
 
 .todo-actions .action-btn {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 28rpx;
-  padding: 6rpx;
-  opacity: 0.6;
+  flex-shrink: 0;
   transition: all 0.2s;
 }
 
 .todo-actions .action-btn:active {
-  opacity: 1;
-  transform: scale(1.2);
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+.todo-actions .edit-btn {
+  color: #3b82f6;
+}
+
+.todo-actions .delete-btn {
+  color: #ef4444;
 }
 
 /* 已完成状态 */
