@@ -80,12 +80,12 @@
 
     <!-- 隐藏提示 -->
     <view wx:if="{{!tempShowCompleted && (futureTodos.length > 0 || overdueTodos.length > 0 || completedTodos.length > 0)}}" class="hidden-hint">
-      <text class="hint-text">
-        已隐藏：
-        <text wx:if="{{futureTodos.length > 0}}">将来 {{futureTodos.length}} 项</text>
-        <text wx:if="{{overdueTodos.length > 0}}">已过期 {{overdueTodos.length}} 项</text>
-        <text wx:if="{{completedTodos.length > 0}}">已完成 {{completedTodos.length}} 项</text>
-      </text>
+      <text class="hint-text">已隐藏部分内容：</text>
+      <text wx:if="{{futureTodos.length > 0}}" class="hint-item">将来 <text class="hint-count">{{futureTodos.length}}</text> 项</text>
+      <text wx:if="{{futureTodos.length > 0 && (overdueTodos.length > 0 || completedTodos.length > 0)}}" class="hint-sep">，</text>
+      <text wx:if="{{overdueTodos.length > 0}}" class="hint-item">已过期 <text class="hint-count">{{overdueTodos.length}}</text> 项</text>
+      <text wx:if="{{overdueTodos.length > 0 && completedTodos.length > 0}}" class="hint-sep">，</text>
+      <text wx:if="{{completedTodos.length > 0}}" class="hint-item">已完成 <text class="hint-count">{{completedTodos.length}}</text> 项</text>
     </view>
 
     <!-- 将来 -->

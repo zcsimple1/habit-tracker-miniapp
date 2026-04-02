@@ -11,12 +11,19 @@
   border-radius: 12rpx;
   padding: 20rpx 24rpx;
   margin: 0 30rpx 20rpx;
+  font-size: 26rpx;
+  color: #4a5568;
+  line-height: 1.6;
 }
 
 .hint-text {
-  font-size: 26rpx;
+  color: #4a5568;
+}
+
+.hint-count {
+  font-weight: 700;
+  text-decoration: underline;
   color: #667eea;
-  line-height: 1.5;
 }
 
 /* 头部 */
