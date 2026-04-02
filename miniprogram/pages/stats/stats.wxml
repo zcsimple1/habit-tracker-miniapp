@@ -8,6 +8,7 @@
   <view class="date-range-bar">
     <picker mode="selector" range="{{['本周', '本月', '本年', '自定义']}}" value="{{['week','month','year','custom'].indexOf(dateRange)}}" bindchange="onDateRangeChange">
       <view class="date-range-picker">
+        <text class="range-label">当前选择：</text>
         <text class="range-text">{{['本周','本月','本年','自定义'][['week','month','year','custom'].indexOf(dateRange)]}}</text>
         <text class="arrow">▼</text>
       </view>

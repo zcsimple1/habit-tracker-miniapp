@@ -7,10 +7,14 @@ const db = cloud.database()
 
 // 判断某天是否应该显示某习惯
 function shouldShowOnDate(habit, ymd) {
-  if (!habit.active) return false
+  // 如果没有 active 字段或者 active 为 true，都认为是激活的
+  if (habit.active === false) return false
 
   const { timeRule } = habit
   if (!timeRule) return true
+
+  // 容错：如果 timeRule 没有 type，也返回 true
+  if (!timeRule.type) return true
 
   if (timeRule.startDate && ymd < timeRule.startDate) return false
   if (timeRule.endDate && ymd > timeRule.endDate) return false
@@ -295,6 +299,7 @@ async function getCategoryStats(openid, options = {}) {
   categoriesResult.data?.forEach(cat => {
     categories[cat._id] = cat
   })
+  console.log('[stats] categories:', JSON.stringify(categories))
 
   let habitsQuery = db.collection('habits').where({ openid })
   if (categoryId) {
@@ -303,6 +308,7 @@ async function getCategoryStats(openid, options = {}) {
 
   const habitsResult = await habitsQuery.get()
   const habits = habitsResult.data || []
+  console.log('[stats] habits:', JSON.stringify(habits.map(h => ({ _id: h._id, categoryId: h.categoryId }))))
 
   const categoryStatsMap = {}
 
