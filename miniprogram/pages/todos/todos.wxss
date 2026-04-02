@@ -320,34 +320,12 @@
 
 /* 复选框 */
 .todo-checkbox {
-  width: 34rpx;
-  height: 34rpx;
-  border: 3rpx solid #ddd;
-  border-radius: 10rpx;
-  flex-shrink: 0;
-  margin-right: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-/* 优先级左边框 */
-.todo-card.priority-urgent {
-  border-left: 6rpx solid #ef4444;
-}
-
-.todo-card.priority-high {
-  border-left: 6rpx solid #f97316;
-}
-
-/* 复选框 */
-.todo-checkbox {
   width: 36rpx;
   height: 36rpx;
   border: 3rpx solid #ddd;
   border-radius: 10rpx;
   flex-shrink: 0;
+  margin-right: 16rpx;
   display: flex;
   align-items: center;
   justify-content: center;
