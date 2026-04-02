@@ -421,7 +421,7 @@ Page({
 
       await wx.cloud.callFunction({
         name: 'checkin',
-        data: { action: 'checkin', data: { habitId } }
+        data: { action: 'checkin', data: { habitId, ymd } }
       })
 
       wx.showToast({ title: '打卡成功' })

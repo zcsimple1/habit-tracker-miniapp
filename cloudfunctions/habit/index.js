@@ -148,8 +148,8 @@ async function getHabitsByCategory(openid, data) {
  * 获取今日需打卡的习惯
  */
 async function getTodayHabits(openid, options = {}) {
-  const { categoryId = null, hideCompleted = false } = options
-  const today = getToday()
+  const { categoryId = null, hideCompleted = false, ymd } = options
+  const targetYmd = ymd || getToday()
 
   // 获取所有习惯
   let query = db.collection('habits').where({ openid, active: true })
@@ -161,11 +161,11 @@ async function getTodayHabits(openid, options = {}) {
   const habitsResult = await query.get()
   const habits = habitsResult.data || []
 
-  // 获取今日打卡记录
+  // 获取指定日期的打卡记录
   const checkinsResult = await db.collection('checkins')
     .where({
       openid,
-      ymd: today,
+      ymd: targetYmd,
       skipped: false
     })
     .get()
@@ -174,10 +174,10 @@ async function getTodayHabits(openid, options = {}) {
     (checkinsResult.data || []).map(c => c.habitId)
   )
 
-  // 过滤出今日需要打卡的习惯
+  // 过滤出指定日期需要打卡的习惯
   const todayHabits = habits.filter(habit => {
-    // 判断是否应该在今天显示
-    if (!shouldShowOnDate(habit, today)) {
+    // 判断是否应该在指定日期显示
+    if (!shouldShowOnDate(habit, targetYmd)) {
       return false
     }
 
@@ -189,7 +189,7 @@ async function getTodayHabits(openid, options = {}) {
     return true
   })
 
-  // 添加今日打卡状态
+  // 添加打卡状态
   const habitsWithStatus = todayHabits.map(habit => ({
     ...habit,
     checked: checkedHabitIds.has(habit._id)

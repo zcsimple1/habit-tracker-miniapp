@@ -99,10 +99,16 @@ exports.main = async (event, context) => {
  * 打卡
  */
 async function checkin(openid, data) {
-  const { habitId, note = '', location = null } = data
+  const { habitId, note = '', location = null, ymd } = data
   const today = getToday()
+  const targetYmd = ymd || today
   const now = Date.now()
   const time = dayjs().format('HH:mm:ss')
+
+  // 检查是否是将来日期
+  if (targetYmd > today) {
+    throw new Error('未到时间，不能打卡')
+  }
 
   // 检查习惯是否存在且属于该用户
   const habit = await db.collection('habits').doc(habitId).get()
@@ -118,7 +124,7 @@ async function checkin(openid, data) {
     .where({
       openid,
       habitId,
-      ymd: today,
+      ymd: targetYmd,
       skipped: false
     })
     .get()
@@ -131,7 +137,7 @@ async function checkin(openid, data) {
   const checkin = {
     openid,
     habitId,
-    ymd: today,
+    ymd: targetYmd,
     time,
     timestamp: now,
     skipped: false,
