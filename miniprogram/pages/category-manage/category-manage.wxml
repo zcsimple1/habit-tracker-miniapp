@@ -16,7 +16,7 @@
 
     <!-- 新建分类按钮 -->
     <button wx:if="{{!loading}}" class="add-category-btn" bindtap="onAddCategory">
-      <span style="font-size: 20px; color: white;">+</span>
+      <text class="add-icon">+</text>
       新建分类
     </button>
 
