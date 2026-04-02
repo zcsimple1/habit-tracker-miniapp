@@ -364,12 +364,13 @@
 }
 
 .todo-title {
-  font-size: 28rpx;
+  font-size: 30rpx;
   font-weight: 500;
   color: #333;
   display: flex;
   align-items: center;
   gap: 8rpx;
+  line-height: 1.2;
 }
 
 /* 优先级徽章 */
@@ -390,7 +391,7 @@
   font-size: 22rpx;
   color: #999;
   flex-wrap: wrap;
-  margin-top: 2rpx;
+  margin-top: 0;
 }
 
 .todo-date {
