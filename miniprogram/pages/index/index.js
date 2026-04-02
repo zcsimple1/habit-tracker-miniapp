@@ -415,6 +415,15 @@ Page({
   async onCheckin(e) {
     const { habitId } = e.currentTarget.dataset
 
+    // 检查是否是今天
+    if (!this.data.isToday) {
+      wx.showToast({
+        title: '只能打卡今日任务',
+        icon: 'none'
+      })
+      return
+    }
+
     try {
       const ymd = toYMD(this.data.currentDate)
       console.log('[index] 打卡 - habitId:', habitId, 'ymd:', ymd)
@@ -453,6 +462,15 @@ Page({
   async onUncheckin(e) {
     const { habitId } = e.currentTarget.dataset
     const ymd = toYMD(this.data.currentDate)
+
+    // 检查是否是今天
+    if (!this.data.isToday) {
+      wx.showToast({
+        title: '只能取消今日打卡',
+        icon: 'none'
+      })
+      return
+    }
 
     wx.showModal({
       title: '取消打卡',
