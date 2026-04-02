@@ -415,10 +415,10 @@ Page({
   async onCheckin(e) {
     const { habitId } = e.currentTarget.dataset
 
-    // 检查是否是今天
-    if (!this.data.isToday) {
+    // 检查是否是将来的日期
+    if (this.data.currentDate > new Date()) {
       wx.showToast({
-        title: '只能打卡今日任务',
+        title: '不能打卡将来的任务',
         icon: 'none'
       })
       return
@@ -463,10 +463,10 @@ Page({
     const { habitId } = e.currentTarget.dataset
     const ymd = toYMD(this.data.currentDate)
 
-    // 检查是否是今天
-    if (!this.data.isToday) {
+    // 检查是否是将来的日期
+    if (this.data.currentDate > new Date()) {
       wx.showToast({
-        title: '只能取消今日打卡',
+        title: '不能操作将来的任务',
         icon: 'none'
       })
       return
@@ -474,7 +474,7 @@ Page({
 
     wx.showModal({
       title: '取消打卡',
-      content: '确定要取消今天的打卡吗?',
+      content: '确定要取消打卡吗?',
       success: async (res) => {
         if (res.confirm) {
           try {
