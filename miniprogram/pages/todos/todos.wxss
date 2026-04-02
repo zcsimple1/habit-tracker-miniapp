@@ -361,6 +361,9 @@
 .todo-content {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
 }
 
 .todo-title {
@@ -371,6 +374,8 @@
   align-items: center;
   gap: 8rpx;
   line-height: 1.2;
+  margin: 0;
+  padding: 0;
 }
 
 /* 优先级徽章 */
