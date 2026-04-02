@@ -63,27 +63,6 @@
       </view>
     </view>
 
-    <!-- 按分类查看 -->
-    <view wx:if="{{categoryStats.length > 0}}" class="section">
-      <view class="section-title">📂 按分类查看</view>
-      <view class="category-list">
-        <view 
-          wx:for="{{categoryStats}}" 
-          wx:key="categoryId"
-          class="category-stat"
-        >
-          <view class="category-icon" style="background-color: {{item.categoryColor}}20; color: {{item.categoryColor}}">
-            {{item.categoryIcon}}
-          </view>
-          <view class="category-info">
-            <view class="category-name">{{item.categoryName}}</view>
-            <view class="category-detail">{{item.completed}}/{{item.total}} 项</view>
-          </view>
-          <view class="category-rate" style="color: {{item.categoryColor}}">{{item.rate}}%</view>
-        </view>
-      </view>
-    </view>
-
     <!-- 空状态 -->
     <view wx:if="{{overview.totalHabits === 0}}" class="empty-state">
       <view class="empty-icon">📊</view>
