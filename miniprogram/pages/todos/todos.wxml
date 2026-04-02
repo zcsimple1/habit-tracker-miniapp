@@ -79,8 +79,8 @@
     </view>
 
     <!-- 隐藏提示 -->
-    <view wx:if="{{!tempShowCompleted && (futureTodos.length > 0 || overdueTodos.length > 0 || completedTodos.length > 0)}}" class="hidden-hint">
-      <view class="hint-title">已隐藏部分内容：</view>
+    <view wx:if="{{!tempShowCompleted && (futureTodos.length > 0 || overdueTodos.length > 0 || completedTodos.length > 0)}}" class="hidden-hint" bindtap="toggleShowCompleted">
+      <view class="hint-title">已隐藏部分内容（点击显示所有）：</view>
       <view class="hint-content">
         <text wx:if="{{futureTodos.length > 0}}" class="hint-item">将来 <text class="hint-count">{{futureTodos.length}}</text> 项</text>
         <text wx:if="{{futureTodos.length > 0 && (overdueTodos.length > 0 || completedTodos.length > 0)}}" class="hint-sep">，</text>
