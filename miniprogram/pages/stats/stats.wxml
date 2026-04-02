@@ -1,28 +1,15 @@
 <view class="container">
   <!-- 头部 -->
-  <view class="header">
-    <view class="header-title">统计中心</view>
-  </view>
-
-  <!-- 日期范围选择 -->
-  <view class="date-range-bar">
-    <picker mode="selector" range="{{['本周', '本月', '本年', '自定义']}}" value="{{['week','month','year','custom'].indexOf(dateRange)}}" bindchange="onDateRangeChange">
-      <view class="date-range-picker">
-        <text class="range-label">当前选择：</text>
-        <text class="range-text">{{['本周','本月','本年','自定义'][['week','month','year','custom'].indexOf(dateRange)]}}</text>
-        <text class="arrow">▼</text>
-      </view>
-    </picker>
-
-    <!-- 自定义日期选择 -->
-    <view wx:if="{{dateRange === 'custom'}}" class="custom-date">
-      <picker mode="date" value="{{customStartDate}}" bindchange="onCustomStartDateChange">
-        <view class="date-picker">{{customStartDate || '开始日期'}}</view>
-      </picker>
-      <text class="date-separator">-</text>
-      <picker mode="date" value="{{customEndDate}}" bindchange="onCustomEndDateChange">
-        <view class="date-picker">{{customEndDate || '结束日期'}}</view>
-      </picker>
+  <view class="stats-header">
+    <view class="stats-title">📊 统计中心</view>
+    <view class="date-tabs">
+      <view 
+        wx:for="{{['本周', '本月', '本年']}}"
+        wx:key="index"
+        class="date-tab {{dateRange === ['week','month','year'][index] ? 'active' : ''}}"
+        bindtap="onDateRangeChange"
+        data-range="{{['week','month','year'][index]}}"
+      >{{item}}</view>
     </view>
   </view>
 
@@ -32,87 +19,77 @@
     <view class="loading-text">加载中...</view>
   </view>
 
-  <!-- 总体概况 -->
-  <view wx:if="{{!loading}}" class="section">
-    <view class="section-title">📊 总体概况</view>
-    <view class="overview-grid">
+  <!-- 内容区 -->
+  <view wx:if="{{!loading}}" class="content">
+    <!-- 总体概况 -->
+    <view class="section">
+      <view class="section-title">📊 总体概况</view>
       <view class="overview-card">
-        <view class="card-label">今日完成</view>
-        <view class="card-value">{{overview.todayCompleted}}/{{overview.todayTotal}}</view>
-        <view class="card-sub">完成率 {{overview.todayRate}}%</view>
-      </view>
-      <view class="overview-card">
-        <view class="card-label">本月完成率</view>
-        <view class="card-value">{{overview.monthRate}}%</view>
-        <view class="card-sub">活跃 {{overview.activeDays}} 天</view>
-      </view>
-      <view class="overview-card">
-        <view class="card-label">当前连续</view>
-        <view class="card-value">{{overview.currentStreak}} 天</view>
-        <view class="card-sub">最长 {{overview.longestStreak}} 天</view>
-      </view>
-      <view class="overview-card">
-        <view class="card-label">活跃习惯</view>
-        <view class="card-value">{{overview.totalHabits}} 个</view>
-        <view class="card-sub">保持好习惯</view>
+        <view class="overview-row">
+          <span class="overview-label">本月完成率</span>
+          <span class="overview-value">{{overview.rangeRate}}%</span>
+        </view>
+        <view class="overview-row">
+          <span class="overview-label">总打卡次数</span>
+          <span class="overview-value">{{overview.totalCheckins}} 次</span>
+        </view>
+        <view class="overview-row">
+          <span class="overview-label">活跃天数</span>
+          <span class="overview-value">{{overview.activeDays}} 天</span>
+        </view>
+        <view class="overview-row">
+          <span class="overview-label">今日完成</span>
+          <span class="overview-value">{{overview.todayCompleted}}/{{overview.todayTotal}}</span>
+        </view>
       </view>
     </view>
-  </view>
 
-  <!-- 分类统计 -->
-  <view wx:if="{{!loading && categoryStats.length > 0}}" class="section">
-    <view class="section-title">📂 按分类查看</view>
-    <view class="category-stats-list">
-      <view
-        wx:for="{{categoryStats}}"
-        wx:key="categoryId"
-        class="category-stat-item"
-        bindtap="onViewHabit"
-        data-category-id="{{item.categoryId}}"
-      >
-        <view class="category-icon" style="background-color: {{item.categoryColor}}">{{item.categoryIcon}}</view>
-        <view class="category-info">
-          <view class="category-name">{{item.categoryName}}</view>
-          <view class="category-progress">
-            <view class="progress-bar">
-              <view class="progress-fill" style="width: {{item.completionRate}}%; background-color: {{item.categoryColor}}"></view>
-            </view>
-            <text class="progress-text">{{item.completionRate}}% ({{item.completed}}/{{item.total}})</text>
+    <!-- 完成率排行 -->
+    <view wx:if="{{ranking.length > 0}}" class="section">
+      <view class="section-title">🏆 完成率排行</view>
+      <view class="ranking-list">
+        <view 
+          wx:for="{{ranking}}" 
+          wx:key="habitId"
+          class="ranking-item"
+        >
+          <view class="rank-badge rank-{{index < 3 ? index + 1 : 'other'}}">{{index + 1}}</view>
+          <view class="rank-info">
+            <view class="rank-name">{{item.habitName}}</view>
+            <view class="rank-category">{{item.categoryName}}</view>
           </view>
+          <view class="rank-rate">{{item.rate}}次</view>
         </view>
       </view>
     </view>
-  </view>
 
-  <!-- 完成率排行 -->
-  <view wx:if="{{!loading && ranking.length > 0}}" class="section">
-    <view class="section-title">🏆 完成率排行</view>
-    <view class="ranking-list">
-      <view
-        wx:for="{{ranking}}"
-        wx:key="habitId"
-        class="ranking-item"
-        bindtap="onViewHabit"
-        data-habit-id="{{item.habitId}}"
-      >
-        <view class="ranking-index">{{index + 1}}</view>
-        <view class="ranking-info">
-          <view class="ranking-name">{{item.habitName}}</view>
-          <view class="ranking-category">{{item.categoryName}}</view>
-        </view>
-        <view class="ranking-rate">
-          <view class="rate-value">{{item.completionRate}}%</view>
-          <view class="rate-count">{{item.completed}}/{{item.total}}</view>
+    <!-- 按分类查看 -->
+    <view wx:if="{{categoryStats.length > 0}}" class="section">
+      <view class="section-title">📂 按分类查看</view>
+      <view class="category-list">
+        <view 
+          wx:for="{{categoryStats}}" 
+          wx:key="categoryId"
+          class="category-stat"
+        >
+          <view class="category-icon" style="background-color: {{item.categoryColor}}20; color: {{item.categoryColor}}">
+            {{item.categoryIcon}}
+          </view>
+          <view class="category-info">
+            <view class="category-name">{{item.categoryName}}</view>
+            <view class="category-detail">{{item.completed}}/{{item.total}} 项</view>
+          </view>
+          <view class="category-rate" style="color: {{item.categoryColor}}">{{item.rate}}%</view>
         </view>
       </view>
     </view>
-  </view>
 
-  <!-- 空状态 -->
-  <view wx:if="{{!loading && categoryStats.length === 0 && ranking.length === 0}}" class="empty-state">
-    <view class="empty-icon">📊</view>
-    <view class="empty-text">还没有打卡记录</view>
-    <view class="empty-desc">开始第一个习惯，积累你的数据吧</view>
+    <!-- 空状态 -->
+    <view wx:if="{{overview.totalHabits === 0}}" class="empty-state">
+      <view class="empty-icon">📊</view>
+      <view class="empty-text">还没有打卡记录</view>
+      <view class="empty-desc">开始第一个习惯，积累你的数据吧</view>
+    </view>
   </view>
 
   <!-- 自定义底部导航 -->

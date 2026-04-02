@@ -1,149 +1,52 @@
-// cloudfunctions/stats/index.js
+/**
+ * 统计云函数 - 简化版
+ * 基于实际打卡数据计算统计
+ */
 const cloud = require('wx-server-sdk')
 const dayjs = require('dayjs')
 
 cloud.init({ env: 'cloudbase-8gw8fj3c75c015f6' })
 const db = cloud.database()
 
-// 判断某天是否应该显示某习惯
-function shouldShowOnDate(habit, ymd) {
-  // 如果没有 active 字段或者 active 为 true，都认为是激活的
-  if (habit.active === false) return false
-
-  const { timeRule } = habit
-  if (!timeRule) return true
-
-  // 容错：如果 timeRule 没有 type，也返回 true
-  if (!timeRule.type) return true
-
-  if (timeRule.startDate && ymd < timeRule.startDate) return false
-  if (timeRule.endDate && ymd > timeRule.endDate) return false
-
-  const date = dayjs(ymd)
-  const dayOfWeek = date.day()
-
-  switch (timeRule.type) {
-    case 'daily':
-      return true
-    case 'weekdays':
-      return dayOfWeek >= 1 && dayOfWeek <= 5
-    case 'weekend':
-      return dayOfWeek === 0 || dayOfWeek === 6
-    case 'weekly':
-      return timeRule.weekDays && timeRule.weekDays.includes(dayOfWeek)
-    case 'custom':
-      return timeRule.customDates && timeRule.customDates.includes(ymd)
-    default:
-      return true
-  }
-}
-
-// 计算日期范围内某习惯应该打卡的天数
-function calculateShouldCheckDays(habit, startDate, endDate) {
-  let count = 0
-  let current = dayjs(startDate)
-  const end = dayjs(endDate)
-
-  while (current.isBefore(end) || current.isSame(end)) {
-    const ymd = current.format('YYYY-MM-DD')
-    if (shouldShowOnDate(habit, ymd)) {
-      count++
-    }
-    current = current.add(1, 'day')
-  }
-
-  return count
-}
-
-// 计算连续打卡天数（修正版）
-function calculateStreak(checkins) {
-  if (!checkins || checkins.length === 0) return 0
-
-  const today = dayjs().format('YYYY-MM-DD')
-  let streak = 0
-  let expectedDate = dayjs(today)
-
-  const sortedCheckins = [...checkins].sort((a, b) => b.ymd.localeCompare(a.ymd))
-  const checkinDates = new Set(sortedCheckins.map(c => c.ymd))
-
-  for (let i = 0; i < 365; i++) {
-    const ymd = expectedDate.format('YYYY-MM-DD')
-    if (checkinDates.has(ymd)) {
-      streak++
-    } else if (i === 0) {
-      expectedDate = expectedDate.subtract(1, 'day')
-      continue
-    } else {
-      break
-    }
-    expectedDate = expectedDate.subtract(1, 'day')
-  }
-
-  return streak
-}
-
-// 工具函数
+// 获取今天的日期字符串
 function getToday() {
   return dayjs().format('YYYY-MM-DD')
 }
 
+// 获取日期范围
 function getDateRange(type) {
   const today = dayjs()
 
   switch (type) {
-    case 'today':
-      return {
-        startDate: today.format('YYYY-MM-DD'),
-        endDate: today.format('YYYY-MM-DD'),
-        days: 1
-      }
     case 'week':
-      const weekStart = today.startOf('week')
-      const weekEnd = today.endOf('week')
       return {
-        startDate: weekStart.format('YYYY-MM-DD'),
-        endDate: weekEnd.format('YYYY-MM-DD'),
-        days: weekEnd.diff(weekStart, 'day') + 1
+        startDate: today.startOf('week').format('YYYY-MM-DD'),
+        endDate: today.endOf('week').format('YYYY-MM-DD')
       }
     case 'month':
-      const monthStart = today.startOf('month')
-      const monthEnd = today.endOf('month')
       return {
-        startDate: monthStart.format('YYYY-MM-DD'),
-        endDate: monthEnd.format('YYYY-MM-DD'),
-        days: monthEnd.diff(monthStart, 'day') + 1
+        startDate: today.startOf('month').format('YYYY-MM-DD'),
+        endDate: today.endOf('month').format('YYYY-MM-DD')
       }
     case 'year':
-      const yearStart = today.startOf('year')
-      const yearEnd = today.endOf('year')
       return {
-        startDate: yearStart.format('YYYY-MM-DD'),
-        endDate: yearEnd.format('YYYY-MM-DD'),
-        days: yearEnd.diff(yearStart, 'day') + 1
+        startDate: today.startOf('year').format('YYYY-MM-DD'),
+        endDate: today.endOf('year').format('YYYY-MM-DD')
       }
     default:
       return {
-        startDate: today.format('YYYY-MM-DD'),
-        endDate: today.format('YYYY-MM-DD'),
-        days: 1
+        startDate: getToday(),
+        endDate: getToday()
       }
   }
 }
 
-function calculateCompletionRate(completed, total) {
+// 计算完成率
+function calcRate(completed, total) {
   if (total === 0) return 0
   return Math.round((completed / total) * 100)
 }
 
-/**
- * 统计云函数
- * actions:
- * - getOverview: 获取总体统计
- * - getCategoryStats: 获取分类统计
- * - getHabitStats: 获取习惯统计
- * - getTrend: 获取趋势数据
- * - getRanking: 获取排行榜
- */
 exports.main = async (event, context) => {
   const { action, data } = event
   const openid = cloud.getWXContext().OPENID
@@ -152,29 +55,16 @@ exports.main = async (event, context) => {
     switch (action) {
       case 'getOverview':
         return await getOverview(openid, data)
-
       case 'getCategoryStats':
         return await getCategoryStats(openid, data)
-
-      case 'getHabitStats':
-        return await getHabitStats(openid, data)
-
-      case 'getTrend':
-        return await getTrend(openid, data)
-
       case 'getRanking':
         return await getRanking(openid, data)
-
       default:
-        throw new Error('Unknown action: ' + action)
+        throw new Error('Unknown action')
     }
   } catch (err) {
     console.error('[stats] Error:', err)
-    return {
-      code: -1,
-      message: err.message,
-      error: err
-    }
+    return { code: -1, message: err.message }
   }
 }
 
@@ -184,27 +74,14 @@ exports.main = async (event, context) => {
 async function getOverview(openid, options = {}) {
   const { range = 'month' } = options
   const today = getToday()
-  const { startDate, endDate, days } = getDateRange(range)
+  const { startDate, endDate } = getDateRange(range)
 
-  console.log('[stats] getOverview - openid:', openid, 'range:', range)
-  console.log('[stats] 日期范围:', startDate, '-', endDate, '天数:', days)
-
-  const habitsResult = await db.collection('habits')
-    .where({ openid })
-    .get()
+  // 获取所有习惯
+  const habitsResult = await db.collection('habits').where({ openid }).get()
   const habits = habitsResult.data || []
   const totalHabits = habits.length
-  console.log('[stats] 习惯数量:', totalHabits)
 
-  const todayCheckins = await db.collection('checkins')
-    .where({
-      openid,
-      ymd: today,
-      skipped: false
-    })
-    .count()
-  console.log('[stats] 今日打卡数:', todayCheckins.total)
-
+  // 获取范围内的打卡数
   const rangeCheckins = await db.collection('checkins')
     .where({
       openid,
@@ -212,8 +89,17 @@ async function getOverview(openid, options = {}) {
       skipped: false
     })
     .count()
-  console.log('[stats] 范围打卡数:', rangeCheckins.total)
 
+  // 获取今日打卡数
+  const todayCheckins = await db.collection('checkins')
+    .where({
+      openid,
+      ymd: today,
+      skipped: false
+    })
+    .count()
+
+  // 计算活跃天数（使用聚合）
   const activeDaysResult = await db.collection('checkins')
     .aggregate()
     .match({
@@ -221,285 +107,90 @@ async function getOverview(openid, options = {}) {
       ymd: db.command.gte(startDate).and(db.command.lte(endDate)),
       skipped: false
     })
-    .group({
-      _id: '$ymd'
-    })
+    .group({ _id: '$ymd' })
     .end()
-  console.log('[stats] 活跃天数:', activeDaysResult.list?.length || 0)
 
-  const activeDays = activeDaysResult.list ? activeDaysResult.list.length : 0
+  const activeDays = activeDaysResult.list?.length || 0
 
-  const totalCheckinsResult = await db.collection('checkins')
-    .where({
-      openid,
-      skipped: false
-    })
+  // 获取总打卡次数
+  const totalCheckins = await db.collection('checkins')
+    .where({ openid, skipped: false })
     .count()
-  console.log('[stats] 总打卡数:', totalCheckinsResult.total)
 
-  const user = await db.collection('users').doc(openid).get()
-  const userStats = user.data?.statsCache || {}
-  console.log('[stats] 用户统计:', JSON.stringify(userStats))
+  // 计算完成率 = 实际打卡数 / (习惯数 × 天数)
+  const daysCount = dayjs(endDate).diff(dayjs(startDate), 'day') + 1
+  const totalPossible = totalHabits * daysCount
+  const rangeRate = calcRate(rangeCheckins.total, totalPossible)
 
-  let todayShouldCheck = 0
-  let totalPossible = 0
-
-  for (const habit of habits) {
-    if (shouldShowOnDate(habit, today)) {
-      todayShouldCheck++
+  // 获取用户连续打卡信息
+  let currentStreak = 0
+  let longestStreak = 0
+  try {
+    const userResult = await db.collection('users').doc(openid).get()
+    if (userResult.data) {
+      currentStreak = userResult.data.currentStreak || 0
+      longestStreak = userResult.data.longestStreak || 0
     }
-    totalPossible += calculateShouldCheckDays(habit, startDate, endDate)
+  } catch (e) {
+    // 用户文档可能不存在
   }
 
-  const todayRate = todayShouldCheck > 0
-    ? calculateCompletionRate(todayCheckins.total, todayShouldCheck)
-    : 0
-
-  const rangeRate = totalPossible > 0
-    ? calculateCompletionRate(rangeCheckins.total, totalPossible)
-    : 0
-
-  const result = {
+  return {
     code: 0,
     data: {
-      today: {
-        completed: todayCheckins.total || 0,
-        total: todayShouldCheck,
-        rate: todayRate
-      },
-      range: {
-        completed: rangeCheckins.total || 0,
-        totalPossible,
-        activeDays,
-        rate: rangeRate
-      },
-      overall: {
-        totalCheckins: totalCheckinsResult.total || 0,
-        currentStreak: userStats.currentStreak || 0,
-        longestStreak: userStats.longestStreak || 0
-      },
-      totalHabits
+      totalHabits,
+      todayCompleted: todayCheckins.total,
+      todayTotal: totalHabits,
+      todayRate: calcRate(todayCheckins.total, totalHabits),
+      rangeCompleted: rangeCheckins.total,
+      rangeTotal: totalPossible,
+      rangeRate,
+      activeDays,
+      totalCheckins: totalCheckins.total,
+      currentStreak,
+      longestStreak
     }
   }
-  console.log('[stats] 返回结果:', JSON.stringify(result))
-  return result
 }
 
 /**
  * 获取分类统计
  */
 async function getCategoryStats(openid, options = {}) {
-  const { categoryId, range = 'month' } = options
+  const { range = 'month' } = options
   const { startDate, endDate } = getDateRange(range)
 
-  const categoriesResult = await db.collection('categories')
-    .where({ openid })
-    .get()
-  const categories = {}
-  categoriesResult.data?.forEach(cat => {
-    categories[cat._id] = cat
-  })
-  console.log('[stats] categories:', JSON.stringify(categories))
-
-  let habitsQuery = db.collection('habits').where({ openid })
-  if (categoryId) {
-    habitsQuery = habitsQuery.where({ categoryId })
-  }
-
-  const habitsResult = await habitsQuery.get()
+  // 获取所有习惯
+  const habitsResult = await db.collection('habits').where({ openid }).get()
   const habits = habitsResult.data || []
-  console.log('[stats] habits:', JSON.stringify(habits.map(h => ({ _id: h._id, categoryId: h.categoryId }))))
 
-  const categoryStatsMap = {}
+  // 获取所有分类
+  const categoriesResult = await db.collection('categories').where({ openid }).get()
+  const categoriesMap = {}
+  categoriesResult.data?.forEach(cat => {
+    categoriesMap[cat._id] = cat
+  })
+
+  // 按分类聚合数据
+  const categoryStats = {}
+  let uncategorizedCount = 0
 
   for (const habit of habits) {
     const catId = habit.categoryId || 'uncategorized'
-
-    if (!categoryStatsMap[catId]) {
-      const category = categories[catId] || { name: '未分类', icon: '📁', color: '#667eea' }
-      categoryStatsMap[catId] = {
+    
+    if (!categoryStats[catId]) {
+      const cat = categoriesMap[catId]
+      categoryStats[catId] = {
         categoryId: catId,
-        categoryName: category.name || '未分类',
-        categoryIcon: category.icon || '📁',
-        categoryColor: category.color || '#667eea',
-        habitCount: 0,
+        categoryName: cat?.name || '未分类',
+        categoryIcon: cat?.icon || '📁',
+        categoryColor: cat?.color || '#667eea',
         completed: 0,
         total: 0
       }
     }
 
-    const habitCheckins = await db.collection('checkins')
-      .where({
-        openid,
-        habitId: habit._id,
-        ymd: db.command.gte(startDate).and(db.command.lte(endDate)),
-        skipped: false
-      })
-      .count()
-
-    const shouldCheckDays = calculateShouldCheckDays(habit, startDate, endDate)
-    const completed = habitCheckins.total || 0
-    categoryStatsMap[catId].habitCount++
-    categoryStatsMap[catId].completed += completed
-    categoryStatsMap[catId].total += shouldCheckDays
-  }
-
-  const categoryStats = Object.values(categoryStatsMap).map(cat => ({
-    ...cat,
-    completionRate: cat.total > 0 ? calculateCompletionRate(cat.completed, cat.total) : 0
-  }))
-
-  categoryStats.sort((a, b) => b.completionRate - a.completionRate)
-
-  return {
-    code: 0,
-    data: {
-      categoryStats,
-      summary: {
-        totalHabits: habits.length,
-        totalCategories: categoryStats.length
-      }
-    }
-  }
-}
-
-/**
- * 获取习惯统计
- */
-async function getHabitStats(openid, data) {
-  const { habitId, range = 'month' } = data
-  const { startDate, endDate, days } = getDateRange(range)
-
-  // 获取习惯信息
-  const habit = await db.collection('habits').doc(habitId).get()
-  if (!habit.data) {
-    throw new Error('习惯不存在')
-  }
-  if (habit.data.openid !== openid) {
-    throw new Error('无权访问该习惯')
-  }
-
-  // 获取范围内的打卡记录
-  const checkins = await db.collection('checkins')
-    .where({
-      openid,
-      habitId,
-      ymd: db.command.gte(startDate).and(db.command.lte(endDate)),
-      skipped: false
-    })
-    .orderBy('ymd', 'asc')
-    .get()
-
-  const completed = checkins.data ? checkins.data.length : 0
-  const completionRate = calculateCompletionRate(completed, days)
-
-  // 获取最后打卡时间
-  const lastCheckin = checkins.data && checkins.data.length > 0
-    ? checkins.data[checkins.data.length - 1]
-    : null
-
-  return {
-    code: 0,
-    data: {
-      habitId,
-      name: habit.data.name,
-      description: habit.data.description,
-      timeRule: habit.data.timeRule,
-      important: habit.data.important,
-      stats: {
-        totalDays: days,
-        completed,
-        completionRate,
-        currentStreak: habit.data.stats?.currentStreak || 0,
-        longestStreak: habit.data.stats?.longestStreak || 0
-      },
-      lastCheckin: lastCheckin ? {
-        date: lastCheckin.ymd,
-        time: lastCheckin.time
-      } : null
-    }
-  }
-}
-
-/**
- * 获取趋势数据
- */
-async function getTrend(openid, data) {
-  const { range = 'month' } = data
-  const { startDate, endDate, days } = getDateRange(range)
-
-  // 获取该范围内的打卡数据
-  const checkins = await db.collection('checkins')
-    .where({
-      openid,
-      ymd: db.command.gte(startDate).and(db.command.lte(endDate)),
-      skipped: false
-    })
-    .orderBy('ymd', 'asc')
-    .get()
-
-  // 按日期分组统计
-  const dateStats = {}
-  const start = dayjs(startDate)
-
-  for (let i = 0; i < days; i++) {
-    const ymd = start.add(i, 'day').format('YYYY-MM-DD')
-    dateStats[ymd] = 0
-  }
-
-  // 填充打卡数据
-  if (checkins.data) {
-    for (const checkin of checkins.data) {
-      if (dateStats[checkin.ymd] !== undefined) {
-        dateStats[checkin.ymd]++
-      }
-    }
-  }
-
-  // 转换为数组格式
-  const trend = Object.keys(dateStats)
-    .sort()
-    .map(ymd => ({
-      date: ymd,
-      dateLabel: dayjs(ymd).format('M/D'),
-      count: dateStats[ymd]
-    }))
-
-  return {
-    code: 0,
-    data: {
-      range,
-      startDate,
-      endDate,
-      days,
-      trend
-    }
-  }
-}
-
-/**
- * 获取排行榜
- */
-async function getRanking(openid, data) {
-  const { type = 'completion', range = 'month' } = data
-  const { startDate, endDate } = getDateRange(range)
-
-  const categoriesResult = await db.collection('categories')
-    .where({ openid })
-    .get()
-  const categories = {}
-  categoriesResult.data?.forEach(cat => {
-    categories[cat._id] = cat
-  })
-
-  const habitsResult = await db.collection('habits')
-    .where({ openid })
-    .get()
-
-  const habits = habitsResult.data || []
-  const ranking = []
-
-  for (const habit of habits) {
+    // 获取该习惯在范围内的打卡数
     const checkins = await db.collection('checkins')
       .where({
         openid,
@@ -509,36 +200,68 @@ async function getRanking(openid, data) {
       })
       .count()
 
-    const category = categories[habit.categoryId] || { name: '未分类' }
-    const shouldCheckDays = calculateShouldCheckDays(habit, startDate, endDate)
+    categoryStats[catId].completed += checkins.total || 0
+    categoryStats[catId].total += 1 // 每个习惯计为1次应打卡
+  }
+
+  // 计算完成率并转换为数组
+  const result = Object.values(categoryStats).map(cat => ({
+    ...cat,
+    rate: calcRate(cat.completed, cat.total)
+  }))
+
+  // 按完成率排序
+  result.sort((a, b) => b.rate - a.rate)
+
+  return { code: 0, data: result }
+}
+
+/**
+ * 获取完成率排行
+ */
+async function getRanking(openid, options = {}) {
+  const { range = 'month' } = options
+  const { startDate, endDate } = getDateRange(range)
+
+  // 获取所有习惯
+  const habitsResult = await db.collection('habits').where({ openid }).get()
+  const habits = habitsResult.data || []
+
+  // 获取所有分类
+  const categoriesResult = await db.collection('categories').where({ openid }).get()
+  const categoriesMap = {}
+  categoriesResult.data?.forEach(cat => {
+    categoriesMap[cat._id] = cat
+  })
+
+  const ranking = []
+
+  for (const habit of habits) {
+    // 获取打卡数
+    const checkins = await db.collection('checkins')
+      .where({
+        openid,
+        habitId: habit._id,
+        ymd: db.command.gte(startDate).and(db.command.lte(endDate)),
+        skipped: false
+      })
+      .count()
+
     const completed = checkins.total || 0
-    const completionRate = calculateCompletionRate(completed, shouldCheckDays)
+    const cat = categoriesMap[habit.categoryId] || {}
 
     ranking.push({
       habitId: habit._id,
       habitName: habit.name,
-      categoryName: category.name || '未分类',
+      categoryName: cat.name || '未分类',
       completed,
-      total: shouldCheckDays,
-      completionRate,
-      important: habit.important
+      rate: completed // 直接用打卡数作为排行依据
     })
   }
 
-  if (type === 'completion') {
-    ranking.sort((a, b) => b.completionRate - a.completionRate)
-  } else if (type === 'count') {
-    ranking.sort((a, b) => b.completed - a.completed)
-  }
+  // 按完成数排序
+  ranking.sort((a, b) => b.rate - a.rate)
 
-  const top10 = ranking.slice(0, 10)
-
-  return {
-    code: 0,
-    data: {
-      type,
-      range,
-      ranking: top10
-    }
-  }
+  // 取前10
+  return { code: 0, data: ranking.slice(0, 10) }
 }

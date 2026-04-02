@@ -2,10 +2,8 @@ const { toYMD } = require('../../utils/date')
 
 Page({
   data: {
-    // 日期范围选择
-    dateRange: 'month', // week | month | year | custom
-    customStartDate: '',
-    customEndDate: '',
+    // 日期范围
+    dateRange: 'month',
 
     // 总体统计
     overview: {
@@ -13,96 +11,67 @@ Page({
       todayCompleted: 0,
       todayTotal: 0,
       todayRate: 0,
-      monthCompleted: 0,
-      monthRate: 0,
+      rangeCompleted: 0,
+      rangeTotal: 0,
+      rangeRate: 0,
+      activeDays: 0,
+      totalCheckins: 0,
       currentStreak: 0,
-      longestStreak: 0,
-      activeDays: 0
+      longestStreak: 0
     },
 
     // 分类统计
     categoryStats: [],
 
-    // 完成率排行
+    // 排行
     ranking: [],
 
     // 加载状态
     loading: false,
-
-    // 日期选择器
-    showStartDatePicker: false,
-    showEndDatePicker: false,
-
-    // 缓存键
-    cacheKey: '',
 
     // 刷新标记
     needRefresh: false
   },
 
   onLoad() {
-    this.loadStats(true) // 首次加载强制刷新
+    this.loadStats(true)
   },
 
   onShow() {
     // 检查全局刷新标记
     const app = getApp()
     if (app.globalData && app.globalData.statsNeedRefresh) {
-      console.log('[stats] 检测到全局刷新标记')
       app.globalData.statsNeedRefresh = false
       this.loadStats(true)
       return
     }
 
-    // 检查是否需要刷新
+    // 检查本地刷新标记
     if (this.data.needRefresh) {
       this.loadStats(true)
+      this.setData({ needRefresh: false })
       return
     }
 
-    // 根据日期范围设置不同的缓存时间
+    // 检查缓存
     const cacheKey = `stats_${this.data.dateRange}`
     const cachedData = wx.getStorageSync(cacheKey)
-
-    if (cachedData) {
-      const now = Date.now()
-      const cacheTime = cachedData.timestamp || 0
-
-      // 今日数据：短缓存（1分钟），因为可能频繁变化
-      // 周数据：中等缓存（30分钟）
-      // 月数据：长缓存（2小时）
-      // 年数据：很长缓存（1天）
-      let cacheDuration = 0
-      switch (this.data.dateRange) {
-        case 'week':
-          cacheDuration = 30 * 60 * 1000 // 30分钟
-          break
-        case 'month':
-          cacheDuration = 2 * 60 * 60 * 1000 // 2小时
-          break
-        case 'year':
-          cacheDuration = 24 * 60 * 60 * 1000 // 1天
-          break
-        case 'custom':
-          cacheDuration = 2 * 60 * 60 * 1000 // 2小时
-          break
-        default:
-          cacheDuration = 60 * 1000 // 1分钟（默认今日）
-      }
-
-      if (now - cacheTime < cacheDuration) {
-        console.log('[stats] 从缓存加载:', cacheKey, '缓存时间:', cacheDuration / 1000, '秒')
-        this.setData({
-          overview: cachedData.overview,
-          categoryStats: cachedData.categoryStats,
-          ranking: cachedData.ranking,
-          loading: false
-        })
-        return
-      }
+    if (cachedData && Date.now() - cachedData.timestamp < 60000) {
+      this.setData({
+        overview: cachedData.overview,
+        categoryStats: cachedData.categoryStats,
+        ranking: cachedData.ranking
+      })
+      return
     }
 
-    // 缓存过期或无缓存，重新加载
+    this.loadStats(false)
+  },
+
+  // 切换日期范围
+  onDateRangeChange(e) {
+    const range = e.currentTarget.dataset.range
+    this.setData({ dateRange: range })
     this.loadStats(true)
   },
 
@@ -113,18 +82,13 @@ Page({
     // 强制刷新时清除缓存
     if (forceRefresh) {
       wx.removeStorageSync(cacheKey)
-    }
-
-    // 检查缓存
-    if (!forceRefresh) {
+    } else {
       const cachedData = wx.getStorageSync(cacheKey)
-      if (cachedData) {
-        console.log('[stats] 从缓存加载:', cacheKey)
+      if (cachedData && Date.now() - cachedData.timestamp < 60000) {
         this.setData({
           overview: cachedData.overview,
           categoryStats: cachedData.categoryStats,
-          ranking: cachedData.ranking,
-          loading: false
+          ranking: cachedData.ranking
         })
         return
       }
@@ -133,122 +97,50 @@ Page({
     this.setData({ loading: true })
 
     try {
-      // 获取总体统计
-      const overviewResult = await wx.cloud.callFunction({
-        name: 'stats',
-        data: {
-          action: 'getOverview',
-          data: {
-            range: this.data.dateRange
-          }
-        }
-      })
-      console.log('[stats] getOverview 结果:', JSON.stringify(overviewResult))
+      // 并行获取所有数据
+      const [overviewResult, categoryResult, rankingResult] = await Promise.all([
+        wx.cloud.callFunction({ name: 'stats', data: { action: 'getOverview', data: { range: this.data.dateRange } } }),
+        wx.cloud.callFunction({ name: 'stats', data: { action: 'getCategoryStats', data: { range: this.data.dateRange } } }),
+        wx.cloud.callFunction({ name: 'stats', data: { action: 'getRanking', data: { range: this.data.dateRange } } })
+      ])
 
-      // 获取分类统计
-      const categoryResult = await wx.cloud.callFunction({
-        name: 'stats',
-        data: {
-          action: 'getCategoryStats',
-          data: {
-            range: this.data.dateRange
-          }
-        }
-      })
-      console.log('[stats] getCategoryStats 结果:', JSON.stringify(categoryResult))
-
-      // 获取排行榜
-      const rankingResult = await wx.cloud.callFunction({
-        name: 'stats',
-        data: {
-          action: 'getRanking',
-          data: {
-            range: this.data.dateRange
-          }
-        }
-      })
-      console.log('[stats] getRanking 结果:', JSON.stringify(rankingResult))
-
-      // 转换数据格式
-      const result = overviewResult.result || overviewResult
-      const overviewData = result.data || {}
-      console.log('[stats] overviewData:', JSON.stringify(overviewData))
-      
-      const overview = {
-        totalHabits: overviewData.totalHabits || 0,
-        todayCompleted: overviewData.today?.completed || 0,
-        todayTotal: overviewData.today?.total || 0,
-        todayRate: overviewData.today?.rate || 0,
-        monthCompleted: overviewData.range?.completed || 0,
-        monthRate: overviewData.range?.rate || 0,
-        currentStreak: overviewData.overall?.currentStreak || 0,
-        longestStreak: overviewData.overall?.longestStreak || 0,
-        activeDays: overviewData.range?.activeDays || 0
-      }
-
-      const catResult = categoryResult.result || categoryResult
-      const categoryStats = catResult.data?.categoryStats || []
-      
-      const rankRes = rankingResult.result || rankingResult
-      const ranking = rankRes.data?.ranking || []
+      const overview = overviewResult.result?.data || {}
+      const categoryStats = categoryResult.result?.data || []
+      const ranking = rankingResult.result?.data || []
 
       this.setData({
-        overview,
+        overview: {
+          totalHabits: overview.totalHabits || 0,
+          todayCompleted: overview.todayCompleted || 0,
+          todayTotal: overview.todayTotal || 0,
+          todayRate: overview.todayRate || 0,
+          rangeCompleted: overview.rangeCompleted || 0,
+          rangeTotal: overview.rangeTotal || 0,
+          rangeRate: overview.rangeRate || 0,
+          activeDays: overview.activeDays || 0,
+          totalCheckins: overview.totalCheckins || 0,
+          currentStreak: overview.currentStreak || 0,
+          longestStreak: overview.longestStreak || 0
+        },
         categoryStats,
         ranking,
-        loading: false,
-        needRefresh: false // 清除刷新标记
+        loading: false
       })
 
-      // 保存到缓存（包含时间戳）
+      // 缓存结果
       wx.setStorageSync(cacheKey, {
-        overview,
+        overview: this.data.overview,
         categoryStats,
         ranking,
         timestamp: Date.now()
       })
-      console.log('[stats] 数据已缓存:', cacheKey, 'overview:', JSON.stringify(overview))
     } catch (err) {
-      console.error('[stats] 加载统计数据失败', err)
+      console.error('加载统计数据失败', err)
       this.setData({ loading: false })
-
       wx.showToast({
-        title: '加载失败: ' + (err.message || '未知错误'),
-        icon: 'none',
-        duration: 3000
+        title: '加载失败',
+        icon: 'none'
       })
     }
-  },
-
-  // 切换日期范围
-  onDateRangeChange(e) {
-    const ranges = ['week', 'month', 'year', 'custom']
-    const range = ranges[e.detail.value]
-
-    this.setData({ dateRange: range })
-    this.loadStats(true) // 切换范围时强制刷新
-  },
-
-  // 自定义开始日期
-  onCustomStartDateChange(e) {
-    this.setData({ customStartDate: e.detail.value })
-  },
-
-  // 自定义结束日期
-  onCustomEndDateChange(e) {
-    this.setData({ customEndDate: e.detail.value })
-
-    // 如果两个日期都选了，重新加载
-    if (this.data.customStartDate && this.data.customEndDate) {
-      this.loadStats(true)
-    }
-  },
-
-  // 查看习惯详情
-  onViewHabit(e) {
-    const { habitId } = e.currentTarget.dataset
-    wx.navigateTo({
-      url: `/pages/habit-detail/habit-detail?id=${habitId}`
-    })
   }
 })
