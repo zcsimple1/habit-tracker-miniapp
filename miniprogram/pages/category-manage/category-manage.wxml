@@ -2,7 +2,7 @@
   <!-- 头部 -->
   <view class="header">
     <button class="header-btn cancel" bindtap="onFinish">取消</button>
-    <view class="header-title">今日打卡</view>
+    <view class="header-title">管理分类</view>
     <view class="header-spacer"></view>
   </view>
 
