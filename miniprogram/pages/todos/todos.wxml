@@ -78,8 +78,18 @@
       </view>
     </view>
 
+    <!-- 隐藏提示 -->
+    <view wx:if="{{!tempShowCompleted && (futureTodos.length > 0 || overdueTodos.length > 0 || completedTodos.length > 0)}}" class="hidden-hint">
+      <text class="hint-text">
+        已隐藏：
+        <text wx:if="{{futureTodos.length > 0}}">将来 {{futureTodos.length}} 项</text>
+        <text wx:if="{{overdueTodos.length > 0}}">已过期 {{overdueTodos.length}} 项</text>
+        <text wx:if="{{completedTodos.length > 0}}">已完成 {{completedTodos.length}} 项</text>
+      </text>
+    </view>
+
     <!-- 将来 -->
-    <view wx:if="{{futureTodos.length > 0}}" class="future-section">
+    <view wx:if="{{futureTodos.length > 0 && tempShowCompleted}}" class="future-section">
       <view class="group-title">
         <text>📅 将来</text>
         <text class="count">{{futureTodos.length}}</text>
@@ -117,7 +127,7 @@
     </view>
 
     <!-- 已过期 -->
-    <view wx:if="{{overdueTodos.length > 0}}" class="overdue-section">
+    <view wx:if="{{overdueTodos.length > 0 && tempShowCompleted}}" class="overdue-section">
       <view class="group-title">
         <text>⚠️ 已过期</text>
         <text class="count">{{overdueTodos.length}}</text>
