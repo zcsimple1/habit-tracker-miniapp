@@ -55,36 +55,22 @@ function calculateStreak(checkins) {
 
   const today = dayjs().format('YYYY-MM-DD')
   let streak = 0
-  let currentDate = dayjs(today)
+  let expectedDate = dayjs(today)
 
-  // 按日期倒序排列
-  const sortedCheckins = checkins.sort((a, b) => b.ymd.localeCompare(a.ymd))
+  const sortedCheckins = [...checkins].sort((a, b) => b.ymd.localeCompare(a.ymd))
+  const checkinDates = new Set(sortedCheckins.map(c => c.ymd))
 
-  // 找到最近的打卡日期
-  let checkinIndex = 0
-  let expectedDate = currentDate
-
-  while (checkinIndex < sortedCheckins.length) {
-    const checkin = sortedCheckins[checkinIndex]
-    const checkinDate = dayjs(checkin.ymd)
-
-    // 检查是否连续
-    const diffDays = Math.abs(expectedDate.diff(checkinDate, 'day'))
-
-    if (diffDays === 0) {
-      // 当天打卡
+  for (let i = 0; i < 365; i++) {
+    const ymd = expectedDate.format('YYYY-MM-DD')
+    if (checkinDates.has(ymd)) {
       streak++
-      checkinIndex++
+    } else if (i === 0) {
       expectedDate = expectedDate.subtract(1, 'day')
-    } else if (diffDays === 1) {
-      // 隔一天,可能是昨天没打卡但今天打卡了
-      streak++
-      checkinIndex++
-      expectedDate = expectedDate.subtract(1, 'day')
+      continue
     } else {
-      // 不连续,中断
       break
     }
+    expectedDate = expectedDate.subtract(1, 'day')
   }
 
   return streak

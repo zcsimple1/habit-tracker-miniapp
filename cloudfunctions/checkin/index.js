@@ -15,30 +15,22 @@ function calculateStreak(checkins) {
 
   const today = dayjs().format('YYYY-MM-DD')
   let streak = 0
-  let currentDate = dayjs(today)
+  let expectedDate = dayjs(today)
 
-  const sortedCheckins = checkins.sort((a, b) => b.ymd.localeCompare(a.ymd))
+  const sortedCheckins = [...checkins].sort((a, b) => b.ymd.localeCompare(a.ymd))
+  const checkinDates = new Set(sortedCheckins.map(c => c.ymd))
 
-  let checkinIndex = 0
-  let expectedDate = currentDate
-
-  while (checkinIndex < sortedCheckins.length) {
-    const checkin = sortedCheckins[checkinIndex]
-    const checkinDate = dayjs(checkin.ymd)
-
-    const diffDays = Math.abs(expectedDate.diff(checkinDate, 'day'))
-
-    if (diffDays === 0) {
+  for (let i = 0; i < 365; i++) {
+    const ymd = expectedDate.format('YYYY-MM-DD')
+    if (checkinDates.has(ymd)) {
       streak++
-      checkinIndex++
+    } else if (i === 0) {
       expectedDate = expectedDate.subtract(1, 'day')
-    } else if (diffDays === 1) {
-      streak++
-      checkinIndex++
-      expectedDate = expectedDate.subtract(1, 'day')
+      continue
     } else {
       break
     }
+    expectedDate = expectedDate.subtract(1, 'day')
   }
 
   return streak
