@@ -82,6 +82,9 @@ exports.main = async (event, context) => {
       case 'getCheckinDates':
         return await getCheckinDates(openid, data)
 
+      case 'getHabitCheckinDates':
+        return await getHabitCheckinDates(openid, data)
+
       default:
         throw new Error('Unknown action: ' + action)
     }
@@ -353,6 +356,41 @@ async function getCheckinDates(openid, data) {
   return {
     code: 0,
     data: Array.from(dateSet).sort()
+  }
+}
+
+/**
+ * 获取某个习惯的打卡日期列表
+ */
+async function getHabitCheckinDates(openid, data) {
+  const { habitId } = data
+
+  if (!habitId) {
+    throw new Error('缺少 habitId 参数')
+  }
+
+  const result = await db.collection('checkins')
+    .where({
+      openid,
+      habitId,
+      skipped: false
+    })
+    .field({
+      ymd: true
+    })
+    .get()
+
+  // 去重并返回日期列表
+  const dateSet = new Set()
+  result.data.forEach(checkin => {
+    if (checkin.ymd) {
+      dateSet.add(checkin.ymd)
+    }
+  })
+
+  return {
+    code: 0,
+    data: Array.from(dateSet).sort().reverse() // 按日期倒序，最新的在前
   }
 }
 

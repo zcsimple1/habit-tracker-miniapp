@@ -17,6 +17,16 @@ Component({
     markedDates: {
       type: Array,
       value: []
+    },
+    // 是否隐藏选中样式（用于习惯日历，只显示红点）
+    hideSelected: {
+      type: Boolean,
+      value: false
+    },
+    // 标题文本
+    title: {
+      type: String,
+      value: ''
     }
   },
 
@@ -25,7 +35,7 @@ Component({
   },
 
   observers: {
-    'year, month, selectedDate, markedDates': function() {
+    'year, month, selectedDate, markedDates, hideSelected': function() {
       this.renderCalendar()
     }
   },
@@ -41,19 +51,21 @@ Component({
   methods: {
     renderCalendar() {
       try {
-        const { year, month, selectedDate, markedDates } = this.data
-        console.log('[calendar] Rendering calendar:', { year, month, selectedDate, markedDates })
-        console.log('[calendar] markedDates type:', typeof markedDates, Array.isArray(markedDates), 'length:', markedDates?.length)
+        const { year, month, selectedDate, markedDates, hideSelected } = this.data
+        console.log('[calendar] Rendering calendar:', { year, month, selectedDate, markedDates, hideSelected })
 
         const firstDay = new Date(year, month, 1)
         const lastDay = new Date(year, month + 1, 0)
         const startDay = firstDay.getDay()
         const totalDays = lastDay.getDate()
 
-        // 确保 selectedDate 是 Date 对象
-        const selectedDateObj = selectedDate instanceof Date
-          ? selectedDate
-          : (selectedDate ? new Date(selectedDate) : new Date())
+        // 确保 selectedDate 是 Date 对象（如果 hideSelected 为 true，则为 null）
+        let selectedDateObj = null
+        if (!hideSelected) {
+          selectedDateObj = selectedDate instanceof Date
+            ? selectedDate
+            : (selectedDate ? new Date(selectedDate) : null)
+        }
 
         const days = []
 
@@ -73,17 +85,16 @@ Component({
         const today = new Date()
         for (let i = 1; i <= totalDays; i++) {
           const isTodayDate = i === today.getDate() && month === today.getMonth() && year === today.getFullYear()
-          const isSelected = i === selectedDateObj.getDate() &&
-                          month === selectedDateObj.getMonth() &&
-                          year === selectedDateObj.getFullYear()
+          let isSelected = false
+          if (selectedDateObj) {
+            isSelected = i === selectedDateObj.getDate() &&
+                         month === selectedDateObj.getMonth() &&
+                         year === selectedDateObj.getFullYear()
+          }
           // 注意：month 是从 0 开始的，所以要用 month + 1
           const currentDate = new Date(year, month, i)
           const currentDateStr = toYMD(currentDate)
           const hasMark = markedDates.includes(currentDateStr)
-          // 调试：检查日期匹配
-          if (i === 1 || i === 15) {
-            console.log('[calendar] Day check:', i, 'month:', month, 'currentDate:', currentDate, 'currentDateStr:', currentDateStr, 'hasMark:', hasMark)
-          }
 
           days.push({
             day: i,

@@ -20,15 +20,26 @@
 
 .calendar-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 32rpx;
+}
+
+.calendar-date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
 }
 
 .calendar-month {
   font-size: 32rpx;
   font-weight: 600;
   color: #333;
+}
+
+.calendar-subtitle {
+  font-size: 24rpx;
+  color: #999;
 }
 
 .calendar-close {

@@ -80,14 +80,14 @@
             <view class="habit-meta">
               <text class="habit-time {{habit.timeRule && habit.timeRule.fixedTime ? 'has-time' : ''}}" wx:if="{{habit.timeRule && habit.timeRule.fixedTime}}">{{habit.timeRule.fixedTime}}</text>
               <text class="habit-time no-time" wx:else>无固定时间</text>
-              <view wx:if="{{habit.totalCheckins > 0}}" class="streak-badge">
-                🔥 {{habit.totalCheckins}}天
-              </view>
             </view>
           </view>
 
-          <!-- 编辑删除按钮 -->
+          <!-- 累计天数和编辑删除按钮 -->
           <view class="habit-actions">
+            <view wx:if="{{habit.totalCheckins > 0}}" class="streak-badge" bindtap="onShowHabitCalendar" data-habit-id="{{habit._id}}" data-habit-name="{{habit.name}}">
+              🔥 {{habit.totalCheckins}}天
+            </view>
             <text class="action-btn edit-btn" bindtap="onEditHabit" data-habit-id="{{habit._id}}">✎</text>
             <text class="action-btn delete-btn" bindtap="onDeleteHabit" data-habit-id="{{habit._id}}">🗑</text>
           </view>
@@ -130,14 +130,14 @@
           <view class="habit-meta">
             <text class="habit-time {{item.timeRule && item.timeRule.fixedTime ? 'has-time' : ''}}" wx:if="{{item.timeRule && item.timeRule.fixedTime}}">{{item.timeRule.fixedTime}}</text>
             <text class="habit-time no-time" wx:else>无固定时间</text>
-            <view wx:if="{{item.totalCheckins > 0}}" class="streak-badge">
-              🔥 {{item.totalCheckins}}天
-            </view>
           </view>
         </view>
 
-        <!-- 编辑删除按钮 -->
+        <!-- 累计天数和编辑删除按钮 -->
         <view class="habit-actions">
+          <view wx:if="{{item.totalCheckins > 0}}" class="streak-badge" bindtap="onShowHabitCalendar" data-habit-id="{{item._id}}" data-habit-name="{{item.name}}">
+            🔥 {{item.totalCheckins}}天
+          </view>
           <text class="action-btn edit-btn" bindtap="onEditHabit" data-habit-id="{{item._id}}">✎</text>
           <text class="action-btn delete-btn" bindtap="onDeleteHabit" data-habit-id="{{item._id}}">🗑</text>
         </view>
@@ -154,6 +154,18 @@
     markedDates="{{checkinDates}}"
     bind:select="onSelectDate"
     bind:close="onCloseCalendar"
+  />
+
+  <!-- 习惯日历弹窗 -->
+  <calendar
+    wx:if="{{showHabitCalendar}}"
+    year="{{calendarYear}}"
+    month="{{calendarMonth}}"
+    title="{{habitCalendarHabitName}} 的打卡日历"
+    markedDates="{{habitCalendarDates}}"
+    hideSelected="{{true}}"
+    bind:select="onSelectHabitCalendarDate"
+    bind:close="onCloseHabitCalendar"
   />
 
   <!-- 自定义底部导航 -->

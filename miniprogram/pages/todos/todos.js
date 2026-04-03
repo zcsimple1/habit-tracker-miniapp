@@ -53,8 +53,15 @@ Page({
   },
 
   onShow() {
-    // 检查全局刷新标记
     const app = getApp()
+
+    // 检查是否是从取消新建返回的
+    if (app.globalData && app.globalData.todosCancelRefresh) {
+      app.globalData.todosCancelRefresh = false
+      return // 不刷新，直接返回
+    }
+
+    // 检查全局刷新标记
     if (app.globalData && app.globalData.todosNeedRefresh) {
       app.globalData.todosNeedRefresh = false
       this.loadTodos(true)

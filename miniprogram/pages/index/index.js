@@ -40,6 +40,15 @@ Page({
     // 有打卡记录的日期列表（YYYY-MM-DD格式）
     checkinDates: [],
 
+    // 习惯详情日历弹窗
+    showHabitCalendar: false,
+    habitCalendarDates: [],
+    habitCalendarHabitId: '',
+    habitCalendarHabitName: '',
+
+    // 习惯打卡日期缓存
+    habitCheckinCache: {},
+
     // 缓存键
     cacheKey: ''
   },
@@ -244,6 +253,78 @@ Page({
   // 关闭日历
   onCloseCalendar() {
     this.setData({ showCalendar: false })
+  },
+
+  // 点击累计打卡天数 - 显示习惯日历
+  async onShowHabitCalendar(e) {
+    const { habitId, habitName } = e.currentTarget.dataset
+    console.log('[index] 点击累计天数:', { habitId, habitName })
+
+    this.setData({
+      showHabitCalendar: true,
+      habitCalendarHabitId: habitId,
+      habitCalendarHabitName: habitName,
+      calendarYear: new Date().getFullYear(),
+      calendarMonth: new Date().getMonth()
+    })
+
+    // 加载该习惯的打卡日期
+    await this.loadHabitCheckinDates(habitId)
+  },
+
+  // 加载某个习惯的打卡日期
+  async loadHabitCheckinDates(habitId) {
+    // 先检查内存缓存
+    const cache = this.data.habitCheckinCache
+    if (cache[habitId]) {
+      console.log('[index] 习惯打卡日期从缓存加载:', habitId)
+      this.setData({ habitCalendarDates: cache[habitId] })
+      return
+    }
+
+    try {
+      const { result } = await wx.cloud.callFunction({
+        name: 'checkin',
+        data: {
+          action: 'getHabitCheckinDates',
+          data: { habitId }
+        }
+      })
+
+      console.log('[index] 习惯打卡日期:', result.data)
+      const dates = result.data || []
+      this.setData({ habitCalendarDates: dates })
+
+      // 存入缓存
+      const newCache = { ...cache, [habitId]: dates }
+      this.setData({ habitCheckinCache: newCache })
+      console.log('[index] 习惯打卡日期已缓存:', habitId)
+    } catch (err) {
+      console.error('加载习惯打卡日期失败', err)
+      this.setData({ habitCalendarDates: [] })
+    }
+  },
+
+  // 关闭习惯日历
+  onCloseHabitCalendar() {
+    this.setData({
+      showHabitCalendar: false,
+      habitCalendarDates: [],
+      habitCalendarHabitId: '',
+      habitCalendarHabitName: ''
+    })
+  },
+
+  // 选择习惯日历中的日期
+  onSelectHabitCalendarDate(e) {
+    const { date } = e.detail
+    this.setData({
+      currentDate: date,
+      selectedDate: date,
+      showHabitCalendar: false
+    })
+    this.updateDateDisplay(date)
+    this.loadData(true) // 日期选择强制刷新
   },
 
   // 更新日历年月
@@ -669,6 +750,17 @@ Page({
         rate
       }
     })
+
+    // 更新习惯打卡日期缓存
+    const cache = this.data.habitCheckinCache
+    if (cache[habitId]) {
+      const newDates = isChecked
+        ? [...cache[habitId], ymd]
+        : cache[habitId].filter(d => d !== ymd)
+      this.setData({
+        habitCheckinCache: { ...cache, [habitId]: newDates }
+      })
+    }
   },
 
   // 添加习惯

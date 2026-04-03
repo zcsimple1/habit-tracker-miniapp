@@ -151,7 +151,7 @@
         <view class="setting-icon">ℹ️</view>
         <view class="setting-info">
           <view class="setting-name">关于</view>
-          <view class="setting-desc">版本 2.0.0</view>
+          <view class="setting-desc">版本 1.0.0</view>
         </view>
         <view class="setting-arrow">▶</view>
       </view>

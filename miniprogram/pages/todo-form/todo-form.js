@@ -90,6 +90,11 @@ Page({
 
   // 取消
   onCancel() {
+    // 设置取消标记，避免待办页面刷新
+    const app = getApp()
+    if (app.globalData) {
+      app.globalData.todosCancelRefresh = true
+    }
     wx.navigateBack()
   },
 

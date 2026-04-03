@@ -1,7 +1,10 @@
 <view class="calendar-modal" catchtap="onClose">
   <view class="calendar-content" catchtap="onContentTap">
     <view class="calendar-header">
-      <text class="calendar-month">{{year}}年{{month + 1}}月</text>
+      <view class="calendar-date-info">
+        <text class="calendar-month">{{year}}年{{month + 1}}月</text>
+        <text wx:if="{{title}}" class="calendar-subtitle">{{title}}</text>
+      </view>
       <text class="calendar-close" catchtap="onClose">×</text>
     </view>
     <view class="calendar-weekdays">

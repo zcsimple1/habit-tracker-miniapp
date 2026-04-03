@@ -443,7 +443,6 @@
   font-weight: 500;
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
   color: #92400e;
-  margin-left: auto;
   flex-shrink: 0;
 }
 

@@ -375,7 +375,7 @@ Page({
   onAbout() {
     wx.showModal({
       title: '关于',
-      content: '习惯打卡 V2.0.0\n一个简洁的习惯管理工具',
+      content: '习惯打卡 V1.0.0\n一个简洁的习惯管理工具',
       showCancel: false
     });
   }
