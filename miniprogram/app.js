@@ -38,46 +38,58 @@ App({
           name: 'user',
           data: { action: 'getProfile' }
         }).then(res => {
+          console.log('[预加载] user 成功', res.result ? '有数据' : '无数据')
           if (res.result && res.result.data) {
             wx.setStorageSync('settings_preferences', res.result.data.preferences || {});
           }
-        }).catch(() => {}),
+        }).catch(err => {
+          console.warn('[预加载] user 失败:', err.message || err)
+        }),
 
         // 预加载今日习惯
         wx.cloud.callFunction({
           name: 'habit',
           data: { action: 'getTodayHabits', data: { ymd: today } }
         }).then(res => {
+          console.log('[预加载] habit 成功', res.result ? '有数据' : '无数据')
           if (res.result && res.result.data) {
             wx.setStorageSync(cacheKey, {
               ...res.result.data,
               timestamp: Date.now()
             });
           }
-        }).catch(() => {}),
+        }).catch(err => {
+          console.warn('[预加载] habit 失败:', err.message || err)
+        }),
 
         // 预加载今日打卡
         wx.cloud.callFunction({
           name: 'checkin',
           data: { action: 'getCheckinDates' }
         }).then(res => {
+          console.log('[预加载] checkin 成功', res.result ? '有数据' : '无数据')
           if (res.result && res.result.data) {
             wx.setStorageSync('checkin_dates', res.result.data);
           }
-        }).catch(() => {}),
+        }).catch(err => {
+          console.warn('[预加载] checkin 失败:', err.message || err)
+        }),
 
         // 预加载今日待办
         wx.cloud.callFunction({
           name: 'todos',
           data: { action: 'getByDate', data: { ymd: today } }
         }).then(res => {
+          console.log('[预加载] todos 成功', res.result ? '有数据' : '无数据')
           if (res.result && res.result.data) {
             wx.setStorageSync(todoCacheKey, {
               data: res.result.data,
               timestamp: Date.now()
             });
           }
-        }).catch(() => {})
+        }).catch(err => {
+          console.warn('[预加载] todos 失败:', err.message || err)
+        })
       ]);
 
       console.log('[app] 预加载完成');
