@@ -9,10 +9,28 @@ Page({
     isDevMode: false
   },
 
-  onLoad() {
+  async onLoad() {
+    await this.ensureOpenid();
     this.loadUserInfo(true);
     this.loadSettings(true);
     this.checkDevMode();
+  },
+
+  // 确保 openid 已缓存
+  async ensureOpenid() {
+    let openid = wx.getStorageSync('user_openid');
+    if (!openid) {
+      try {
+        const res = await wx.cloud.callFunction({ name: 'user', data: { action: 'getProfile' } });
+        if (res.result && res.result.data && res.result.data.openid) {
+          openid = res.result.data.openid;
+          wx.setStorageSync('user_openid', openid);
+        }
+      } catch (err) {
+        console.warn('获取 openid 失败', err);
+      }
+    }
+    return openid;
   },
 
   onShow() {
@@ -28,9 +46,20 @@ Page({
 
   // 检查是否为开发者模式
   checkDevMode() {
-    const accountInfo = wx.getAccountInfoSync();
-    const isDev = accountInfo.miniProgram.envVersion === 'develop' || accountInfo.miniProgram.envVersion === 'trial';
-    this.setData({ isDevMode: isDev });
+    // 开发者 openid 白名单（只允许特定人员访问）
+    // TODO: 在下面填入你的 openid，可添加多个
+    const devWhiteList = [
+      '你的openid1',
+      '你的openid2'
+    ];
+
+    // 获取缓存的 openid
+    const cachedOpenid = wx.getStorageSync('user_openid');
+    if (cachedOpenid && devWhiteList.includes(cachedOpenid)) {
+      this.setData({ isDevMode: true });
+    } else {
+      this.setData({ isDevMode: false });
+    }
   },
 
   // 加载用户信息
@@ -226,12 +255,18 @@ Page({
     // 更新缓存
     this.updateSettingsCache({ hideCompleted });
 
+    // 设置全局刷新标记，让打卡页面和待办页面同步更新
+    const app = getApp()
+    if (app.globalData) {
+      app.globalData.preferencesNeedRefresh = true
+    }
+
     try {
       await wx.cloud.callFunction({
         name: 'user',
         data: {
           action: 'updatePreferences',
-          preferences: { hideCompleted }
+          data: { hideCompleted }
         }
       });
     } catch (err) {
@@ -266,7 +301,7 @@ Page({
         name: 'user',
         data: {
           action: 'updatePreferences',
-          preferences: { reminderEnabled }
+          data: { reminderEnabled }
         }
       });
     } catch (err) {

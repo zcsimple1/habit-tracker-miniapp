@@ -78,8 +78,24 @@ Page({
       selectedDate: this.data.selectedDate,
       tempShowCompleted: this.data.tempShowCompleted
     })
-    // 从缓存读取数据，不强制刷新
-    this.loadData(false)
+
+    const app = getApp()
+
+    // 检查偏好刷新标记
+    if (app.globalData?.preferencesNeedRefresh) {
+      app.globalData.preferencesNeedRefresh = false
+      this.loadUserPreferences() // 重新加载用户偏好（包括隐藏已完成状态）
+    }
+
+    // 检查习惯列表刷新标记
+    const needRefresh = app.globalData?.habitsNeedRefresh
+    if (needRefresh) {
+      app.globalData.habitsNeedRefresh = false
+      this.loadData(true) // 强制刷新
+    } else {
+      this.loadData(false) // 使用缓存
+    }
+
     this.loadCheckinDates() // 确保打卡记录日期是最新的
   },
 
@@ -120,12 +136,13 @@ Page({
       console.log('[index] 云函数返回:', result)
 
       if (result && result.data && result.data.preferences) {
-        const { viewMode } = result.data.preferences
-        console.log('[index] 用户偏好:', { viewMode })
+        const { viewMode, hideCompleted } = result.data.preferences
+        console.log('[index] 用户偏好:', { viewMode, hideCompleted })
 
-        // 只更新视图模式，不影响临时的眼睛按钮状态
         this.setData({
-          viewMode: viewMode || 'category'
+          viewMode: viewMode || 'category',
+          // hideCompleted 为 true 时，tempShowCompleted 为 false（隐藏已完成）
+          tempShowCompleted: hideCompleted === undefined ? true : !hideCompleted
         }, () => {
           console.log('[index] 用户偏好已设置到 data:', {
             viewMode: this.data.viewMode,
@@ -185,9 +202,7 @@ Page({
 
     // 保存用户偏好
     this.saveUserPreferences()
-
-    // 重新加载数据
-    this.loadData()
+    // 不重新加载数据，两个视图模式的数据都已加载
   },
 
   // 切换临时显示已完成（眼睛按钮）

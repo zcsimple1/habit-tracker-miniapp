@@ -47,6 +47,7 @@ Page({
       calendarMonth: now.getMonth()
     })
 
+    this.loadUserPreferences() // 加载用户偏好（包括隐藏已完成状态）
     this.loadTodoDates() // 加载有待办记录的日期
     this.updateDateDisplay()
     this.loadTodos(true) // 首次加载强制刷新
@@ -59,6 +60,12 @@ Page({
     if (app.globalData && app.globalData.todosCancelRefresh) {
       app.globalData.todosCancelRefresh = false
       return // 不刷新，直接返回
+    }
+
+    // 检查偏好刷新标记
+    if (app.globalData && app.globalData.preferencesNeedRefresh) {
+      app.globalData.preferencesNeedRefresh = false
+      this.loadUserPreferences() // 重新加载用户偏好
     }
 
     // 检查全局刷新标记
@@ -76,6 +83,26 @@ Page({
     }
 
     this.loadTodos(false) // 使用缓存，不强制刷新
+  },
+
+  // 加载用户偏好
+  async loadUserPreferences() {
+    try {
+      const { result } = await wx.cloud.callFunction({
+        name: 'user',
+        data: { action: 'getProfile' }
+      })
+
+      if (result && result.data && result.data.preferences) {
+        const { hideCompleted } = result.data.preferences
+        // hideCompleted 为 true 时，tempShowCompleted 为 false（隐藏已完成）
+        this.setData({
+          tempShowCompleted: hideCompleted === undefined ? true : !hideCompleted
+        })
+      }
+    } catch (err) {
+      console.warn('加载用户偏好失败', err)
+    }
   },
 
   // 更新日期显示
@@ -272,26 +299,21 @@ Page({
   async loadTodos(forceRefresh = false) {
     const ymd = toYMD(this.data.currentDate)
     const cacheKey = `todos_${ymd}`
+    const today = toYMD(new Date())
 
-    // 检查缓存
+    // 检查缓存：同一天且不需要强制刷新
     if (!forceRefresh) {
       const cachedData = wx.getStorageSync(cacheKey)
-      if (cachedData) {
-        const now = Date.now()
-        const cacheTime = cachedData.timestamp || 0
-        const cacheDuration = 5 * 60 * 1000 // 5分钟缓存
-
-        if (now - cacheTime < cacheDuration) {
-          console.log('从缓存加载待办数据:', cacheKey, '缓存时间:', cacheDuration / 1000, '秒')
-          this.setData({
-            todayTodos: cachedData.todayTodos,
-            futureTodos: cachedData.futureTodos,
-            overdueTodos: cachedData.overdueTodos,
-            completedTodos: cachedData.completedTodos,
-            loading: false
-          })
-          return
-        }
+      if (cachedData && cachedData.date === ymd) {
+        console.log('从缓存加载待办数据:', cacheKey)
+        this.setData({
+          todayTodos: cachedData.todayTodos,
+          futureTodos: cachedData.futureTodos,
+          overdueTodos: cachedData.overdueTodos,
+          completedTodos: cachedData.completedTodos,
+          loading: false
+        })
+        return
       }
     }
 
@@ -360,7 +382,7 @@ Page({
         futureTodos,
         overdueTodos,
         completedTodos,
-        timestamp: Date.now()
+        date: ymd  // 缓存日期，同一天内有效
       })
       console.log('待办数据已缓存:', cacheKey)
     } catch (err) {
@@ -425,6 +447,8 @@ Page({
 
     if (!todo) return
 
+    const newCompleted = !todo.completed
+
     try {
       await wx.cloud.callFunction({
         name: 'todos',
@@ -432,15 +456,18 @@ Page({
           action: 'toggle',
           data: {
             todoId,
-            completed: !todo.completed
+            completed: newCompleted
           }
         }
       })
 
       wx.showToast({
-        title: todo.completed ? '已取消' : '已完成',
+        title: newCompleted ? '已完成' : '已取消',
         icon: 'none'
       })
+
+      // 局部更新 - 只更新这一个待办的状态
+      this.updateTodoLocal(todoId, newCompleted)
 
       // 清除缓存
       const ymd = toYMD(this.data.currentDate)
@@ -448,8 +475,6 @@ Page({
       wx.removeStorageSync('stats_week')
       wx.removeStorageSync('stats_month')
       wx.removeStorageSync('stats_year')
-
-      this.loadTodos(true)
     } catch (err) {
       console.error('更新状态失败', err)
       wx.showToast({
@@ -457,6 +482,58 @@ Page({
         icon: 'none'
       })
     }
+  },
+
+  // 局部更新待办状态（不重新加载整个列表）
+  updateTodoLocal(todoId, completed) {
+    const moveTodo = (list, id) => {
+      const index = list.findIndex(t => t._id === id)
+      if (index === -1) return { list, todo: null }
+      const [todo] = list.splice(index, 1)
+      todo.completed = completed
+      return { list, todo }
+    }
+
+    let { todayTodos, futureTodos, overdueTodos, completedTodos } = this.data
+    let movedTodo = null
+
+    // 从当前位置移除
+    if (completed) {
+      // 勾选完成 -> 移到已完成
+      let result = moveTodo(todayTodos, todoId)
+      if (!result.todo) result = moveTodo(futureTodos, todoId)
+      if (!result.todo) result = moveTodo(overdueTodos, todoId)
+      movedTodo = result.todo
+      if (movedTodo) completedTodos = [...completedTodos, movedTodo]
+    } else {
+      // 取消完成 -> 移回今日
+      let result = moveTodo(completedTodos, todoId)
+      movedTodo = result.todo
+      if (movedTodo) todayTodos = [...todayTodos, movedTodo]
+    }
+
+    this.setData({
+      todayTodos,
+      futureTodos,
+      overdueTodos,
+      completedTodos
+    })
+
+    // 同步更新缓存
+    this.saveTodosToCache()
+  },
+
+  // 保存待办到缓存
+  saveTodosToCache() {
+    const ymd = toYMD(this.data.currentDate)
+    const cacheKey = `todos_${ymd}`
+    wx.setStorageSync(cacheKey, {
+      todayTodos: this.data.todayTodos,
+      futureTodos: this.data.futureTodos,
+      overdueTodos: this.data.overdueTodos,
+      completedTodos: this.data.completedTodos,
+      date: ymd
+    })
   },
 
   // 删除待办
@@ -479,14 +556,19 @@ Page({
 
             wx.showToast({ title: '删除成功' })
 
-            // 清除缓存
-            const ymd = toYMD(this.data.currentDate)
-            wx.removeStorageSync(`todos_${ymd}`)
+            // 局部更新：从列表中移除
+            this.setData({
+              todayTodos: this.data.todayTodos.filter(t => t._id !== todoId),
+              futureTodos: this.data.futureTodos.filter(t => t._id !== todoId),
+              overdueTodos: this.data.overdueTodos.filter(t => t._id !== todoId),
+              completedTodos: this.data.completedTodos.filter(t => t._id !== todoId)
+            })
+            this.saveTodosToCache()
+
+            // 清除统计缓存
             wx.removeStorageSync('stats_week')
             wx.removeStorageSync('stats_month')
             wx.removeStorageSync('stats_year')
-
-            this.loadTodos(true)
           } catch (err) {
             console.error('删除失败', err)
             wx.showToast({
@@ -520,7 +602,17 @@ Page({
         icon: 'none'
       })
 
-      this.loadTodos()
+      // 局部更新：移到今日
+      const completedTodos = this.data.completedTodos
+      const todo = completedTodos.find(t => t._id === todoId)
+      if (todo) {
+        todo.completed = false
+        this.setData({
+          completedTodos: completedTodos.filter(t => t._id !== todoId),
+          todayTodos: [...this.data.todayTodos, todo]
+        })
+        this.saveTodosToCache()
+      }
     } catch (err) {
       console.error('恢复失败', err)
       wx.showToast({
@@ -558,14 +650,14 @@ Page({
 
             wx.showToast({ title: `已删除 ${overdueTodos.length} 项` })
 
-            // 清除缓存
-            const ymd = toYMD(this.data.currentDate)
-            wx.removeStorageSync(`todos_${ymd}`)
+            // 局部更新：清空过期列表
+            this.setData({ overdueTodos: [] })
+            this.saveTodosToCache()
+
+            // 清除统计缓存
             wx.removeStorageSync('stats_week')
             wx.removeStorageSync('stats_month')
             wx.removeStorageSync('stats_year')
-
-            this.loadTodos(true)
           } catch (err) {
             console.error('删除失败', err)
             wx.showToast({

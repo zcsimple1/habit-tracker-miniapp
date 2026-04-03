@@ -50,7 +50,7 @@
           class="priority-option high {{priority === 'high' ? 'active' : ''}}"
           bindtap="onPriorityTap"
           data-priority="high"
-        >高</view>
+        >重要</view>
         <view
           class="priority-option urgent {{priority === 'urgent' ? 'active' : ''}}"
           bindtap="onPriorityTap"

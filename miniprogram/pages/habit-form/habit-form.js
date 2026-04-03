@@ -109,8 +109,18 @@ Page({
         categories: allCategories
       })
 
-      // 如果有选中的分类，更新索引和名称
-      if (this.data.categoryId) {
+      // 如果没有选中的分类，默认设为"其它"
+      if (!this.data.categoryId) {
+        const otherIndex = allCategories.findIndex(c => c.id === 'other')
+        if (otherIndex >= 0) {
+          this.setData({
+            categoryId: 'other',
+            categoryIndex: otherIndex,
+            categoryName: allCategories[otherIndex].displayName
+          })
+        }
+      } else {
+        // 如果有选中的分类，更新索引和名称
         this.updateCategoryInfo(this.data.categoryId)
       }
     } catch (err) {
@@ -339,6 +349,12 @@ Page({
 
       wx.hideLoading()
       wx.showToast({ title: '保存成功' })
+
+      // 设置全局刷新标记，让打卡页面刷新
+      const app = getApp()
+      if (app.globalData) {
+        app.globalData.habitsNeedRefresh = true
+      }
 
       setTimeout(() => {
         wx.navigateBack()
